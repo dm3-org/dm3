@@ -16,7 +16,7 @@ export default (
         try {
             const ensName = normalizeEnsName(req.params.ensName);
 
-            const profile = await getUserProfile(db.getSession, ensName);
+            const profile = await getUserProfile(db.getAccount, ensName);
             if (profile) {
                 res.json(profile);
             } else {
@@ -54,8 +54,8 @@ export default (
 
             const data = await submitUserProfile(
                 web3Provider,
-                db.getSession,
-                db.setSession,
+                db.getAccount,
+                db.setAccount,
                 ensName,
                 req.body,
                 serverSecret,

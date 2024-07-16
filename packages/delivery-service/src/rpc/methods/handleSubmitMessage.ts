@@ -63,7 +63,7 @@ export async function handleSubmitMessage(
             keys.encryptionKeyPair,
             deliveryServiceProperties.sizeLimit,
             deliveryServiceProperties.notificationChannel,
-            db.getSession,
+            db.getAccount,
             db.createMessage,
             (socketId: string, envelop: EncryptionEnvelop) => {
                 io.sockets.to(socketId).emit('message', envelop);

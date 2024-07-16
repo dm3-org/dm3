@@ -18,19 +18,19 @@ describe('Utils', () => {
                 notBefore: 0,
             });
 
-            const getSession = async (accountAddress: string) =>
+            const getAccount = async (accountAddress: string) =>
                 Promise.resolve({
                     signedUserProfile: {},
                     token: 'testToken',
                     createdAt: new Date().getTime(),
                 });
-            const setSession = async (_: string, __: any) => {
+            const setAccount = async (_: string, __: any) => {
                 return (_: any, __: any, ___: any) => {};
             };
 
             const db = {
-                getSession,
-                setSession,
+                getAccount,
+                setAccount,
             };
 
             const web3Provider = {
@@ -80,19 +80,19 @@ describe('Utils', () => {
                 notBefore: 0,
             });
 
-            const getSession = async (accountAddress: string) =>
+            const getAccount = async (accountAddress: string) =>
                 Promise.resolve({
                     signedUserProfile: {},
                     token: 'testToken',
                     createdAt: new Date().getTime(),
                 });
-            const setSession = async (_: string, __: any) => {
+            const setAccount = async (_: string, __: any) => {
                 return (_: any, __: any, ___: any) => {};
             };
 
             const db = {
-                getSession,
-                setSession,
+                getAccount,
+                setAccount,
             };
 
             const web3Provider = {
@@ -141,9 +141,9 @@ describe('Utils', () => {
                 expiresIn: '1h',
             });
             const db = {
-                getSession: async (accountAddress: string) =>
+                getAccount: async (accountAddress: string) =>
                     Promise.resolve(null),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
             };
@@ -204,12 +204,12 @@ describe('Utils', () => {
                 expiresIn: '1h',
             });
             const db = {
-                getSession: async (accountAddress: string) =>
+                getAccount: async (accountAddress: string) =>
                     Promise.resolve({
                         signedUserProfile: {},
                         token: 'foo',
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
             };
@@ -282,13 +282,13 @@ describe('Utils', () => {
             );
 
             const db = {
-                getSession: async (accountAddress: string) =>
+                getAccount: async (accountAddress: string) =>
                     Promise.resolve({
                         signedUserProfile: {},
                         token: 'foo',
                         createdAt: 1,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
             };
@@ -381,13 +381,13 @@ describe('Utils', () => {
                 serverSecret,
             );
             const db = {
-                getSession: async (accountAddress: string) =>
+                getAccount: async (accountAddress: string) =>
                     Promise.resolve({
                         signedUserProfile: {},
                         token: 'foo',
                         createdAt: 1,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
             };

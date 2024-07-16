@@ -11,6 +11,17 @@ import { getDeliveryServiceProperties } from './config/getDeliveryServicePropert
 import { IDatabase } from './persistence/getDatabase';
 import { IWebSocketManager } from '@dm3-org/dm3-lib-shared';
 
+const pendingMessageSchema = {
+    type: 'object',
+    properties: {
+        ensName: { type: 'string' },
+        contactEnsName: { type: 'string' },
+        token: { type: 'string' },
+    },
+    required: ['ensName', 'contactEnsName', 'token'],
+    additionalProperties: false,
+};
+
 export function onConnection(
     io: Server,
     web3Provider: ethers.providers.JsonRpcProvider,
@@ -85,7 +96,7 @@ export function onConnection(
                         keys.encryptionKeyPair,
                         deliveryServiceProperties.sizeLimit,
                         deliveryServiceProperties.notificationChannel,
-                        db.getSession,
+                        db.getAccount,
                         db.createMessage,
                         (socketId: string, envelop: EncryptionEnvelop) => {
                             io.sockets.to(socketId).emit('message', envelop);
