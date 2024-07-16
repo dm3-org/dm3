@@ -149,8 +149,8 @@ jobs:
               run: |
                   if [ $environment_name == "testing" ]; then
                       ssh -i ./ssh-key root@${{ vars.HOST_DOMAIN }} "\
-                      cd ${{ vars.PERSISTENCE_DIRECTORY }}/db && rm -r * || true
-                      && cd ${{ vars.PERSISTENCE_DIRECTORY }}/storage && rm -r * || true"
+                      cd ${{ vars.PERSISTENCE_DIRECTORY }}/db && rm -r * || true;
+                      cd ${{ vars.PERSISTENCE_DIRECTORY }}/storage && rm -r * || true"
                   fi
             - name: Configure Firewall
               run: |
