@@ -55,8 +55,12 @@ export const useBackend = (): IBackendConnector & {
         addConversation: (ensName: string, encryptedContactName: string) => {
             beConnector?.addConversation(ensName, encryptedContactName);
         },
-        getConversations: async (ensName: string) => {
-            return beConnector?.getConversations(ensName);
+        getConversations: async (
+            ensName: string,
+            size: number,
+            offset: number,
+        ) => {
+            return beConnector?.getConversations(ensName, size, offset);
         },
         toggleHideConversation: (
             ensName: string,
@@ -72,25 +76,45 @@ export const useBackend = (): IBackendConnector & {
         getMessagesFromStorage: async (
             ensName: string,
             encryptedContactName: string,
-            pageNumber: number,
+            pageSize: number,
+            offset: number,
         ) => {
             return beConnector?.getMessagesFromStorage(
                 ensName,
                 encryptedContactName,
-                pageNumber,
+                pageSize,
+                offset,
+            );
+        },
+        getHaltedMessages: async (ensName: string) => {
+            return beConnector?.getHaltedMessages(ensName);
+        },
+        clearHaltedMessages: async (
+            ensName: string,
+            aliasName: string,
+            messageId: string,
+        ) => {
+            return beConnector?.clearHaltedMessages(
+                ensName,
+                aliasName,
+                messageId,
             );
         },
         addMessage: async (
             ensName: string,
             encryptedContactName: string,
             messageId: string,
+            createdAt: number,
             encryptedEnvelopContainer: string,
+            isHalted: boolean,
         ) => {
             return beConnector?.addMessage(
                 ensName,
                 encryptedContactName,
                 messageId,
+                createdAt,
                 encryptedEnvelopContainer,
+                isHalted,
             );
         },
         addMessageBatch: (

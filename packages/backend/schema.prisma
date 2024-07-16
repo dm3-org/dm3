@@ -1,4 +1,6 @@
 datasource db {
+    //Use this URL for local development
+    //url      = "postgresql://prisma:prisma@localhost:5433/tests"
     url      = env("DATABASE_URL")
     provider = "postgresql"
 }
@@ -9,13 +11,14 @@ generator client {
 
 model EncryptedMessage {
     id                        String       @id
-    createdAt                 Int          @default(0)
+    createdAt                 DateTime     @default(now())
     encryptedEnvelopContainer String
     encryptedContactName      String
     conversationId            String
     conversation              Conversation @relation(fields: [conversationId], references: [id])
     ownerId                   String
     owner                     Account      @relation(fields: [ownerId], references: [id])
+    isHalted                  Boolean      @default(false)
 }
 
 model Conversation {

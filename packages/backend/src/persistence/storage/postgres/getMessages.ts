@@ -5,7 +5,7 @@ export const getMessages =
     async (
         ensName: string,
         encryptedContactName: string,
-        size: number,
+        pageSize: number,
         offset: number,
     ) => {
         //Find the account first we want to get the messages for
@@ -33,11 +33,14 @@ export const getMessages =
 
         try {
             const messageRecord = await db.encryptedMessage.findMany({
-                skip: offset * size,
-                take: size,
+                skip: offset * pageSize,
+                take: pageSize,
                 where: {
                     ownerId: account.id,
                     encryptedContactName,
+                },
+                orderBy: {
+                    createdAt: 'desc',
                 },
             });
             if (messageRecord.length === 0) {

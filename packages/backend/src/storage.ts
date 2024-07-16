@@ -1,12 +1,17 @@
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
-import cors from 'cors';
-import express from 'express';
-import { NextFunction, Request, Response } from 'express';
-import stringify from 'safe-stable-stringify';
 import { auth } from '@dm3-org/dm3-lib-server-side';
-import { sha256 } from '@dm3-org/dm3-lib-shared';
-import { IDatabase } from './persistence/getDatabase';
+import { sha256, validateSchema } from '@dm3-org/dm3-lib-shared';
+import cors from 'cors';
 import { ethers } from 'ethers';
+import express, { NextFunction, Request, Response } from 'express';
+import stringify from 'safe-stable-stringify';
+import { IDatabase } from './persistence/getDatabase';
+import { AddMessageBatchRequest } from './schema/storage/AddMessageBatchRequest';
+import { AddMessageRequest } from './schema/storage/AddMesssageRequest';
+import { EditMessageBatchRequest } from './schema/storage/EditMessageBatchRequest';
+import { PaginatedRequest } from './schema/storage/PaginatedRequest';
+import { AddHaltedMessageRequest } from './schema/storage/AddHaltedMessageSchema';
+import { MessageRecord } from './persistence/storage';
 
 const DEFAULT_CONVERSATION_PAGE_SIZE = 10;
 const DEFAULT_MESSAGE_PAGE_SIZE = 100;
@@ -36,11 +41,9 @@ export default (
     router.post('/new/:ensName/editMessageBatch', async (req, res, next) => {
         const { encryptedContactName, editMessageBatchPayload } = req.body;
 
-        if (
-            !encryptedContactName ||
-            !editMessageBatchPayload ||
-            !Array.isArray(editMessageBatchPayload)
-        ) {
+        const schemaIsValid = validateSchema(EditMessageBatchRequest, req.body);
+
+        if (!schemaIsValid) {
             res.status(400).send('invalid schema');
             return;
         }
@@ -52,7 +55,7 @@ export default (
             await db.editMessageBatch(
                 ensName,
                 encryptedContactName,
-                editMessageBatchPayload.map((message) => ({
+                editMessageBatchPayload.map((message: any) => ({
                     messageId: getUniqueMessageId(message.messageId),
                     createdAt: message.createdAt,
                     encryptedEnvelopContainer:
@@ -71,14 +74,12 @@ export default (
             encryptedContactName,
             messageId,
             createdAt,
+            isHalted,
         } = req.body;
 
-        if (
-            !encryptedEnvelopContainer ||
-            !encryptedContactName ||
-            !messageId ||
-            !createdAt
-        ) {
+        const schemaIsValid = validateSchema(AddMessageRequest, req.body);
+
+        if (!schemaIsValid) {
             res.status(400).send('invalid schema');
             return;
         }
@@ -86,7 +87,7 @@ export default (
         try {
             const ensName = normalizeEnsName(req.params.ensName);
             //Since the message is fully encrypted, we cannot use the messageHash as an identifier.
-            //Instead we use the hash of the ensName and the messageId to havea unique identifier
+            //Instead we use the hash of the ensName and the messageId to have a unique identifier
             const uniqueMessageId = sha256(ensName + messageId);
             const success = await db.addMessageBatch(
                 ensName,
@@ -96,6 +97,7 @@ export default (
                         messageId: uniqueMessageId,
                         encryptedEnvelopContainer,
                         createdAt,
+                        isHalted,
                     },
                 ],
             );
@@ -110,11 +112,9 @@ export default (
     router.post('/new/:ensName/addMessageBatch', async (req, res, next) => {
         const { messageBatch, encryptedContactName } = req.body;
 
-        if (
-            !messageBatch ||
-            !Array.isArray(messageBatch) ||
-            !encryptedContactName
-        ) {
+        const schemaIsValid = validateSchema(AddMessageBatchRequest, req.body);
+
+        if (!schemaIsValid) {
             res.status(400).send('invalid schema');
             return;
         }
@@ -127,11 +127,12 @@ export default (
             await db.addMessageBatch(
                 ensName,
                 encryptedContactName,
-                messageBatch.map((message) => ({
+                messageBatch.map((message: MessageRecord) => ({
                     messageId: getUniqueMessageId(message.messageId),
                     createdAt: message.createdAt,
                     encryptedEnvelopContainer:
                         message.encryptedEnvelopContainer,
+                    isHalted: message.isHalted,
                 })),
             );
             return res.send();
@@ -141,15 +142,21 @@ export default (
     });
 
     router.get(
-        '/new/:ensName/getMessages/:encryptedContactName/:page',
+        '/new/:ensName/getMessages/:encryptedContactName/',
         async (req, res, next) => {
             const encryptedContactName = req.params.encryptedContactName;
-            const size =
-                parseInt(req.query.size as string) || DEFAULT_MESSAGE_PAGE_SIZE;
 
+            const pageSize =
+                parseInt(req.query.pageSize as string) ||
+                DEFAULT_MESSAGE_PAGE_SIZE;
             const offset = parseInt(req.query.offset as string) || 0;
 
-            if (isNaN(size) || isNaN(offset)) {
+            const schemaIsValid = validateSchema(PaginatedRequest, {
+                pageSize,
+                offset,
+            });
+
+            if (!schemaIsValid) {
                 res.status(400).send('invalid schema');
                 return;
             }
@@ -158,7 +165,7 @@ export default (
                 const messages = await db.getMessagesFromStorage(
                     ensName,
                     encryptedContactName,
-                    size,
+                    pageSize,
                     offset,
                 );
                 return res.json(messages);
@@ -213,19 +220,25 @@ export default (
     router.get('/new/:ensName/getConversations', async (req, res, next) => {
         try {
             const ensName = normalizeEnsName(req.params.ensName);
-            const size =
-                parseInt(req.query.size as string) ||
+
+            const pageSize =
+                parseInt(req.query.pageSize as string) ||
                 DEFAULT_CONVERSATION_PAGE_SIZE;
             const offset = parseInt(req.query.offset as string) || 0;
 
-            if (isNaN(size) || isNaN(offset)) {
+            const schemaIsValid = validateSchema(PaginatedRequest, {
+                pageSize,
+                offset,
+            });
+
+            if (!schemaIsValid) {
                 res.status(400).send('invalid schema');
                 return;
             }
 
             const conversations = await db.getConversationList(
                 ensName,
-                size,
+                pageSize,
                 offset,
             );
             return res.json(conversations);
@@ -245,6 +258,45 @@ export default (
             }
         },
     );
+
+    router.get('/new/:ensName/getHaltedMessages', async (req, res, next) => {
+        try {
+            const ensName = normalizeEnsName(req.params.ensName);
+            const messages = await db.getHaltedMessages(ensName);
+            return res.json(messages);
+        } catch (err) {
+            next(err);
+        }
+    });
+
+    router.post('/new/:ensName/clearHaltedMessage', async (req, res, next) => {
+        try {
+            const { messageId, aliasName } = req.body;
+
+            if (!messageId) {
+                res.status(400).send('invalid schema');
+                return;
+            }
+
+            const ensName = normalizeEnsName(req.params.ensName);
+
+            const success = await db.clearHaltedMessage(
+                ensName,
+                //If the aliasName is not provided, we use the ensName as the client has no intention to use an alias
+                aliasName,
+                messageId,
+            );
+
+            if (success) {
+                return res.send();
+            }
+            res.status(400).send('unable to clear halted message');
+        } catch (err) {
+            console.error('clearHaltedMessage error');
+            console.error(err);
+            next(err);
+        }
+    });
 
     router.post(
         '/new/:ensName/toggleHideConversation',

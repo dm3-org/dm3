@@ -2,7 +2,9 @@ import { StorageEnvelopContainer } from '@dm3-org/dm3-lib-storage';
 import React, { useContext } from 'react';
 import {
     AddConversation,
+    ClearHaltedMessages,
     GetConversations,
+    GetHaltedMessages,
     GetMessages,
     GetNumberOfMessages,
     StoreMessageAsync,
@@ -12,10 +14,7 @@ import {
     useStorage,
 } from '../hooks/storage/useStorage';
 import { AuthContext } from './AuthContext';
-import { DeliveryServiceContext } from './DeliveryServiceContext';
-import { BackendConnector } from '../hooks/server-side/BackendConnector';
-import { BackendContext, BackendContextProvider } from './BackendContext';
-import { IBackendConnector } from '@dm3-org/dm3-lib-shared';
+import { BackendContext } from './BackendContext';
 
 export type StorageContextType = {
     storeMessage: StoreMessageAsync;
@@ -25,6 +24,8 @@ export type StorageContextType = {
     addConversationAsync: AddConversation;
     getNumberOfMessages: GetNumberOfMessages;
     getMessages: GetMessages;
+    getHaltedMessages: GetHaltedMessages;
+    clearHaltedMessages: ClearHaltedMessages;
     toggleHideContactAsync: ToggleHideContactAsync;
     initialized: boolean;
 };
@@ -33,6 +34,7 @@ export const StorageContext = React.createContext<StorageContextType>({
     storeMessage: async (
         contact: string,
         envelop: StorageEnvelopContainer,
+        isHalted?: boolean,
     ) => {},
     storeMessageBatch: async (
         contact: string,
@@ -42,9 +44,14 @@ export const StorageContext = React.createContext<StorageContextType>({
         contact: string,
         batch: StorageEnvelopContainer[],
     ) => {},
-    getConversations: async (page: number) => Promise.resolve([]),
+    getConversations: async (size: number, offset: number) =>
+        Promise.resolve([]),
     addConversationAsync: (contact: string) => {},
-    getMessages: async (contact: string, page: number) => Promise.resolve([]),
+    getMessages: async (contact: string, pageSize: number, offset: number) =>
+        Promise.resolve([]),
+    getHaltedMessages: async () => Promise.resolve([]),
+    clearHaltedMessages: async (messageId: string, aliasName: string) =>
+        Promise.resolve(),
     getNumberOfMessages: async (contact: string) => Promise.resolve(0),
     toggleHideContactAsync: async (contact: string, value: boolean) => {},
     initialized: false,
@@ -62,6 +69,8 @@ export const StorageContextProvider = ({ children }: { children?: any }) => {
         addConversationAsync,
         getNumberOfMessages,
         getMessages,
+        getHaltedMessages,
+        clearHaltedMessages,
         toggleHideContactAsync,
         initialized,
     } = useStorage(account, backendContext, profileKeys);
@@ -75,6 +84,8 @@ export const StorageContextProvider = ({ children }: { children?: any }) => {
                 addConversationAsync,
                 getNumberOfMessages,
                 getMessages,
+                getHaltedMessages,
+                clearHaltedMessages,
                 toggleHideContactAsync,
                 initialized,
             }}

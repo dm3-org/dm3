@@ -16,11 +16,10 @@ const config: DM3Configuration = {
     defaultDeliveryService: '',
     backendUrl: '',
     chainId: '',
-    resolverAddress: '',
-    genomeRegistryAddress: '',
     showAlways: true,
     showContacts: true,
     publicVapidKey: '',
+    nonce: '',
 };
 
 describe('useDM3Configuration hook test cases', () => {

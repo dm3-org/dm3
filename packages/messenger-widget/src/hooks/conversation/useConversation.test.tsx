@@ -1,11 +1,27 @@
-import { Conversation } from '@dm3-org/dm3-lib-storage';
+import {
+    Conversation,
+    StorageEnvelopContainer,
+} from '@dm3-org/dm3-lib-storage';
+import {
+    MockDeliveryServiceProfile,
+    MockedUserProfile,
+    getMockDeliveryServiceProfile,
+    mockUserProfile,
+} from '@dm3-org/dm3-lib-test-helper';
 import '@testing-library/jest-dom';
 import { act, renderHook, waitFor } from '@testing-library/react';
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
+import { ethers } from 'ethers';
 import { AuthContext, AuthContextType } from '../../context/AuthContext';
 import {
     DeliveryServiceContext,
     DeliveryServiceContextType,
 } from '../../context/DeliveryServiceContext';
+import {
+    MainnetProviderContext,
+    MainnetProviderContextType,
+} from '../../context/ProviderContext';
 import {
     StorageContext,
     StorageContextType,
@@ -17,24 +33,11 @@ import {
     DEFAULT_DM3_CONFIGURATION,
     getMockedDm3Configuration,
 } from '../../context/testHelper/getMockedDm3Configuration';
+import { getMockedMainnetProviderContext } from '../../context/testHelper/getMockedMainnetProviderContext';
 import { getMockedStorageContext } from '../../context/testHelper/getMockedStorageContext';
 import { getMockedTldContext } from '../../context/testHelper/getMockedTldContext';
 import { DM3Configuration } from '../../widget';
 import { useConversation } from './useConversation';
-import {
-    MainnetProviderContext,
-    MainnetProviderContextType,
-} from '../../context/ProviderContext';
-import { getMockedMainnetProviderContext } from '../../context/testHelper/getMockedMainnetProviderContext';
-import { ethers } from 'ethers';
-import {
-    MockDeliveryServiceProfile,
-    MockedUserProfile,
-    getMockDeliveryServiceProfile,
-    mockUserProfile,
-} from '@dm3-org/dm3-lib-test-helper';
-import MockAdapter from 'axios-mock-adapter';
-import axios from 'axios';
 
 describe('useConversation hook test cases', () => {
     let sender: MockedUserProfile;
@@ -326,7 +329,585 @@ describe('useConversation hook test cases', () => {
         });
     });
 
-    describe('add conversation', () => {
+    describe('load more conversations', () => {
+        it('Should load more conversations', async () => {
+            const authContext: AuthContextType = getMockedAuthContext({
+                account: {
+                    ensName: 'alice.eth',
+                    profile: {
+                        deliveryServices: ['ds.eth'],
+                        publicEncryptionKey: '',
+                        publicSigningKey: '',
+                    },
+                },
+            });
+
+            const storageContext: StorageContextType = getMockedStorageContext({
+                getConversations: function (
+                    pageSize: number,
+                    offset: number,
+                ): Promise<Conversation[]> {
+                    return Promise.resolve(
+                        Array.from({ length: pageSize }, (_, i) => {
+                            return {
+                                //Use offset here to create a distinct contactEnsName
+                                contactEnsName: 'contact ' + i + offset,
+                                isHidden: false,
+                                previewMessage: undefined,
+                                updatedAt: 0,
+                            };
+                        }),
+                    );
+                },
+                addConversationAsync: jest.fn(),
+                initialized: true,
+            });
+            const deliveryServiceContext: DeliveryServiceContextType =
+                getMockedDeliveryServiceContext({
+                    fetchIncommingMessages: function (ensName: string) {
+                        return Promise.resolve([]);
+                    },
+                    getDeliveryServiceProperties: function (): Promise<any[]> {
+                        return Promise.resolve([{ sizeLimit: 0 }]);
+                    },
+                    isInitialized: true,
+                });
+
+            const wrapper = ({ children }: { children: any }) => (
+                <>
+                    <AuthContext.Provider value={authContext}>
+                        <StorageContext.Provider value={storageContext}>
+                            <DeliveryServiceContext.Provider
+                                value={deliveryServiceContext}
+                            >
+                                {children}
+                            </DeliveryServiceContext.Provider>
+                        </StorageContext.Provider>
+                    </AuthContext.Provider>
+                </>
+            );
+
+            const { result } = renderHook(() => useConversation(config), {
+                wrapper,
+            });
+
+            await waitFor(() => result.current.initialized);
+            await waitFor(() => result.current.contacts.length > 1);
+            expect(result.current.contacts.length).toBe(10);
+
+            await act(async () => result.current.loadMoreConversations());
+            await waitFor(() => result.current.contacts.length > 10);
+            expect(result.current.contacts.length).toBe(20);
+        });
+    });
+
+    describe('initialize', () => {
+        it('reads conversations from storage', async () => {
+            const authContext: AuthContextType = getMockedAuthContext({
+                account: {
+                    ensName: 'alice.eth',
+                    profile: {
+                        deliveryServices: ['ds.eth'],
+                        publicEncryptionKey: '',
+                        publicSigningKey: '',
+                    },
+                },
+            });
+
+            const storageContext: StorageContextType = getMockedStorageContext({
+                getConversations: function (
+                    page: number,
+                    offset: number,
+                ): Promise<Conversation[]> {
+                    return Promise.resolve([
+                        {
+                            contactEnsName: 'max.eth',
+                            previewMessage: undefined,
+                            isHidden: false,
+                            updatedAt: 0,
+                        },
+                    ]);
+                },
+                addConversationAsync: jest.fn(),
+                initialized: true,
+            });
+            const deliveryServiceContext: DeliveryServiceContextType =
+                getMockedDeliveryServiceContext({
+                    fetchIncommingMessages: function (ensName: string) {
+                        return Promise.resolve([]);
+                    },
+                    getDeliveryServiceProperties: function (): Promise<any[]> {
+                        return Promise.resolve([{ sizeLimit: 0 }]);
+                    },
+                    isInitialized: true,
+                });
+
+            const wrapper = ({ children }: { children: any }) => (
+                <>
+                    <AuthContext.Provider value={authContext}>
+                        <StorageContext.Provider value={storageContext}>
+                            <DeliveryServiceContext.Provider
+                                value={deliveryServiceContext}
+                            >
+                                {children}
+                            </DeliveryServiceContext.Provider>
+                        </StorageContext.Provider>
+                    </AuthContext.Provider>
+                </>
+            );
+
+            const { result } = renderHook(() => useConversation(config), {
+                wrapper,
+            });
+            await waitFor(() => expect(result.current.initialized).toBe(true));
+
+            const conversations = result.current.contacts;
+
+            expect(conversations.length).toBe(1);
+            expect(conversations[0].contactDetails.account.ensName).toBe(
+                'max.eth',
+            );
+        });
+        it('has last message attached as previewMessage', async () => {
+            const authContext: AuthContextType = getMockedAuthContext({
+                account: {
+                    ensName: 'alice.eth',
+                    profile: {
+                        deliveryServices: ['ds.eth'],
+                        publicEncryptionKey: '',
+                        publicSigningKey: '',
+                    },
+                },
+            });
+
+            const storageContext: StorageContextType = getMockedStorageContext({
+                getConversations: function (
+                    page: number,
+                    offset: number,
+                ): Promise<Conversation[]> {
+                    return Promise.resolve([
+                        {
+                            contactEnsName: 'max.eth',
+                            isHidden: false,
+                            previewMessage: undefined,
+                            updatedAt: 0,
+                        },
+                        {
+                            contactEnsName: 'bob.eth',
+                            previewMessage: {
+                                envelop: {
+                                    message: {
+                                        message: 'Hello from Bob',
+                                    },
+                                },
+                                messageState: 0,
+                            } as StorageEnvelopContainer,
+                            isHidden: false,
+                            updatedAt: 0,
+                        },
+                    ]);
+                },
+                addConversationAsync: jest.fn(),
+                initialized: true,
+            });
+            const deliveryServiceContext: DeliveryServiceContextType =
+                getMockedDeliveryServiceContext({
+                    fetchIncommingMessages: function (ensName: string) {
+                        return Promise.resolve([]);
+                    },
+                    getDeliveryServiceProperties: function (): Promise<any[]> {
+                        return Promise.resolve([{ sizeLimit: 0 }]);
+                    },
+                    isInitialized: true,
+                });
+
+            const wrapper = ({ children }: { children: any }) => (
+                <>
+                    <AuthContext.Provider value={authContext}>
+                        <StorageContext.Provider value={storageContext}>
+                            <DeliveryServiceContext.Provider
+                                value={deliveryServiceContext}
+                            >
+                                {children}
+                            </DeliveryServiceContext.Provider>
+                        </StorageContext.Provider>
+                    </AuthContext.Provider>
+                </>
+            );
+
+            const { result } = renderHook(() => useConversation(config), {
+                wrapper,
+            });
+            await waitFor(() => expect(result.current.initialized).toBe(true));
+
+            const conversations = result.current.contacts;
+
+            expect(conversations.length).toBe(2);
+            expect(conversations[0].contactDetails.account.ensName).toBe(
+                'max.eth',
+            );
+            expect(conversations[1].contactDetails.account.ensName).toBe(
+                'bob.eth',
+            );
+            expect(conversations[1].contactDetails.account.ensName).toBe(
+                'bob.eth',
+            );
+        });
+        it('add default contact if specified in config ', async () => {
+            const configurationContext = getMockedDm3Configuration({
+                dm3Configuration: {
+                    ...DEFAULT_DM3_CONFIGURATION,
+                    defaultContact: 'mydefaultcontract.eth',
+                },
+            });
+            const config: DM3Configuration =
+                configurationContext.dm3Configuration!;
+            const authContext: AuthContextType = getMockedAuthContext({
+                account: {
+                    ensName: 'alice.eth',
+                    profile: {
+                        deliveryServices: ['ds.eth'],
+                        publicEncryptionKey: '',
+                        publicSigningKey: '',
+                    },
+                },
+            });
+
+            const storageContext: StorageContextType = getMockedStorageContext({
+                getConversations: function (
+                    page: number,
+                ): Promise<Conversation[]> {
+                    return Promise.resolve([
+                        {
+                            contactEnsName: 'max.eth',
+                            isHidden: false,
+                            previewMessage: undefined,
+                            updatedAt: 0,
+                        },
+                    ]);
+                },
+                addConversationAsync: jest.fn(),
+                initialized: true,
+            });
+            const deliveryServiceContext: DeliveryServiceContextType =
+                getMockedDeliveryServiceContext({
+                    fetchIncommingMessages: function (ensName: string) {
+                        return Promise.resolve([]);
+                    },
+                    getDeliveryServiceProperties: function (): Promise<any[]> {
+                        return Promise.resolve([{ sizeLimit: 0 }]);
+                    },
+                    isInitialized: true,
+                });
+
+            const tldContext = getMockedTldContext({
+                resolveTLDtoAlias: async (alias: string) => {
+                    if (alias === 'mydefaultcontract.eth') {
+                        return 'mydefaultcontract.eth';
+                    }
+                    return alias;
+                },
+            });
+
+            const wrapper = ({ children }: { children: any }) => (
+                <>
+                    <AuthContext.Provider value={authContext}>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <DeliveryServiceContext.Provider
+                                    value={deliveryServiceContext}
+                                >
+                                    {children}
+                                </DeliveryServiceContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
+                    </AuthContext.Provider>
+                </>
+            );
+
+            const { result } = renderHook(() => useConversation(config), {
+                wrapper,
+            });
+            await waitFor(() => expect(result.current.initialized).toBe(true));
+            const conversations = result.current.contacts;
+            expect(conversations.length).toBe(2);
+            expect(conversations[0].contactDetails.account.ensName).toBe(
+                'mydefaultcontract.eth',
+            );
+            expect(conversations[1].contactDetails.account.ensName).toBe(
+                'max.eth',
+            );
+        });
+        it('default contact should only appear once when loaded from config and storage', async () => {
+            const configurationContext = getMockedDm3Configuration({
+                dm3Configuration: {
+                    ...DEFAULT_DM3_CONFIGURATION,
+                    defaultContact: 'mydefaultcontract.eth',
+                },
+            });
+            const config: DM3Configuration =
+                configurationContext.dm3Configuration!;
+            const authContext: AuthContextType = getMockedAuthContext({
+                account: {
+                    ensName: 'alice.eth',
+                    profile: {
+                        deliveryServices: ['ds.eth'],
+                        publicEncryptionKey: '',
+                        publicSigningKey: '',
+                    },
+                },
+            });
+
+            const storageContext: StorageContextType = getMockedStorageContext({
+                getConversations: function (
+                    page: number,
+                ): Promise<Conversation[]> {
+                    return Promise.resolve([
+                        {
+                            contactEnsName: 'max.eth',
+                            isHidden: false,
+                            previewMessage: undefined,
+                            updatedAt: 0,
+                        },
+                        {
+                            contactEnsName: 'mydefaultcontract.eth',
+                            isHidden: false,
+                            previewMessage: undefined,
+                            updatedAt: 0,
+                        },
+                    ]);
+                },
+                addConversationAsync: jest.fn(),
+                initialized: true,
+            });
+            const deliveryServiceContext: DeliveryServiceContextType =
+                getMockedDeliveryServiceContext({
+                    fetchIncommingMessages: function (ensName: string) {
+                        return Promise.resolve([]);
+                    },
+                    getDeliveryServiceProperties: function (): Promise<any[]> {
+                        return Promise.resolve([{ sizeLimit: 0 }]);
+                    },
+                    isInitialized: true,
+                });
+
+            const tldContext = getMockedTldContext({
+                resolveTLDtoAlias: async (alias: string) => {
+                    if (alias === 'mydefaultcontract.eth') {
+                        return 'mydefaultcontract.eth';
+                    }
+                    return alias;
+                },
+            });
+
+            const wrapper = ({ children }: { children: any }) => (
+                <>
+                    <AuthContext.Provider value={authContext}>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <DeliveryServiceContext.Provider
+                                    value={deliveryServiceContext}
+                                >
+                                    {children}
+                                </DeliveryServiceContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
+                    </AuthContext.Provider>
+                </>
+            );
+
+            const { result } = renderHook(() => useConversation(config), {
+                wrapper,
+            });
+            await waitFor(() => expect(result.current.initialized).toBe(true));
+            const conversations = result.current.contacts;
+            expect(conversations.length).toBe(2);
+            expect(conversations[0].contactDetails.account.ensName).toBe(
+                'mydefaultcontract.eth',
+            );
+            expect(conversations[1].contactDetails.account.ensName).toBe(
+                'max.eth',
+            );
+        });
+        it('hidden contact should appear as hidden in the conversation list', async () => {
+            const configurationContext = getMockedDm3Configuration({
+                dm3Configuration: {
+                    ...DEFAULT_DM3_CONFIGURATION,
+                    defaultContact: 'mydefaultcontract.eth',
+                },
+            });
+            const config: DM3Configuration =
+                configurationContext.dm3Configuration!;
+            const authContext: AuthContextType = getMockedAuthContext({
+                account: {
+                    ensName: 'alice.eth',
+                    profile: {
+                        deliveryServices: ['ds.eth'],
+                        publicEncryptionKey: '',
+                        publicSigningKey: '',
+                    },
+                },
+            });
+
+            const storageContext: StorageContextType = getMockedStorageContext({
+                getConversations: function (
+                    page: number,
+                ): Promise<Conversation[]> {
+                    return Promise.resolve([
+                        {
+                            contactEnsName: 'ron.eth',
+                            isHidden: true,
+                            previewMessage: undefined,
+                            updatedAt: 0,
+                        },
+                        {
+                            contactEnsName: 'max.eth',
+                            isHidden: false,
+                            previewMessage: undefined,
+                            updatedAt: 0,
+                        },
+                        {
+                            contactEnsName: 'mydefaultcontract.eth',
+                            isHidden: false,
+                            previewMessage: undefined,
+                            updatedAt: 0,
+                        },
+                    ]);
+                },
+                addConversationAsync: jest.fn(),
+                initialized: true,
+            });
+            const deliveryServiceContext: DeliveryServiceContextType =
+                getMockedDeliveryServiceContext({
+                    fetchIncommingMessages: function (ensName: string) {
+                        return Promise.resolve([]);
+                    },
+                    getDeliveryServiceProperties: function (): Promise<any[]> {
+                        return Promise.resolve([{ sizeLimit: 0 }]);
+                    },
+                    isInitialized: true,
+                });
+
+            const tldContext = getMockedTldContext({
+                resolveTLDtoAlias: async (alias: string) => {
+                    if (alias === 'mydefaultcontract.eth') {
+                        return 'mydefaultcontract.eth';
+                    }
+                    return alias;
+                },
+            });
+
+            const wrapper = ({ children }: { children: any }) => (
+                <>
+                    <AuthContext.Provider value={authContext}>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <DeliveryServiceContext.Provider
+                                    value={deliveryServiceContext}
+                                >
+                                    {children}
+                                </DeliveryServiceContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
+                    </AuthContext.Provider>
+                </>
+            );
+
+            const { result } = renderHook(() => useConversation(config), {
+                wrapper,
+            });
+            await waitFor(() => expect(result.current.initialized).toBe(true));
+            const conversations = result.current.contacts;
+
+            expect(conversations.length).toBe(3);
+
+            expect(conversations[0].contactDetails.account.ensName).toBe(
+                'mydefaultcontract.eth',
+            );
+            expect(conversations[1].contactDetails.account.ensName).toBe(
+                'ron.eth',
+            );
+            expect(conversations[2].contactDetails.account.ensName).toBe(
+                'max.eth',
+            );
+
+            expect(conversations[0].isHidden).toBe(false);
+            expect(conversations[1].isHidden).toBe(true);
+            expect(conversations[2].isHidden).toBe(false);
+        });
+    });
+    describe('add Conversation', () => {
+        it('dont add own address as conversation', async () => {
+            const authContext: AuthContextType = getMockedAuthContext({
+                account: {
+                    ensName: 'alice.eth',
+                    profile: {
+                        deliveryServices: ['ds.eth'],
+                        publicEncryptionKey: '',
+                        publicSigningKey: '',
+                    },
+                },
+            });
+
+            const storageContext: StorageContextType = getMockedStorageContext({
+                getConversations: function (
+                    page: number,
+                ): Promise<Conversation[]> {
+                    return Promise.resolve([
+                        {
+                            contactEnsName: 'max.eth',
+                            isHidden: false,
+                            previewMessage: undefined,
+                            updatedAt: 0,
+                        },
+                    ]);
+                },
+                addConversationAsync: jest.fn(),
+                initialized: true,
+            });
+            const deliveryServiceContext: DeliveryServiceContextType =
+                getMockedDeliveryServiceContext({
+                    fetchIncommingMessages: function (ensName: string) {
+                        return Promise.resolve([]);
+                    },
+                    getDeliveryServiceProperties: function (): Promise<any[]> {
+                        return Promise.resolve([{ sizeLimit: 0 }]);
+                    },
+                    isInitialized: true,
+                });
+
+            const wrapper = ({ children }: { children: any }) => (
+                <>
+                    <AuthContext.Provider value={authContext}>
+                        <StorageContext.Provider value={storageContext}>
+                            <DeliveryServiceContext.Provider
+                                value={deliveryServiceContext}
+                            >
+                                {children}
+                            </DeliveryServiceContext.Provider>
+                        </StorageContext.Provider>
+                    </AuthContext.Provider>
+                </>
+            );
+
+            const { result } = renderHook(() => useConversation(config), {
+                wrapper,
+            });
+            await waitFor(() => expect(result.current.initialized).toBe(true));
+            //adding a different address to a conversation is possible
+            await waitFor(() => result.current.addConversation('bob.eth'));
+            //adding own address to a conversation is not possible
+            await waitFor(() => result.current.addConversation('alice.eth'));
+
+            const conversations = result.current.contacts;
+            expect(conversations.length).toBe(2);
+            expect(conversations[0].contactDetails.account.ensName).toBe(
+                'bob.eth',
+            );
+            expect(conversations[1].contactDetails.account.ensName).toBe(
+                'max.eth',
+            );
+        });
         it('Should add multiple contacts', async () => {
             const authContext: AuthContextType = getMockedAuthContext({
                 account: {
@@ -384,416 +965,6 @@ describe('useConversation hook test cases', () => {
         });
     });
 
-    describe('initialize', () => {
-        it('reads conversations from storage', async () => {
-            const authContext: AuthContextType = getMockedAuthContext({
-                account: {
-                    ensName: 'alice.eth',
-                    profile: {
-                        deliveryServices: ['ds.eth'],
-                        publicEncryptionKey: '',
-                        publicSigningKey: '',
-                    },
-                },
-            });
-
-            const storageContext: StorageContextType = getMockedStorageContext({
-                getConversations: function (
-                    page: number,
-                ): Promise<Conversation[]> {
-                    return Promise.resolve([
-                        {
-                            contactEnsName: 'max.eth',
-                            isHidden: false,
-                            messageCounter: 1,
-                        },
-                    ]);
-                },
-                initialized: true,
-            });
-            const deliveryServiceContext: DeliveryServiceContextType =
-                getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
-                        return Promise.resolve([]);
-                    },
-                    getDeliveryServiceProperties: function (): Promise<any[]> {
-                        return Promise.resolve([{ sizeLimit: 0 }]);
-                    },
-                    isInitialized: true,
-                });
-
-            const wrapper = ({ children }: { children: any }) => (
-                <>
-                    <AuthContext.Provider value={authContext}>
-                        <StorageContext.Provider value={storageContext}>
-                            <DeliveryServiceContext.Provider
-                                value={deliveryServiceContext}
-                            >
-                                {children}
-                            </DeliveryServiceContext.Provider>
-                        </StorageContext.Provider>
-                    </AuthContext.Provider>
-                </>
-            );
-
-            const { result } = renderHook(() => useConversation(config), {
-                wrapper,
-            });
-            await waitFor(() => expect(result.current.initialized).toBe(true));
-
-            const conversations = result.current.contacts;
-
-            expect(conversations.length).toBe(1);
-            expect(conversations[0].contactDetails.account.ensName).toBe(
-                'max.eth',
-            );
-        });
-        it('add default contact if specified in conversation list', async () => {
-            const configurationContext = getMockedDm3Configuration({
-                dm3Configuration: {
-                    ...DEFAULT_DM3_CONFIGURATION,
-                    defaultContact: 'mydefaultcontract.eth',
-                },
-            });
-            const config: DM3Configuration =
-                configurationContext.dm3Configuration!;
-            const authContext: AuthContextType = getMockedAuthContext({
-                account: {
-                    ensName: 'alice.eth',
-                    profile: {
-                        deliveryServices: ['ds.eth'],
-                        publicEncryptionKey: '',
-                        publicSigningKey: '',
-                    },
-                },
-            });
-
-            const storageContext: StorageContextType = getMockedStorageContext({
-                getConversations: function (
-                    page: number,
-                ): Promise<Conversation[]> {
-                    return Promise.resolve([
-                        {
-                            contactEnsName: 'max.eth',
-                            isHidden: false,
-                            messageCounter: 1,
-                        },
-                    ]);
-                },
-                initialized: true,
-            });
-            const deliveryServiceContext: DeliveryServiceContextType =
-                getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
-                        return Promise.resolve([]);
-                    },
-                    getDeliveryServiceProperties: function (): Promise<any[]> {
-                        return Promise.resolve([{ sizeLimit: 0 }]);
-                    },
-                    isInitialized: true,
-                });
-
-            const tldContext = getMockedTldContext({
-                resolveTLDtoAlias: async (alias: string) => {
-                    if (alias === 'mydefaultcontract.eth') {
-                        return 'mydefaultcontract.eth';
-                    }
-                    return alias;
-                },
-            });
-
-            const wrapper = ({ children }: { children: any }) => (
-                <>
-                    <AuthContext.Provider value={authContext}>
-                        <TLDContext.Provider value={tldContext}>
-                            <StorageContext.Provider value={storageContext}>
-                                <DeliveryServiceContext.Provider
-                                    value={deliveryServiceContext}
-                                >
-                                    {children}
-                                </DeliveryServiceContext.Provider>
-                            </StorageContext.Provider>
-                        </TLDContext.Provider>
-                    </AuthContext.Provider>
-                </>
-            );
-
-            const { result } = renderHook(() => useConversation(config), {
-                wrapper,
-            });
-            await waitFor(() => expect(result.current.initialized).toBe(true));
-            const conversations = result.current.contacts;
-            expect(conversations.length).toBe(2);
-            expect(conversations[0].contactDetails.account.ensName).toBe(
-                'max.eth',
-            );
-            expect(conversations[1].contactDetails.account.ensName).toBe(
-                'mydefaultcontract.eth',
-            );
-        });
-        it('default contact should only appear once when loaded from config and storage', async () => {
-            const configurationContext = getMockedDm3Configuration({
-                dm3Configuration: {
-                    ...DEFAULT_DM3_CONFIGURATION,
-                    defaultContact: 'mydefaultcontract.eth',
-                },
-            });
-            const config: DM3Configuration =
-                configurationContext.dm3Configuration!;
-            const authContext: AuthContextType = getMockedAuthContext({
-                account: {
-                    ensName: 'alice.eth',
-                    profile: {
-                        deliveryServices: ['ds.eth'],
-                        publicEncryptionKey: '',
-                        publicSigningKey: '',
-                    },
-                },
-            });
-
-            const storageContext: StorageContextType = getMockedStorageContext({
-                getConversations: function (
-                    page: number,
-                ): Promise<Conversation[]> {
-                    return Promise.resolve([
-                        {
-                            contactEnsName: 'max.eth',
-                            isHidden: false,
-                            messageCounter: 1,
-                        },
-                        {
-                            contactEnsName: 'mydefaultcontract.eth',
-                            isHidden: false,
-                            messageCounter: 1,
-                        },
-                    ]);
-                },
-                initialized: true,
-            });
-            const deliveryServiceContext: DeliveryServiceContextType =
-                getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
-                        return Promise.resolve([]);
-                    },
-                    getDeliveryServiceProperties: function (): Promise<any[]> {
-                        return Promise.resolve([{ sizeLimit: 0 }]);
-                    },
-                    isInitialized: true,
-                });
-
-            const tldContext = getMockedTldContext({
-                resolveTLDtoAlias: async (alias: string) => {
-                    if (alias === 'mydefaultcontract.eth') {
-                        return 'mydefaultcontract.eth';
-                    }
-                    return alias;
-                },
-            });
-
-            const wrapper = ({ children }: { children: any }) => (
-                <>
-                    <AuthContext.Provider value={authContext}>
-                        <TLDContext.Provider value={tldContext}>
-                            <StorageContext.Provider value={storageContext}>
-                                <DeliveryServiceContext.Provider
-                                    value={deliveryServiceContext}
-                                >
-                                    {children}
-                                </DeliveryServiceContext.Provider>
-                            </StorageContext.Provider>
-                        </TLDContext.Provider>
-                    </AuthContext.Provider>
-                </>
-            );
-
-            const { result } = renderHook(() => useConversation(config), {
-                wrapper,
-            });
-            await waitFor(() => expect(result.current.initialized).toBe(true));
-            const conversations = result.current.contacts;
-            expect(conversations.length).toBe(2);
-            expect(conversations[0].contactDetails.account.ensName).toBe(
-                'max.eth',
-            );
-            expect(conversations[1].contactDetails.account.ensName).toBe(
-                'mydefaultcontract.eth',
-            );
-        });
-        it('hidden contact should not appears as hidden in the conversation list', async () => {
-            const configurationContext = getMockedDm3Configuration({
-                dm3Configuration: {
-                    ...DEFAULT_DM3_CONFIGURATION,
-                    defaultContact: 'mydefaultcontract.eth',
-                },
-            });
-            const config: DM3Configuration =
-                configurationContext.dm3Configuration!;
-            const authContext: AuthContextType = getMockedAuthContext({
-                account: {
-                    ensName: 'alice.eth',
-                    profile: {
-                        deliveryServices: ['ds.eth'],
-                        publicEncryptionKey: '',
-                        publicSigningKey: '',
-                    },
-                },
-            });
-
-            const storageContext: StorageContextType = getMockedStorageContext({
-                getConversations: function (
-                    page: number,
-                ): Promise<Conversation[]> {
-                    return Promise.resolve([
-                        {
-                            contactEnsName: 'ron.eth',
-                            isHidden: true,
-                            messageCounter: 1,
-                        },
-                        {
-                            contactEnsName: 'max.eth',
-                            isHidden: false,
-                            messageCounter: 1,
-                        },
-                        {
-                            contactEnsName: 'mydefaultcontract.eth',
-                            isHidden: false,
-                            messageCounter: 1,
-                        },
-                    ]);
-                },
-                initialized: true,
-            });
-            const deliveryServiceContext: DeliveryServiceContextType =
-                getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
-                        return Promise.resolve([]);
-                    },
-                    getDeliveryServiceProperties: function (): Promise<any[]> {
-                        return Promise.resolve([{ sizeLimit: 0 }]);
-                    },
-                    isInitialized: true,
-                });
-
-            const tldContext = getMockedTldContext({
-                resolveTLDtoAlias: async (alias: string) => {
-                    if (alias === 'mydefaultcontract.eth') {
-                        return 'mydefaultcontract.eth';
-                    }
-                    return alias;
-                },
-            });
-
-            const wrapper = ({ children }: { children: any }) => (
-                <>
-                    <AuthContext.Provider value={authContext}>
-                        <TLDContext.Provider value={tldContext}>
-                            <StorageContext.Provider value={storageContext}>
-                                <DeliveryServiceContext.Provider
-                                    value={deliveryServiceContext}
-                                >
-                                    {children}
-                                </DeliveryServiceContext.Provider>
-                            </StorageContext.Provider>
-                        </TLDContext.Provider>
-                    </AuthContext.Provider>
-                </>
-            );
-
-            const { result } = renderHook(() => useConversation(config), {
-                wrapper,
-            });
-            await waitFor(() => expect(result.current.initialized).toBe(true));
-            const conversations = result.current.contacts;
-
-            expect(conversations.length).toBe(3);
-            expect(conversations[0].contactDetails.account.ensName).toBe(
-                'ron.eth',
-            );
-            expect(conversations[1].contactDetails.account.ensName).toBe(
-                'max.eth',
-            );
-            expect(conversations[2].contactDetails.account.ensName).toBe(
-                'mydefaultcontract.eth',
-            );
-
-            expect(conversations[0].isHidden).toBe(true);
-            expect(conversations[1].isHidden).toBe(false);
-            expect(conversations[2].isHidden).toBe(false);
-        });
-    });
-    describe('add Conversation', () => {
-        it('dont add own address as conversation', async () => {
-            const authContext: AuthContextType = getMockedAuthContext({
-                account: {
-                    ensName: 'alice.eth',
-                    profile: {
-                        deliveryServices: ['ds.eth'],
-                        publicEncryptionKey: '',
-                        publicSigningKey: '',
-                    },
-                },
-            });
-
-            const storageContext: StorageContextType = getMockedStorageContext({
-                getConversations: function (
-                    page: number,
-                ): Promise<Conversation[]> {
-                    return Promise.resolve([
-                        {
-                            contactEnsName: 'max.eth',
-                            isHidden: false,
-                            messageCounter: 1,
-                        },
-                    ]);
-                },
-                addConversationAsync: jest.fn(),
-                initialized: true,
-            });
-            const deliveryServiceContext: DeliveryServiceContextType =
-                getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
-                        return Promise.resolve([]);
-                    },
-                    getDeliveryServiceProperties: function (): Promise<any[]> {
-                        return Promise.resolve([{ sizeLimit: 0 }]);
-                    },
-                    isInitialized: true,
-                });
-
-            const wrapper = ({ children }: { children: any }) => (
-                <>
-                    <AuthContext.Provider value={authContext}>
-                        <StorageContext.Provider value={storageContext}>
-                            <DeliveryServiceContext.Provider
-                                value={deliveryServiceContext}
-                            >
-                                {children}
-                            </DeliveryServiceContext.Provider>
-                        </StorageContext.Provider>
-                    </AuthContext.Provider>
-                </>
-            );
-
-            const { result } = renderHook(() => useConversation(config), {
-                wrapper,
-            });
-            await waitFor(() => expect(result.current.initialized).toBe(true));
-            //adding a different address to a conversation is possible
-            await waitFor(() => result.current.addConversation('bob.eth'));
-            //adding own address to a conversation is not possible
-            await waitFor(() => result.current.addConversation('alice.eth'));
-
-            const conversations = result.current.contacts;
-            expect(conversations.length).toBe(2);
-            expect(conversations[0].contactDetails.account.ensName).toBe(
-                'max.eth',
-            );
-            expect(conversations[1].contactDetails.account.ensName).toBe(
-                'bob.eth',
-            );
-        });
-    });
-
     describe('hydrate contact', () => {
         it('fetches all deliveryService profiles of one contact', async () => {
             const authContext: AuthContextType = getMockedAuthContext({
@@ -811,7 +982,8 @@ describe('useConversation hook test cases', () => {
                         {
                             contactEnsName: sender.account.ensName,
                             isHidden: false,
-                            messageCounter: 1,
+                            previewMessage: undefined,
+                            updatedAt: 0,
                         },
                     ]);
                 },
@@ -832,6 +1004,7 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve(sender.address);
                 },
                 getResolver: (ensName: string) => {
+                    console.log('mock resolver for ', ensName);
                     if (ensName === sender.account.ensName) {
                         return {
                             getText: () => sender.stringified,
@@ -852,7 +1025,7 @@ describe('useConversation hook test cases', () => {
                 },
             } as any as ethers.providers.JsonRpcProvider;
 
-            const mainnetProvderContext: MainnetProviderContextType =
+            const mainnetProviderContext: MainnetProviderContextType =
                 getMockedMainnetProviderContext({
                     provider: mockProvider,
                 });
@@ -860,7 +1033,7 @@ describe('useConversation hook test cases', () => {
             const wrapper = ({ children }: { children: any }) => (
                 <>
                     <MainnetProviderContext.Provider
-                        value={mainnetProvderContext}
+                        value={mainnetProviderContext}
                     >
                         <AuthContext.Provider value={authContext}>
                             <StorageContext.Provider value={storageContext}>
@@ -878,8 +1051,15 @@ describe('useConversation hook test cases', () => {
             const { result } = renderHook(() => useConversation(config), {
                 wrapper,
             });
+
             await waitFor(() => expect(result.current.initialized).toBe(true));
 
+            await waitFor(() =>
+                expect(
+                    result.current.contacts[0].contactDetails
+                        .deliveryServiceProfiles.length,
+                ).toBe(2),
+            );
             expect(
                 result.current.contacts[0].contactDetails
                     .deliveryServiceProfiles[0],
@@ -914,7 +1094,8 @@ describe('useConversation hook test cases', () => {
                         {
                             contactEnsName: sender.account.ensName,
                             isHidden: false,
-                            messageCounter: 1,
+                            previewMessage: undefined,
+                            updatedAt: 0,
                         },
                     ]);
                 },
@@ -982,6 +1163,231 @@ describe('useConversation hook test cases', () => {
 
             //1000 is the sizelimit of the DS with the loweset tolerance. This should be set as the messageSizeLimit
             expect(result.current.contacts[0].messageSizeLimit).toEqual(1000);
+        });
+    });
+
+    describe('conversation order', () => {
+        it('initial loading of conversation list should be in DESC order of updatedAt property', async () => {
+            const authContext: AuthContextType = getMockedAuthContext({
+                account: {
+                    ensName: 'alice.eth',
+                    profile: {
+                        deliveryServices: ['ds.eth'],
+                        publicEncryptionKey: '',
+                        publicSigningKey: '',
+                    },
+                },
+            });
+
+            const storageContext: StorageContextType = getMockedStorageContext({
+                getConversations: function (
+                    page: number,
+                    offset: number,
+                ): Promise<Conversation[]> {
+                    return Promise.resolve([
+                        {
+                            contactEnsName: 'max.eth',
+                            previewMessage: undefined,
+                            isHidden: false,
+                            updatedAt: new Date().getTime(),
+                        },
+                        {
+                            contactEnsName: 'horo.eth',
+                            previewMessage: undefined,
+                            isHidden: false,
+                            updatedAt: new Date().getTime() + 2000,
+                        },
+                    ]);
+                },
+                addConversationAsync: jest.fn(),
+                initialized: true,
+            });
+            const deliveryServiceContext: DeliveryServiceContextType =
+                getMockedDeliveryServiceContext({
+                    fetchIncommingMessages: function (ensName: string) {
+                        return Promise.resolve([]);
+                    },
+                    getDeliveryServiceProperties: function (): Promise<any[]> {
+                        return Promise.resolve([{ sizeLimit: 0 }]);
+                    },
+                    isInitialized: true,
+                });
+
+            const wrapper = ({ children }: { children: any }) => (
+                <>
+                    <AuthContext.Provider value={authContext}>
+                        <StorageContext.Provider value={storageContext}>
+                            <DeliveryServiceContext.Provider
+                                value={deliveryServiceContext}
+                            >
+                                {children}
+                            </DeliveryServiceContext.Provider>
+                        </StorageContext.Provider>
+                    </AuthContext.Provider>
+                </>
+            );
+
+            const { result } = renderHook(() => useConversation(config), {
+                wrapper,
+            });
+
+            await waitFor(() => expect(result.current.initialized).toBe(true));
+
+            const conversations = result.current.contacts;
+
+            expect(conversations[0].updatedAt).toBeGreaterThan(
+                conversations[1].updatedAt,
+            );
+        });
+
+        it('updates conversation updatedAt property', async () => {
+            const authContext: AuthContextType = getMockedAuthContext({
+                account: {
+                    ensName: 'alice.eth',
+                    profile: {
+                        deliveryServices: ['ds.eth'],
+                        publicEncryptionKey: '',
+                        publicSigningKey: '',
+                    },
+                },
+            });
+
+            const storageContext: StorageContextType = getMockedStorageContext({
+                getConversations: function (
+                    page: number,
+                    offset: number,
+                ): Promise<Conversation[]> {
+                    return Promise.resolve([
+                        {
+                            contactEnsName: 'max.eth',
+                            previewMessage: undefined,
+                            isHidden: false,
+                            updatedAt: 0,
+                        },
+                        {
+                            contactEnsName: 'horo.eth',
+                            previewMessage: undefined,
+                            isHidden: false,
+                            updatedAt: 0,
+                        },
+                    ]);
+                },
+                addConversationAsync: jest.fn(),
+                initialized: true,
+            });
+            const deliveryServiceContext: DeliveryServiceContextType =
+                getMockedDeliveryServiceContext({
+                    fetchIncommingMessages: function (ensName: string) {
+                        return Promise.resolve([]);
+                    },
+                    getDeliveryServiceProperties: function (): Promise<any[]> {
+                        return Promise.resolve([{ sizeLimit: 0 }]);
+                    },
+                    isInitialized: true,
+                });
+
+            const wrapper = ({ children }: { children: any }) => (
+                <>
+                    <AuthContext.Provider value={authContext}>
+                        <StorageContext.Provider value={storageContext}>
+                            <DeliveryServiceContext.Provider
+                                value={deliveryServiceContext}
+                            >
+                                {children}
+                            </DeliveryServiceContext.Provider>
+                        </StorageContext.Provider>
+                    </AuthContext.Provider>
+                </>
+            );
+
+            const { result } = renderHook(() => useConversation(config), {
+                wrapper,
+            });
+
+            await waitFor(() => expect(result.current.initialized).toBe(true));
+
+            // updating conversation updatedAt property
+            await waitFor(() =>
+                result.current.updateConversationList(
+                    'max.eth',
+                    new Date().getTime() + 10000,
+                ),
+            );
+
+            const conversations = result.current.contacts;
+
+            // after updating updatedAt property, max.eth will be latest contact updated
+            expect(conversations[0].updatedAt).toBeGreaterThan(
+                conversations[1].updatedAt,
+            );
+        });
+
+        it('new conversation added should be at top in contact list', async () => {
+            const authContext: AuthContextType = getMockedAuthContext({
+                account: {
+                    ensName: 'alice.eth',
+                    profile: {
+                        deliveryServices: ['ds.eth'],
+                        publicEncryptionKey: '',
+                        publicSigningKey: '',
+                    },
+                },
+            });
+
+            const storageContext: StorageContextType = getMockedStorageContext({
+                getConversations: function (
+                    page: number,
+                    offset: number,
+                ): Promise<Conversation[]> {
+                    return Promise.resolve([
+                        {
+                            contactEnsName: 'max.eth',
+                            previewMessage: undefined,
+                            isHidden: false,
+                            updatedAt: 0,
+                        },
+                    ]);
+                },
+                addConversationAsync: jest.fn(),
+                initialized: true,
+            });
+            const deliveryServiceContext: DeliveryServiceContextType =
+                getMockedDeliveryServiceContext({
+                    fetchIncommingMessages: function (ensName: string) {
+                        return Promise.resolve([]);
+                    },
+                    getDeliveryServiceProperties: function (): Promise<any[]> {
+                        return Promise.resolve([{ sizeLimit: 0 }]);
+                    },
+                    isInitialized: true,
+                });
+
+            const wrapper = ({ children }: { children: any }) => (
+                <>
+                    <AuthContext.Provider value={authContext}>
+                        <StorageContext.Provider value={storageContext}>
+                            <DeliveryServiceContext.Provider
+                                value={deliveryServiceContext}
+                            >
+                                {children}
+                            </DeliveryServiceContext.Provider>
+                        </StorageContext.Provider>
+                    </AuthContext.Provider>
+                </>
+            );
+
+            const { result } = renderHook(() => useConversation(config), {
+                wrapper,
+            });
+
+            await waitFor(() => result.current.addConversation('bob.eth'));
+
+            const conversations = result.current.contacts;
+
+            // new conversation added should be the first in contact list
+            expect(conversations[0].contactDetails.account.ensName).toBe(
+                'bob.eth',
+            );
         });
     });
 });

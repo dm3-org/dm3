@@ -10,3 +10,4 @@ export { sha256 } from './sha256';
 export { getSize } from './size';
 export { stringify } from './stringify';
 export { validateSchema } from './validateSchema';
+export { Web3ProviderCacheFactory } from './cache/Web3ProviderCacheFactory';

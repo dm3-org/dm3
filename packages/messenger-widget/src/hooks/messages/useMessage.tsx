@@ -1,16 +1,14 @@
-import { encryptAsymmetric, sign } from '@dm3-org/dm3-lib-crypto';
+import { encryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
 import {
-    EncryptionEnvelop,
     DispatchableEnvelop,
+    EncryptionEnvelop,
     Envelop,
     Message,
     MessageState,
     buildEnvelop,
 } from '@dm3-org/dm3-lib-messaging';
-import {
-    DeliveryServiceProfile,
-    normalizeEnsName,
-} from '@dm3-org/dm3-lib-profile';
+import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
+import { sha256, stringify } from '@dm3-org/dm3-lib-shared';
 import { StorageEnvelopContainer as StorageEnvelopContainerNew } from '@dm3-org/dm3-lib-storage';
 import axios from 'axios';
 import { useCallback, useContext, useEffect, useState } from 'react';
@@ -24,12 +22,27 @@ import { checkIfEnvelopAreInSizeLimit } from './sizeLimit/checkIfEnvelopIsInSize
 import { handleMessagesFromDeliveryService } from './sources/handleMessagesFromDeliveryService';
 import { handleMessagesFromStorage } from './sources/handleMessagesFromStorage';
 import { handleMessagesFromWebSocket } from './sources/handleMessagesFromWebSocket';
-import { sha256, stringify } from '@dm3-org/dm3-lib-shared';
-import { ContactPreview } from '../../interfaces/utils';
+import { useHaltDelivery } from '../haltDelivery/useHaltDelivery';
+import { submitEnvelopsToReceiversDs } from '../../utils/deliveryService/submitEnvelopsToReceiversDs';
+
+const DEFAULT_MESSAGE_PAGESIZE = 100;
+
+//Message source to identify where a message comes from. This is important to handle pagination of storage messages properly
+export enum MessageSource {
+    //Messages added by the client via addMessage
+    Client,
+    //Messages fetched from the storage
+    Storage,
+    //Messages fetched from the deliveryService
+    DeliveryService,
+    //Messages received from the Websocket
+    WebSocket,
+}
 
 export type MessageModel = StorageEnvelopContainerNew & {
     reactions: Envelop[];
     replyToMessageEnvelop?: Envelop;
+    source: MessageSource;
 };
 
 export type MessageStorage = {
@@ -37,8 +50,12 @@ export type MessageStorage = {
 };
 
 export const useMessage = () => {
-    const { contacts, selectedContact, addConversation } =
-        useContext(ConversationContext);
+    const {
+        contacts,
+        selectedContact,
+        addConversation,
+        updateConversationList,
+    } = useContext(ConversationContext);
     const { account, profileKeys } = useContext(AuthContext);
     const { fetchNewMessages, syncAcknowledgment } = useContext(
         DeliveryServiceContext,
@@ -51,13 +68,15 @@ export const useMessage = () => {
     const { resolveTLDtoAlias } = useContext(TLDContext);
 
     const {
-        getNumberOfMessages,
         getMessages: getMessagesFromStorage,
         storeMessage,
         storeMessageBatch,
         editMessageBatchAsync,
         initialized: storageInitialized,
     } = useContext(StorageContext);
+
+    //load halt delivery here to be able to store messages as halted
+    useHaltDelivery();
 
     const [messages, setMessages] = useState<MessageStorage>({});
 
@@ -92,6 +111,7 @@ export const useMessage = () => {
                 selectedContact!,
                 encryptedEnvelop,
                 resolveTLDtoAlias,
+                updateConversationList,
             );
         });
 
@@ -102,10 +122,12 @@ export const useMessage = () => {
 
     //Mark messages as read when the selected contact changes
     useEffect(() => {
-        const contact = selectedContact?.contactDetails.account.ensName;
-        if (!contact) {
+        const _contact = selectedContact?.contactDetails.account.ensName;
+        if (!_contact) {
             return;
         }
+
+        const contact = normalizeEnsName(_contact);
 
         const unreadMessages = (messages[contact] ?? []).filter(
             (message) =>
@@ -191,8 +213,6 @@ export const useMessage = () => {
         message: Message,
     ): Promise<{ isSuccess: boolean; error?: string }> => {
         const contact = normalizeEnsName(_contactName);
-        console.log(contacts);
-
         //If a message is empty it should not be added
 
         if (!message.message || message.message.trim() === '') {
@@ -229,7 +249,7 @@ export const useMessage = () => {
                     },
                 },
                 messageState: MessageState.Created,
-
+                source: MessageSource.Client,
                 reactions: [],
             };
             setMessages((prev) => {
@@ -239,7 +259,8 @@ export const useMessage = () => {
                     [contact]: [...(prev[contact] ?? []), messageModel],
                 };
             });
-            storeMessage(contact, messageModel);
+            //Store the message and mark it as halted
+            storeMessage(contact, messageModel, true);
             return { isSuccess: true };
         }
 
@@ -286,6 +307,8 @@ export const useMessage = () => {
             envelop: envelops[0].envelop,
             messageState: MessageState.Created,
             reactions: [],
+            //Message has just been created by the client
+            source: MessageSource.Client,
         };
 
         //Add the message to the state
@@ -313,25 +336,8 @@ export const useMessage = () => {
             };
         }
         //Send the envelops to the delivery service
-        await submitEnveloptsToReceiversDs(envelops);
+        await submitEnvelopsToReceiversDs(envelops);
         return { isSuccess: true };
-    };
-
-    const submitEnveloptsToReceiversDs = async (
-        envelops: DispatchableEnvelop[],
-    ) => {
-        //Every DispatchableEnvelop is sent to the delivery service
-        await Promise.all(
-            envelops.map(async (envelop) => {
-                return await axios
-                    .create({ baseURL: envelop.deliveryServiceUrl })
-                    .post('/rpc', {
-                        jsonrpc: '2.0',
-                        method: 'dm3_submitMessage',
-                        params: [JSON.stringify(envelop.encryptedEnvelop)],
-                    });
-            }),
-        );
     };
 
     const loadInitialMessages = async (_contactName: string) => {
@@ -339,9 +345,11 @@ export const useMessage = () => {
         const initialMessages = await Promise.all([
             handleMessagesFromStorage(
                 setContactsLoading,
-                getNumberOfMessages,
                 getMessagesFromStorage,
                 contactName,
+                DEFAULT_MESSAGE_PAGESIZE,
+                //For the first page we use 0 as offset
+                0,
             ),
             handleMessagesFromDeliveryService(
                 account!,
@@ -351,15 +359,53 @@ export const useMessage = () => {
                 contactName,
                 fetchNewMessages,
                 syncAcknowledgment,
+                updateConversationList,
             ),
         ]);
-
         const flatten = initialMessages.reduce(
             (acc, val) => acc.concat(val),
             [],
         );
+        await _addMessages(contactName, flatten);
+    };
 
-        const messages = flatten
+    const loadMoreMessages = async (_contactName: string): Promise<number> => {
+        const contactName = normalizeEnsName(_contactName);
+
+        const messagesFromContact = messages[contactName] ?? [];
+        //For the messageCount we only consider messages from the MessageSource storage
+        const messageCount = messagesFromContact.filter(
+            (message) => message.source === MessageSource.Storage,
+        ).length;
+
+        //We dont need to fetch more messages if the previously fetched page is smaller than the default pagesize
+        const isLastPage = messageCount % DEFAULT_MESSAGE_PAGESIZE !== 0;
+        if (isLastPage) {
+            //No more messages have been added
+            return 0;
+        }
+
+        //We calculate the offset based on the messageCount
+        const offset = Math.floor(messageCount / DEFAULT_MESSAGE_PAGESIZE);
+        console.log('load more ', messageCount, offset);
+
+        const messagesFromStorage = await handleMessagesFromStorage(
+            setContactsLoading,
+            getMessagesFromStorage,
+            contactName,
+            DEFAULT_MESSAGE_PAGESIZE,
+            offset,
+        );
+        return await _addMessages(contactName, messagesFromStorage);
+    };
+
+    const _addMessages = async (
+        _contactName: string,
+        newMessages: MessageModel[],
+    ) => {
+        const contactName = normalizeEnsName(_contactName);
+
+        newMessages
             //filter duplicates
             .filter((message, index, self) => {
                 if (!message.envelop.metadata?.encryptedMessageHash) {
@@ -375,18 +421,24 @@ export const useMessage = () => {
                 );
             });
 
-        const withResolvedAliasNames = await resolveAliasNames(messages);
+        const withResolvedAliasNames = await resolveAliasNames(newMessages);
 
         setMessages((prev) => {
             return {
                 ...prev,
-                [contactName]: withResolvedAliasNames,
+                [contactName]: [
+                    ...(prev[contactName] ?? []),
+                    ...withResolvedAliasNames,
+                ],
             };
         });
 
         setContactsLoading((prev) => {
             return prev.filter((contact) => contact !== contactName);
         });
+
+        // the count of new messages added
+        return withResolvedAliasNames.length;
     };
 
     /**
@@ -423,6 +475,7 @@ export const useMessage = () => {
         getUnreadMessageCount,
         getMessages,
         addMessage,
+        loadMoreMessages,
         contactIsLoading,
     };
 };

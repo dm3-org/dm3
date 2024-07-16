@@ -1,0 +1,22 @@
+{
+  "$ref": "#/definitions/_PaginatedRequest",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "_PaginatedRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "offset": {
+          "type": "number"
+        },
+        "pageSize": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "pageSize",
+        "offset"
+      ],
+      "type": "object"
+    }
+  }
+}

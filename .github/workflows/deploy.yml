@@ -1,5 +1,6 @@
 name: deploy
 on:
+    workflow_dispatch:
     push:
         branches:
             - testing
@@ -8,10 +9,10 @@ on:
 
 jobs:
     messenger-web-deploy:
-        environment: ${{ github.ref_name == 'main' && 'prod' || (github.ref == 'develop' && 'staging' || 'testing') }}
+        environment: ${{ github.ref_name == 'main' && 'prod' || (github.ref_name == 'develop' && 'staging' || 'testing') }}
         runs-on: ubuntu-latest
         env:
-            environment_name: ${{ github.ref_name == 'main' && 'prod' || (github.ref == 'develop' && 'staging' || 'testing') }}
+            environment_name: ${{ github.ref_name == 'main' && 'prod' || (github.ref_name == 'develop' && 'staging' || 'testing') }}
         steps:
             - uses: actions/checkout@v2
             - uses: actions/setup-node@v3
@@ -36,7 +37,7 @@ jobs:
                   chmod 600 ./ssh-key
             - name: Create .env file
               env:
-                  TARGET_HOST: ${{ vars.HOST_DOMAIN}}
+                  TARGET_HOST: ${{ vars.HOST_DOMAIN }}
                   TARGET_IP: ${{ vars.HOST_IP }}
               run: |
                   echo "REACT_APP_ADDR_ENS_SUBDOMAIN=${{ vars.ADDR_ENS_SUBDOMAIN }}" >> ./.env.react
@@ -55,7 +56,7 @@ jobs:
                   echo "REACT_APP_ENVIRONMENT_NAME=${{ env.environment_name }}" >> ./.env.react
                   echo "REACT_APP_MAINNET_PROVIDER_RPC=${{ secrets.MAINNET_PROVIDER_URL}}" >> ./.env.react
                   echo "REACT_APP_CHAIN_ID=${{ vars.CHAIN_ID }}" >> ./.env.react
-                  echo "REACT_APP_GENOME_REGISTRY_ADDRESS=${{ vars.GENOME_REGISTRY_ADDRESS }}" >> ./.env.react
+                  echo "REACT_APP_NONCE=${{ vars.STORAGE_NONCE }}" >> ./.env.react
                   cat ./.env.react >> ./.env
                   echo "RESOLVER_ADDRESS=${{ vars.ERC3668_RESOLVER_ADDRESS }}" >> ./.env
                   echo "SIGNING_PUBLIC_KEY=${{ secrets.SIGNING_PUBLIC_KEY }}" >> ./.env
@@ -68,6 +69,8 @@ jobs:
                   echo "URL=${{ vars.HOST_DOMAIN }}" >> ./.env
                   echo "CERT_MAIL=${{ vars.CERT_MAIL }}" >> ./.env
                   echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> ./.env
+                  echo "RESOLVER_SUPPORTED_ADDR_ENS_SUBDOMAINS=${{ vars.RESOLVER_SUPPORTED_ADDR_ENS_SUBDOMAINS }}" >> ./.env
+                  echo "RESOLVER_SUPPORTED_NAME_ENS_SUBDOMAINS=${{ vars.RESOLVER_SUPPORTED_NAME_ENS_SUBDOMAINS }}" >> ./.env
                   envsubst '${TARGET_HOST} ${TARGET_IP}' < ./docker/nginx.conf > ./nginx.conf
                   cat ./.env
             - name: Prepare docker build environment
@@ -106,10 +109,10 @@ jobs:
                     --tag dm3org/$image_name:$version${{ env.docker_suffix }}.${{ env.unix_now }}.${{ env.sha_short }}  .
                   docker save -o ./$image_name.tar $image_name:latest
                   docker push --all-tags dm3org/$image_name
-            - name: Build and publish offchain-resolver docker image
+            - name: Build offchain-resolver docker image
               shell: bash
               run: |
-                  version=$(NODE_PATH=packages/offchain-resolver node -p "require('package.json').version")
+                  version=$(NODE_PATH=packages/delivery-service node -p "require('package.json').version")
                   image_name=dm3-offchain-resolver
                   docker build --progress=plain -f ./docker/DockerfilePackages --build-arg="PACKAGE=offchain-resolver" \
                     --tag $image_name:latest \
@@ -151,8 +154,8 @@ jobs:
             - name: Configure Firewall
               run: |
                   ssh -i ./ssh-key root@${{ vars.HOST_DOMAIN }} "\
-                  ufw allow from 172.18.0.1/16 proto tcp to ${{ vars.HOST_IP }} port 80; 
-                  ufw allow from 172.18.0.1/16 proto tcp to ${{ vars.HOST_IP }} port 443;
+                  ufw allow from 172.18.0.1/16 proto tcp to ${{ vars.HOST_IP}} port 80; 
+                  ufw allow from 172.18.0.1/16 proto tcp to ${{ secrets.IP_ADDRESS }} port 443;
                   ufw enable"
             - name: Start docker on server
               run: |

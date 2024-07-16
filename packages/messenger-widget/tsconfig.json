@@ -8,6 +8,7 @@
       "allowJs": true,
       "declaration": true,
       "moduleResolution": "node",
+      "resolveJsonModule": true,
       "esModuleInterop": true,
       "noImplicitThis": true,
       "noImplicitAny": true,
