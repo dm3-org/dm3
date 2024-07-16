@@ -8,6 +8,27 @@ import express from 'express';
 import { IDatabase } from './persistence/getDatabase';
 import { DeliveryServiceProfileKeys } from '@dm3-org/dm3-lib-profile';
 
+const syncAcknoledgmentParamsSchema = {
+    type: 'object',
+    properties: {
+        ensName: { type: 'string' },
+        last_message_pull: { type: 'string' },
+    },
+    required: ['ensName', 'last_message_pull'],
+    additionalProperties: false,
+};
+const syncAcknoledgmentBodySchema = {
+    type: 'object',
+    properties: {
+        acknoledgments: {
+            type: 'array',
+            items: schema.Acknoledgment,
+        },
+    },
+    required: ['acknoledgments'],
+    additionalProperties: false,
+};
+
 export default (
     web3Provider: ethers.providers.JsonRpcProvider,
     db: IDatabase,
