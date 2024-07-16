@@ -21,6 +21,7 @@ import Otp from './otp';
 export enum RedisPrefix {
     Conversation = 'conversation:',
     IncomingConversations = 'incoming.conversations:',
+    Sync = 'sync:',
     // Account used to be called Session. The prefix still resolves to "session:" for now.
     Account = 'session:',
     NotificationChannel = 'notificationChannel:',
