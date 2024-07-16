@@ -39,11 +39,11 @@ export async function getRedisClient() {
     );
 
     client.on('error', (err) => {
-        global.logger.error('Redis error: ' + (err as Error).message);
+        console.error('Redis error: ' + (err as Error).message);
     });
 
-    client.on('reconnecting', () => global.logger.info('Redis reconnection'));
-    client.on('ready', () => global.logger.info('Redis ready'));
+    client.on('reconnecting', () => console.info('Redis reconnection'));
+    client.on('ready', () => console.info('Redis ready'));
 
     await client.connect();
 

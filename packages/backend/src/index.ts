@@ -13,7 +13,6 @@ import 'dotenv/config';
 import express from 'express';
 import http from 'http';
 import path from 'path';
-import winston from 'winston';
 import { getDatabase } from './persistence/getDatabase';
 import Profile from './profile';
 import Storage from './storage';
@@ -27,17 +26,6 @@ const server = http.createServer(app);
 //TODO remove
 app.use(cors());
 app.use(bodyParser.json());
-
-declare global {
-    var logger: winston.Logger;
-}
-
-global.logger = winston.createLogger({
-    level: process.env.LOG_LEVEL ?? 'info',
-    transports: [new winston.transports.Console()],
-});
-
-winston.loggers.add('default', global.logger);
 
 (async () => {
     const db = await getDatabase();
