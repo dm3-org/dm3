@@ -1,6 +1,5 @@
 import { encryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
 import {
-    DispatchableEnvelop,
     EncryptionEnvelop,
     Envelop,
     Message,
@@ -10,20 +9,19 @@ import {
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { sha256, stringify } from '@dm3-org/dm3-lib-shared';
 import { StorageEnvelopContainer as StorageEnvelopContainerNew } from '@dm3-org/dm3-lib-storage';
-import axios from 'axios';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';
 import { DeliveryServiceContext } from '../../context/DeliveryServiceContext';
 import { StorageContext } from '../../context/StorageContext';
 import { TLDContext } from '../../context/TLDContext';
+import { submitEnvelopsToReceiversDs } from '../../utils/deliveryService/submitEnvelopsToReceiversDs';
+import { useHaltDelivery } from '../haltDelivery/useHaltDelivery';
 import { renderMessage } from './renderer/renderMessage';
 import { checkIfEnvelopAreInSizeLimit } from './sizeLimit/checkIfEnvelopIsInSizeLimit';
 import { handleMessagesFromDeliveryService } from './sources/handleMessagesFromDeliveryService';
 import { handleMessagesFromStorage } from './sources/handleMessagesFromStorage';
 import { handleMessagesFromWebSocket } from './sources/handleMessagesFromWebSocket';
-import { useHaltDelivery } from '../haltDelivery/useHaltDelivery';
-import { submitEnvelopsToReceiversDs } from '../../utils/deliveryService/submitEnvelopsToReceiversDs';
 
 const DEFAULT_MESSAGE_PAGESIZE = 100;
 
@@ -118,7 +116,7 @@ export const useMessage = () => {
         return () => {
             removeOnNewMessageListener();
         };
-    }, [onNewMessage, selectedContact]);
+    }, [onNewMessage, selectedContact, contacts]);
 
     //Mark messages as read when the selected contact changes
     useEffect(() => {
