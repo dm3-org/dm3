@@ -1,4 +1,4 @@
-import { Acknoledgment, getMessages, schema } from '@dm3-org/dm3-lib-delivery';
+import { Acknowledgment, getMessages, schema } from '@dm3-org/dm3-lib-delivery';
 import { auth } from '@dm3-org/dm3-lib-server-side';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import { getConversationId } from '@dm3-org/dm3-lib-delivery';
@@ -118,7 +118,7 @@ export default (
 
                 await Promise.all(
                     req.body.acknowledgements.map(
-                        async (ack: Acknoledgment) => {
+                        async (ack: Acknowledgment) => {
                             const contactEnsName = await db.getIdEnsName(
                                 ack.contactAddress,
                             );

@@ -1,5 +1,5 @@
 import { decrypt, encrypt, EncryptedPayload } from '@dm3-org/dm3-lib-crypto';
-import { Acknoledgment } from '@dm3-org/dm3-lib-delivery';
+import { Acknowledgment } from '@dm3-org/dm3-lib-delivery';
 import { Envelop, MessageState } from '@dm3-org/dm3-lib-messaging';
 import { Account, ProfileKeys } from '@dm3-org/dm3-lib-profile';
 import { logInfo, stringify } from '@dm3-org/dm3-lib-shared';
@@ -176,13 +176,13 @@ export async function sync(
     deliveryServiceToken: string,
 ): Promise<{
     userStorage: UserStorage;
-    acknoledgments: Acknoledgment[];
+    acknoledgments: Acknowledgment[];
 }> {
     if (!userDb) {
         throw Error(`User db hasn't been create`);
     }
 
-    const acknoledgments: Acknoledgment[] = Array.from(
+    const acknoledgments: Acknowledgment[] = Array.from(
         userDb.conversations.keys(),
     )
         // get newest delivery service query timestamp

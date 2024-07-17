@@ -1,10 +1,7 @@
+import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
 import React from 'react';
 import { useDeliveryService } from '../hooks/server-side/useDeliveryService';
-import {
-    Acknoledgment,
-    DeliveryServiceProperties,
-} from '@dm3-org/dm3-lib-delivery';
-import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
+import { Acknowledgment } from '@dm3-org/dm3-lib-delivery';
 
 export type DeliveryServiceContextType = {
     getDeliveryServiceProperties: () => Promise<any[]>;
@@ -27,7 +24,7 @@ export type DeliveryServiceContextType = {
     fetchIncommingMessages: (ensName: string) => any;
     syncAcknowledgment: (
         ensName: string,
-        acknoledgments: Acknoledgment[],
+        acknowledgments: Acknowledgment[],
         lastSyncTime: number,
     ) => void;
     getGlobalNotification: (ensName: string) => any;
@@ -68,7 +65,7 @@ export const DeliveryServiceContext =
         fetchIncommingMessages: (ensName: string) => {},
         syncAcknowledgment: (
             ensName: string,
-            acknoledgments: Acknoledgment[],
+            acknowledgments: Acknowledgment[],
             lastSyncTime: number,
         ) => {},
         getGlobalNotification: (ensName: string) => {},

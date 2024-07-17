@@ -1,4 +1,4 @@
-import { Acknoledgment } from '@dm3-org/dm3-lib-delivery';
+import { Acknowledgment } from '@dm3-org/dm3-lib-delivery';
 import { ServerSideConnector } from './ServerSideConnector';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
@@ -16,7 +16,7 @@ export class DeliveryServiceConnector extends ServerSideConnector {
 
     public async syncAcknowledgement(
         ensName: string,
-        acknoledgments: Acknoledgment[],
+        acknowledgments: Acknowledgment[],
         lastSyncTime: number,
     ) {
         const url = `/delivery/messages/${normalizeEnsName(
@@ -24,7 +24,7 @@ export class DeliveryServiceConnector extends ServerSideConnector {
         )}/syncAcknowledgment/${lastSyncTime}`;
 
         return await this.getAuthenticatedAxiosClient().post(url, {
-            acknoledgments,
+            acknowledgments,
         });
     }
 
@@ -94,14 +94,14 @@ export class DeliveryServiceConnector extends ServerSideConnector {
 
     public async syncAcknowledgment(
         ensName: string,
-        acknoledgments: Acknoledgment[],
+        acknowledgments: Acknowledgment[],
         lastSyncTime: number,
     ) {
         const url = `/delivery/messages/${normalizeEnsName(
             ensName,
         )}/syncAcknowledgment/${lastSyncTime}`;
         const { data } = await this.getAuthenticatedAxiosClient().post(url, {
-            acknoledgments,
+            acknowledgments,
         });
         return data;
     }

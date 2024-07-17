@@ -3,7 +3,7 @@ import DeliveryServicePropertiesSchema from './DeliveryServiceProperties.schema.
 import SessionSchema from './Session.schema.json';
 import NotificationChannelSchema from './NotificationChannel.schema.json';
 
-export const Acknowledgment = AcknowledgmentSchema.definitions.Acknoledgment;
+export const Acknowledgment = AcknowledgmentSchema.definitions.Acknowledgment;
 export const DeliveryServiceProperties = DeliveryServicePropertiesSchema;
 export const Session = SessionSchema;
 export const NotificationChannel = NotificationChannelSchema;
