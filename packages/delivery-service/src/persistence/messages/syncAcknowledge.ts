@@ -1,5 +1,6 @@
 import { Redis, RedisPrefix } from '../getDatabase';
 import { getMessages } from './getMessages';
+
 /**
  * Function to acknowledge synchronization of messages.
  * It removes the message with the given hash from the Redis sorted set.
@@ -12,13 +13,14 @@ export function syncAcknowledge(redis: Redis) {
         conversationId: string,
         messageHash: string,
     ): Promise<boolean> => {
-        console.log('msgs');
+        //DEFAULT PAGE SIZE. Should be large enough to capture the entire set
+        const PAGE_SIZE = 100000;
         //deleting a message by its id is not possible in redis using a sorted set.
         //hence we have to fetch all the messages and then remove the message from the sorted set.
-        const msgs = await getMessages(redis)(conversationId, 0, 100000);
+        const messages = await getMessages(redis)(conversationId, 0, PAGE_SIZE);
 
         //find the message with the given hash
-        const message = msgs.find(
+        const message = messages.find(
             (m) => m.metadata.encryptedMessageHash === messageHash,
         );
 
