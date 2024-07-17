@@ -4,6 +4,7 @@ import express from 'express';
 import request from 'supertest';
 import winston from 'winston';
 import delivery from './delivery';
+import { Redis, getDatabase, getRedisClient } from './persistence/getDatabase';
 
 const keysA = {
     encryptionKeyPair: {
@@ -24,7 +25,19 @@ const serverSecret = 'veryImportantSecret';
 global.logger = winston.createLogger({
     transports: [new winston.transports.Console()],
 });
+
+let redisClient: Redis;
 describe('Delivery', () => {
+    beforeEach(async () => {
+        redisClient = await getRedisClient();
+        await redisClient.flushDb();
+    });
+
+    afterEach(async () => {
+        await redisClient.flushDb();
+        await redisClient.disconnect();
+    });
+
     describe('getMessages', () => {
         it('Returns 200 if schema is valid', async () => {
             const web3Provider = {
@@ -81,7 +94,8 @@ describe('Delivery', () => {
             );
 
             const db = {
-                getAccount: async (ensName: string) => ({
+                ...(await getDatabase(redisClient)),
+                getSession: async (ensName: string) => ({
                     challenge: '123',
                     token,
                 }),
@@ -89,10 +103,6 @@ describe('Delivery', () => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 getIdEnsName: async (ensName: string) => ensName,
-                syncAcknowledge: async (
-                    conversationId: string,
-                    lastMessagePull: string,
-                ) => Promise<void>,
             };
             const app = express();
             app.use(bodyParser.json());
@@ -102,18 +112,18 @@ describe('Delivery', () => {
 
             const { status } = await request(app)
                 .post(
-                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/syncAcknoledgment/12345',
+                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/syncAcknowledgment/12345',
                 )
                 .set({
                     authorization: `Bearer ${token}`,
                 })
 
                 .send({
-                    acknoledgments: [
+                    acknowledgements: [
                         {
                             contactAddress:
                                 '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
-                            messageDeliveryServiceTimestamp: 123,
+                            messageHash: 12345,
                         },
                     ],
                 });
@@ -131,7 +141,8 @@ describe('Delivery', () => {
             );
 
             const db = {
-                getAccount: async (ensName: string) => ({
+                ...(await getDatabase(redisClient)),
+                getSession: async (ensName: string) => ({
                     challenge: '123',
                     token,
                 }),
@@ -140,6 +151,7 @@ describe('Delivery', () => {
                 },
                 getIdEnsName: async (ensName: string) => ensName,
             };
+
             const app = express();
             app.use(bodyParser.json());
             app.use(
@@ -148,14 +160,14 @@ describe('Delivery', () => {
 
             const { status } = await request(app)
                 .post(
-                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/syncAcknoledgment/fooo',
+                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/syncAcknowledgment/fooo',
                 )
                 .set({
                     authorization: `Bearer ${token}`,
                 })
 
                 .send({
-                    acknoledgments: [],
+                    syncAcknowledgment: [],
                 });
 
             expect(status).toBe(400);
@@ -169,9 +181,9 @@ describe('Delivery', () => {
             const token = await createAuthToken(
                 '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
             );
-
             const db = {
-                getAccount: async (ensName: string) => ({
+                ...(await getDatabase(redisClient)),
+                getSession: async (ensName: string) => ({
                     challenge: '123',
                     token,
                 }),
@@ -180,6 +192,7 @@ describe('Delivery', () => {
                 },
                 getIdEnsName: async (ensName: string) => ensName,
             };
+
             const app = express();
             app.use(bodyParser.json());
             app.use(
@@ -188,7 +201,7 @@ describe('Delivery', () => {
 
             const { status } = await request(app)
                 .post(
-                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/syncAcknoledgment/1234',
+                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/syncAcknowledgment/1234',
                 )
                 .set({
                     authorization: `Bearer ${token}`,

@@ -10,7 +10,7 @@ export {
     incomingMessage,
     handleIncomingMessage,
 } from './Messages';
-export type { Acknoledgment } from './Messages';
+export type { Acknowledgment } from './Messages';
 export { getConversationId } from './Messages';
 export type {} from './PublicMessages';
 export * as schema from './schema';

@@ -14,11 +14,13 @@ export function getIncomingMessages(redis: Redis) {
             { REV: true },
         );
 
-        //For each conversation we're fetching the last 10 messages
-        const conversations = await Promise.all(
+        console.log('conversationIds', conversationIds);
+
+        //For each conversation we're fetching the latest messages
+        const messages = await Promise.all(
             conversationIds.map((id) => getMessages(redis)(id, 0, limit)),
         );
 
-        return conversations.reduce((acc, cur) => [...acc, ...cur], []);
+        return messages.reduce((acc, cur) => [...acc, ...cur], []);
     };
 }

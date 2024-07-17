@@ -7,7 +7,7 @@ import {
 import { MessageModel, MessageSource } from '../useMessage';
 import { Account, ProfileKeys } from '@dm3-org/dm3-lib-profile';
 import { AddConversation, StoreMessageBatch } from '../../storage/useStorage';
-import { Acknoledgment } from '@dm3-org/dm3-lib-delivery';
+import { Acknowledgment } from '@dm3-org/dm3-lib-delivery';
 
 export const handleMessagesFromDeliveryService = async (
     account: Account,
@@ -18,7 +18,7 @@ export const handleMessagesFromDeliveryService = async (
     fetchNewMessages: (ensName: string, contactAddress: string) => any,
     syncAcknowledgment: (
         ensName: string,
-        acknoledgments: Acknoledgment[],
+        acknoledgments: Acknowledgment[],
         lastSyncTime: number,
     ) => void,
     updateConversationList: (conversation: string, updatedAt: number) => void,

@@ -1,4 +1,4 @@
-import { Acknoledgment } from '@dm3-org/dm3-lib-delivery';
+import { Acknowledgment } from '@dm3-org/dm3-lib-delivery';
 import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
 import { getDeliveryServiceProfile } from '@dm3-org/dm3-lib-profile';
 import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
@@ -177,7 +177,7 @@ export const useDeliveryService = () => {
         },
         syncAcknowledgment: (
             ensName: string,
-            acknoledgments: Acknoledgment[],
+            acknowledgments: Acknowledgment[],
             lastSyncTime: number,
         ) => {
             const connectors = _getConnectors();
@@ -185,7 +185,7 @@ export const useDeliveryService = () => {
                 connectors.map((c) =>
                     c.syncAcknowledgement(
                         ensName,
-                        acknoledgments,
+                        acknowledgments,
                         lastSyncTime,
                     ),
                 ),

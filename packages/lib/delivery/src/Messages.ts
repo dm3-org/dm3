@@ -33,7 +33,7 @@ import { Session } from './Session';
 import { isSpam } from './spam-filter';
 import { SpamFilterRules } from './spam-filter/SpamFilterRules';
 
-export interface Acknoledgment {
+export interface Acknowledgment {
     contactAddress: string;
     messageDeliveryServiceTimestamp: number;
 }
