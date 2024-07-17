@@ -349,6 +349,7 @@ export const useConversation = (config: DM3Configuration) => {
         loadMoreConversations,
         initialized: conversationsInitialized,
         setSelectedContactName,
+        selectedContactName,
         selectedContact,
         hideContact,
         unhideContact,

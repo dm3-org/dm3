@@ -11,6 +11,7 @@ export const getMockedConversationContext = (
         setSelectedContactName: (contactEnsName: string | undefined) => {},
         conversationCount: 0,
         initialized: false,
+        selectedContactName: undefined,
         selectedContact: undefined,
         addConversation: (ensName: string) => {
             return {} as ContactPreview;
