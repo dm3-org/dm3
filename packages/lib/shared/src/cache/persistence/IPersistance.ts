@@ -1,4 +1,4 @@
-//Decouple the cache from the persistance layer
+//Decouple the cache from the persistence layer
 export interface IPersistance<T> {
     has(key: string): boolean;
     get(key: string): T | null;
