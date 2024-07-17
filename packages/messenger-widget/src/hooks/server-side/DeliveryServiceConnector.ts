@@ -20,7 +20,7 @@ export class DeliveryServiceConnector extends ServerSideConnector {
     ) {
         const url = `/delivery/messages/${normalizeEnsName(
             ensName,
-        )}/syncAcknowledgment/`;
+        )}/syncAcknowledgments/`;
 
         return await this.getAuthenticatedAxiosClient().post(url, {
             acknowledgments,

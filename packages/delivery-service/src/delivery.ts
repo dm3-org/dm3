@@ -19,12 +19,12 @@ const syncAcknowledgementParamsSchema = {
 const syncAcknowledgementBodySchema = {
     type: 'object',
     properties: {
-        acknowledgements: {
+        acknowledgments: {
             type: 'array',
             items: schema.Acknowledgment,
         },
     },
-    required: ['acknowledgements'],
+    required: ['acknowledgments'],
     additionalProperties: false,
 };
 
