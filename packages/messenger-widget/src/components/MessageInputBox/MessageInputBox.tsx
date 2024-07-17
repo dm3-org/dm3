@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from 'react';
 import { setAttachmentsOnEditMessage } from './bl';
 import { MessageActionType } from '../../utils/enum-type-utils';
 import { EmojiModal } from '../EmojiModal/EmojiModal';
-import { ContactPreview, IAttachmentPreview } from '../../interfaces/utils';
+import { IAttachmentPreview } from '../../interfaces/utils';
 import { ReplyMessagePreview } from '../ReplyMessagePreview/ReplyMessagePreview';
 import { AttachmentPreview } from '../AttachmentPreview/AttachmentPreview';
 import { AttachmentSelector } from '../AttachmentSelector/AttachmentSelector';
@@ -16,15 +16,13 @@ import { UiViewContext } from '../../context/UiViewContext';
 import { ModalContext } from '../../context/ModalContext';
 
 export function MessageInputBox() {
-    const { selectedContact } = useContext(ConversationContext);
+    const { selectedContact, selectedContactName } =
+        useContext(ConversationContext);
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
     const { messageView, setMessageView } = useContext(UiViewContext);
     const { openEmojiPopup } = useContext(ModalContext);
 
     const [message, setMessage] = useState('');
-    const [contactSelected, setContactSelected] = useState<
-        ContactPreview | undefined
-    >(undefined);
     const [filesSelected, setFilesSelected] = useState<IAttachmentPreview[]>(
         [],
     );
@@ -60,27 +58,16 @@ export function MessageInputBox() {
     }, [messageView]);
 
     /**
-     * Updates contact selected locally on change on selected contact.
-     * Since the updatedAt property changes on every message, due to which input field of message
-     * gets cleared which results in loss of message written in input field if new message is received
-     * at the same time. So to avoid that contactSelected is used to track message input field is
-     * cleared only if selectedContact is changed and not on updatedAt property of selectedContact
-     * while chatting
+     * On change of contact selected
+     * Resets the input message and message view as no message is selected
      */
     useEffect(() => {
-        if (
-            !contactSelected ||
-            contactSelected.contactDetails.account.ensName !==
-                selectedContact?.contactDetails.account.ensName
-        ) {
-            setContactSelected(selectedContact);
-            setMessageView({
-                actionType: MessageActionType.NONE,
-                messageData: undefined,
-            });
-            setMessage('');
-        }
-    }, [selectedContact]);
+        setMessageView({
+            actionType: MessageActionType.NONE,
+            messageData: undefined,
+        });
+        setMessage('');
+    }, [selectedContactName]);
 
     useEffect(() => {
         setFilesSelected([]);
