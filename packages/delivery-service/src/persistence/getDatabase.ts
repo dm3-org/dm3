@@ -108,14 +108,13 @@ export interface IDatabase extends ISessionDatabase {
     createMessage: (
         conversationId: string,
         envelop: EncryptionEnvelop,
-        createdAt?: number,
     ) => Promise<void>;
     deleteExpiredMessages: (time: number) => Promise<void>;
     getIdEnsName: (ensName: string) => Promise<string>;
     syncAcknowledge: (
         conversationId: string,
-        syncTime: number,
-    ) => Promise<void>;
+        messageHash: string,
+    ) => Promise<boolean>;
     getUsersNotificationChannels: (
         ensName: string,
     ) => Promise<NotificationChannel[]>;
