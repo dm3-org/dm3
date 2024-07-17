@@ -112,7 +112,7 @@ describe('Delivery', () => {
 
             const { status } = await request(app)
                 .post(
-                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/syncAcknowledgment/12345',
+                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/syncAcknowledgments',
                 )
                 .set({
                     authorization: `Bearer ${token}`,
@@ -123,55 +123,14 @@ describe('Delivery', () => {
                         {
                             contactAddress:
                                 '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
-                            messageHash: 12345,
+                            messageHash: '12345',
                         },
                     ],
                 });
 
             expect(status).toBe(200);
         });
-        it('Returns 400 if params are invalid', async () => {
-            const web3Provider = {
-                resolveName: async () =>
-                    '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
-            };
 
-            const token = await createAuthToken(
-                '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
-            );
-
-            const db = {
-                ...(await getDatabase(redisClient)),
-                getSession: async (ensName: string) => ({
-                    challenge: '123',
-                    token,
-                }),
-                setSession: async (_: string, __: any) => {
-                    return (_: any, __: any, ___: any) => {};
-                },
-                getIdEnsName: async (ensName: string) => ensName,
-            };
-
-            const app = express();
-            app.use(bodyParser.json());
-            app.use(
-                delivery(web3Provider as any, db as any, keysA, serverSecret),
-            );
-
-            const { status } = await request(app)
-                .post(
-                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/syncAcknowledgment/fooo',
-                )
-                .set({
-                    authorization: `Bearer ${token}`,
-                })
-
-                .send({
-                    syncAcknowledgment: [],
-                });
-
-            expect(status).toBe(400);
-        });
         it('Returns 400 if body is invalid', async () => {
             const web3Provider = {
                 resolveName: async () =>
@@ -201,7 +160,7 @@ describe('Delivery', () => {
 
             const { status } = await request(app)
                 .post(
-                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/syncAcknowledgment/1234',
+                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/syncAcknowledgments',
                 )
                 .set({
                     authorization: `Bearer ${token}`,
