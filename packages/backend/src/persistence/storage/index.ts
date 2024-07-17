@@ -13,6 +13,8 @@ import { getUserDbMigrationStatus } from './getUserDbMigrationStatus';
 import { setUserDbMigrated } from './setUserDbMigrated';
 import { getHaltedMessages } from './postgres/haltedMessage/getHaltedMessages';
 import { clearHaltedMessage } from './postgres/haltedMessage/clearHaltedMessage';
+import { getAccount } from './postgres/getAccount';
+import { setAccount } from './postgres/setAccount';
 
 export default {
     getUserStorageOld,
@@ -29,6 +31,8 @@ export default {
     clearHaltedMessage,
     getUserDbMigrationStatus,
     setUserDbMigrated,
+    getAccount,
+    setAccount,
 };
 
 export type { MessageRecord };

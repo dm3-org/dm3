@@ -1,9 +1,8 @@
 import { Session as DSSession, spamFilter } from '@dm3-org/dm3-lib-delivery';
 import { IAccountDatabase } from '@dm3-org/dm3-lib-server-side';
 import { UserStorage } from '@dm3-org/dm3-lib-storage';
-import { PrismaClient } from '@prisma/client';
+import { Account, PrismaClient } from '@prisma/client';
 import { createClient } from 'redis';
-import Session from './session';
 import Storage from './storage';
 import { ConversationRecord } from './storage/postgres/dto/ConversationRecord';
 import { MessageRecord } from './storage/postgres/dto/MessageRecord';
@@ -57,14 +56,14 @@ export async function getPrismaClient() {
 export async function getDatabase(
     _redis?: Redis,
     _prisma?: PrismaClient,
-): Promise<IDatabase> {
+): Promise<IBackendDatabase> {
     const redis = _redis ?? (await getRedisClient());
     const prisma = _prisma ?? (await getPrismaClient());
 
     return {
         //Session
-        setAccount: Session.setAccount(redis),
-        getAccount: Session.getAccount(redis),
+        setAccount: Storage.setAccount(prisma),
+        getAccount: Storage.getAccount(prisma),
         //Legacy remove after storage has been merged
         getUserStorage: Storage.getUserStorageOld(redis),
         setUserStorage: Storage.setUserStorageOld(redis),
@@ -94,14 +93,9 @@ export async function getDatabase(
     };
 }
 
-export interface IDatabase extends IAccountDatabase {
-    setAccount: (ensName: string, session: DSSession) => Promise<void>;
-    getAccount: (ensName: string) => Promise<
-        | (DSSession & {
-              spamFilterRules: spamFilter.SpamFilterRules;
-          })
-        | null
-    >;
+export interface IBackendDatabase {
+    setAccount: (ensName: string) => Promise<void>;
+    getAccount: (ensName: string) => Promise<Account | null>;
     //Legacy remove after storage has been merged
     getUserStorage: (ensName: string) => Promise<UserStorage | null>;
     setUserStorage: (ensName: string, data: string) => Promise<void>;

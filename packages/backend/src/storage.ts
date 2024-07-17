@@ -5,7 +5,7 @@ import cors from 'cors';
 import { ethers } from 'ethers';
 import express, { NextFunction, Request, Response } from 'express';
 import stringify from 'safe-stable-stringify';
-import { IDatabase } from './persistence/getDatabase';
+import { IBackendDatabase } from './persistence/getDatabase';
 import { AddMessageBatchRequest } from './schema/storage/AddMessageBatchRequest';
 import { AddMessageRequest } from './schema/storage/AddMesssageRequest';
 import { EditMessageBatchRequest } from './schema/storage/EditMessageBatchRequest';
@@ -17,7 +17,7 @@ const DEFAULT_CONVERSATION_PAGE_SIZE = 10;
 const DEFAULT_MESSAGE_PAGE_SIZE = 100;
 
 export default (
-    db: IDatabase,
+    db: IBackendDatabase,
     web3Provider: ethers.providers.JsonRpcProvider,
     serverSecret: string,
 ) => {

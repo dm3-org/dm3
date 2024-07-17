@@ -1,12 +1,16 @@
-import { getUserProfile, submitUserProfile } from '@dm3-org/dm3-lib-delivery';
-import { normalizeEnsName, schema } from '@dm3-org/dm3-lib-profile';
+import { getUserProfile, generateAuthJWT } from '@dm3-org/dm3-lib-delivery';
+import {
+    checkUserProfile,
+    normalizeEnsName,
+    schema,
+} from '@dm3-org/dm3-lib-profile';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import express from 'express';
-import { IDatabase } from './persistence/getDatabase';
+import { IBackendDatabase } from './persistence/getDatabase';
 
 export default (
-    db: IDatabase,
+    db: IBackendDatabase,
     web3Provider: ethers.providers.JsonRpcProvider,
     serverSecret: string,
 ) => {
@@ -52,21 +56,44 @@ export default (
                     process.env.DISABLE_SESSION_CHECK === 'true',
             });
 
-            const data = await submitUserProfile(
-                web3Provider,
-                db.getAccount,
-                db.setAccount,
-                ensName,
-                req.body,
-                serverSecret,
-            );
+            // check if profile and signature are valid
+            if (
+                !(await checkUserProfile(
+                    web3Provider,
+                    req.body, // as SignedUserProfile,
+                    normalizeEnsName(ensName),
+                ))
+            ) {
+                console.debug(
+                    'Not creating account for ' +
+                        ensName +
+                        '  - Signature invalid',
+                );
+                throw Error('Signature invalid.');
+            }
+
+            // check if an account for this name already exists
+            if (await db.getAccount(ensName)) {
+                console.debug(
+                    'Not creating account for ' +
+                        ensName +
+                        ' - account exists already',
+                );
+                throw Error('Account exists already');
+            }
+
+            // create account
+            const account = await db.setAccount(ensName);
             console.debug({
                 message: 'POST profile',
                 ensName,
-                data,
+                account,
             });
 
-            res.json(data);
+            // generate auth jwt
+            const token = generateAuthJWT(ensName, serverSecret);
+
+            res.json(token);
         } catch (e) {
             console.warn({
                 message: 'POST profile',
