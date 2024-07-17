@@ -1,4 +1,6 @@
-import { getUserProfile, generateAuthJWT } from '@dm3-org/dm3-lib-delivery';
+import { generateAuthJWT } from '@dm3-org/dm3-lib-delivery';
+import { getUserProfile } from '@dm3-org/dm3-lib-profile';
+
 import {
     checkUserProfile,
     normalizeEnsName,
@@ -20,7 +22,7 @@ export default (
         try {
             const ensName = normalizeEnsName(req.params.ensName);
 
-            const profile = await getUserProfile(db.getAccount, ensName);
+            const profile = await getUserProfile(web3Provider, ensName);
             if (profile) {
                 res.json(profile);
             } else {

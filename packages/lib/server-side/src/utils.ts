@@ -16,7 +16,7 @@ export async function auth(
     res: Response,
     next: NextFunction,
     ensName: string,
-    db: IAccountDatabase,
+    doesAccountExist: (ensName: string) => Promise<boolean>,
     web3Provider: ethers.providers.JsonRpcProvider,
     serverSecret: string,
 ) {
@@ -28,7 +28,7 @@ export async function auth(
         token &&
         (await checkToken(
             web3Provider,
-            db.getAccount,
+            doesAccountExist,
             normalizedEnsName,
             token,
             serverSecret,

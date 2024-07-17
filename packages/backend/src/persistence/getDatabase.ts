@@ -64,6 +64,7 @@ export async function getDatabase(
         //Session
         setAccount: Storage.setAccount(prisma),
         getAccount: Storage.getAccount(prisma),
+        doesAccountExist: Storage.doesAccountExist(prisma),
         //Legacy remove after storage has been merged
         getUserStorage: Storage.getUserStorageOld(redis),
         setUserStorage: Storage.setUserStorageOld(redis),
@@ -94,8 +95,9 @@ export async function getDatabase(
 }
 
 export interface IBackendDatabase {
-    setAccount: (ensName: string) => Promise<void>;
+    setAccount: (ensName: string) => Promise<Account>;
     getAccount: (ensName: string) => Promise<Account | null>;
+    doesAccountExist: (ensName: string) => Promise<boolean>;
     //Legacy remove after storage has been merged
     getUserStorage: (ensName: string) => Promise<UserStorage | null>;
     setUserStorage: (ensName: string, data: string) => Promise<void>;

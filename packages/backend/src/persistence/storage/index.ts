@@ -15,6 +15,7 @@ import { getHaltedMessages } from './postgres/haltedMessage/getHaltedMessages';
 import { clearHaltedMessage } from './postgres/haltedMessage/clearHaltedMessage';
 import { getAccount } from './postgres/getAccount';
 import { setAccount } from './postgres/setAccount';
+import { doesAccountExist } from './postgres/doesAccountExist';
 
 export default {
     getUserStorageOld,
@@ -33,6 +34,7 @@ export default {
     setUserDbMigrated,
     getAccount,
     setAccount,
+    doesAccountExist,
 };
 
 export type { MessageRecord };

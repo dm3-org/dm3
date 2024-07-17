@@ -34,7 +34,15 @@ export default (
             next: NextFunction,
             ensName: string,
         ) => {
-            auth(req, res, next, ensName, db, web3Provider, serverSecret);
+            auth(
+                req,
+                res,
+                next,
+                ensName,
+                db.doesAccountExist,
+                web3Provider,
+                serverSecret,
+            );
         },
     );
 
