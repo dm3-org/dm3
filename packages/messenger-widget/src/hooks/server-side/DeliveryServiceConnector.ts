@@ -17,11 +17,10 @@ export class DeliveryServiceConnector extends ServerSideConnector {
     public async syncAcknowledgement(
         ensName: string,
         acknowledgments: Acknowledgment[],
-        lastSyncTime: number,
     ) {
         const url = `/delivery/messages/${normalizeEnsName(
             ensName,
-        )}/syncAcknowledgment/${lastSyncTime}`;
+        )}/syncAcknowledgment/`;
 
         return await this.getAuthenticatedAxiosClient().post(url, {
             acknowledgments,
@@ -89,20 +88,6 @@ export class DeliveryServiceConnector extends ServerSideConnector {
     public async fetchIncommingMessages(ensName: string) {
         const url = `/delivery/messages/incoming/${normalizeEnsName(ensName)}/`;
         const { data } = await this.getAuthenticatedAxiosClient().get(url);
-        return data;
-    }
-
-    public async syncAcknowledgment(
-        ensName: string,
-        acknowledgments: Acknowledgment[],
-        lastSyncTime: number,
-    ) {
-        const url = `/delivery/messages/${normalizeEnsName(
-            ensName,
-        )}/syncAcknowledgment/${lastSyncTime}`;
-        const { data } = await this.getAuthenticatedAxiosClient().post(url, {
-            acknowledgments,
-        });
         return data;
     }
 

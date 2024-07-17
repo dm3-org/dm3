@@ -12,9 +12,8 @@ const syncAcknowledgementParamsSchema = {
     type: 'object',
     properties: {
         ensName: { type: 'string' },
-        messageHash: { type: 'string' },
     },
-    required: ['ensName', 'messageHash'],
+    required: ['ensName'],
     additionalProperties: false,
 };
 const syncAcknowledgementBodySchema = {
@@ -97,7 +96,7 @@ export default (
         },
     );
     router.post(
-        '/messages/:ensName/syncAcknowledgment/:messageHash',
+        '/messages/:ensName/syncAcknowledgments/',
         async (req, res, next) => {
             const hasValidParams = validateSchema(
                 syncAcknowledgementParamsSchema,
@@ -129,7 +128,7 @@ export default (
 
                             await db.syncAcknowledge(
                                 conversationId,
-                                req.params.messageHash,
+                                ack.messageHash,
                             );
                         },
                     ),

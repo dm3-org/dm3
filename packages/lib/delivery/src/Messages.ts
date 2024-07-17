@@ -35,7 +35,7 @@ import { SpamFilterRules } from './spam-filter/SpamFilterRules';
 
 export interface Acknowledgment {
     contactAddress: string;
-    messageDeliveryServiceTimestamp: number;
+    messageHash: string;
 }
 
 export function getConversationId(ensNameA: string, ensNameB: string): string {

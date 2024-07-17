@@ -19,7 +19,6 @@ export const handleMessagesFromDeliveryService = async (
     syncAcknowledgment: (
         ensName: string,
         acknoledgments: Acknowledgment[],
-        lastSyncTime: number,
     ) => void,
     updateConversationList: (conversation: string, updatedAt: number) => void,
 ) => {
@@ -80,16 +79,11 @@ export const handleMessagesFromDeliveryService = async (
         await storeMessageBatch(contact, messagesSortedASC);
     }
 
-    await syncAcknowledgment(
-        account.ensName,
-        [
-            {
-                contactAddress: contact,
-                //This value is not used in the backend hence we can set it to 0
-                messageDeliveryServiceTimestamp: 0,
-            },
-        ],
-        lastSyncTime,
-    );
+    const acks: Acknowledgment[] = messagesSortedASC.map((message) => ({
+        contactAddress: contact,
+        messageHash: message.envelop.metadata?.encryptedMessageHash!,
+    }));
+
+    await syncAcknowledgment(account.ensName, acks);
     return messagesSortedASC;
 };

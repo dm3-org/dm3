@@ -21,7 +21,6 @@ export const getMockedDeliveryServiceContext = (
         syncAcknowledgment: function (
             ensName: string,
             acknowledgments: Acknowledgment[],
-            lastSyncTime: number,
         ): void {
             throw new Error('Function not implemented.');
         },

@@ -25,7 +25,6 @@ export type DeliveryServiceContextType = {
     syncAcknowledgment: (
         ensName: string,
         acknowledgments: Acknowledgment[],
-        lastSyncTime: number,
     ) => void;
     getGlobalNotification: (ensName: string) => any;
     getAllNotificationChannels: (ensName: string) => any;
@@ -66,7 +65,6 @@ export const DeliveryServiceContext =
         syncAcknowledgment: (
             ensName: string,
             acknowledgments: Acknowledgment[],
-            lastSyncTime: number,
         ) => {},
         getGlobalNotification: (ensName: string) => {},
         getAllNotificationChannels: (ensName: string) => {},
