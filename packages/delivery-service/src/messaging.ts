@@ -96,7 +96,7 @@ export function onConnection(
                         keys.encryptionKeyPair,
                         deliveryServiceProperties.sizeLimit,
                         deliveryServiceProperties.notificationChannel,
-                        db.getSession,
+                        db.getAccount,
                         db.createMessage,
                         (socketId: string, envelop: EncryptionEnvelop) => {
                             io.sockets.to(socketId).emit('message', envelop);
@@ -116,75 +116,5 @@ export function onConnection(
                 }
             },
         );
-
-        /**
-         * Queue a message for a user that has not yet published their profile.
-         * The queue is managed on the delivery service of the sending user.
-         */
-        socket.on('pendingMessage', async (data, callback) => {
-            const isSchemaValid = validateSchema(pendingMessageSchema, data);
-
-            if (!isSchemaValid) {
-                const error = 'invalid schema';
-                global.logger.warn({
-                    method: 'WS PENDING MESSAGE',
-                    error,
-                });
-
-                return callback({ error });
-            }
-
-            let idEnsName: string;
-            let idContactEnsName: string;
-            const ensName = normalizeEnsName(data.ensName);
-            const contactEnsName = normalizeEnsName(data.contactEnsName);
-
-            try {
-                idEnsName = await db.getIdEnsName(ensName);
-                idContactEnsName = await db.getIdEnsName(contactEnsName);
-            } catch (error) {
-                global.logger.warn({
-                    method: 'WS PENDING MESSAGE',
-                    error,
-                });
-
-                return callback({ error });
-            }
-
-            global.logger.info({
-                method: 'WS PENDING MESSAGE',
-                ensName,
-                contactEnsName,
-            });
-            try {
-                if (
-                    !(await checkToken(
-                        web3Provider,
-                        db.getSession,
-                        idEnsName,
-                        data.token,
-                        serverSecret,
-                    ))
-                ) {
-                    const error = 'Token check failed';
-                    global.logger.warn({
-                        method: 'WS PENDING MESSAGE',
-                        error,
-                    });
-                    return callback({ error });
-                }
-
-                await db.addPending(ensName, idContactEnsName);
-
-                callback({ response: 'success' });
-            } catch (error) {
-                global.logger.warn({
-                    method: 'WS PENDING MESSAGE',
-                    error: (error as Error).toString(),
-                });
-
-                return callback({ error: "Can't add pending message" });
-            }
-        });
     };
 }

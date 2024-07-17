@@ -1,15 +1,15 @@
-import { useContext, useEffect } from 'react';
-import { StorageContext } from '../../context/StorageContext';
-import { TLDContext } from '../../context/TLDContext';
+import { encryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
+import { buildEnvelop } from '@dm3-org/dm3-lib-messaging';
 import {
     Account,
     DeliveryServiceProfile,
     getUserProfile,
 } from '@dm3-org/dm3-lib-profile';
-import { MainnetProviderContext } from '../../context/ProviderContext';
-import { DispatchableEnvelop, buildEnvelop } from '@dm3-org/dm3-lib-messaging';
-import { encryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
+import { useContext, useEffect } from 'react';
 import { AuthContext } from '../../context/AuthContext';
+import { MainnetProviderContext } from '../../context/ProviderContext';
+import { StorageContext } from '../../context/StorageContext';
+import { TLDContext } from '../../context/TLDContext';
 import { fetchDsProfiles } from '../../utils/deliveryService/fetchDsProfiles';
 import { submitEnvelopsToReceiversDs } from '../../utils/deliveryService/submitEnvelopsToReceiversDs';
 
@@ -47,8 +47,6 @@ export const useHaltDelivery = () => {
                 })),
             );
 
-            console.log('resolvedAliases', resolvedAliases);
-
             //For each recipient, get the users account
             const withAccounts = await Promise.all(
                 resolvedAliases.map(
@@ -82,12 +80,7 @@ export const useHaltDelivery = () => {
                 return { ...dm3User, messages };
             });
 
-            console.log('haltedMessages', dm3UsersWithMessages);
-
-            console.log('withUserProfiles', withAccounts);
-            console.log('dm3Users', dm3Users);
             //fetch the ds profiles of every recipient
-
             const withDsProfile = await Promise.all(
                 dm3UsersWithMessages.map(async (dm3User) => ({
                     ...dm3User,
@@ -109,7 +102,7 @@ export const useHaltDelivery = () => {
                                     async (
                                         dsProfile: DeliveryServiceProfile,
                                     ) => {
-                                        //build the dispatchable envelop
+                                        //build the dispatchable envelop containing the deliveryInformation of the receiver
                                         const dispatchableEnvelop =
                                             await buildEnvelop(
                                                 message.envelop.message,
@@ -130,6 +123,10 @@ export const useHaltDelivery = () => {
                                                 },
                                             );
                                         return {
+                                            //To clear the envelop that has been used to store the halted message
+                                            haltedEnvelopId:
+                                                message.envelop.metadata
+                                                    ?.encryptedMessageHash!,
                                             ...dispatchableEnvelop,
                                             //we keep the alias name for the receiver. In case it differes from the ensName
                                             aliasName:
@@ -146,18 +143,11 @@ export const useHaltDelivery = () => {
             //The envelops are now ready to be disptched
             const dispatchableEnvelops = envelops.flat(2);
 
-            console.log('flat dispatchableenvelops', dispatchableEnvelops);
-
             await submitEnvelopsToReceiversDs(dispatchableEnvelops);
 
             dispatchableEnvelops.map((envelop) => {
-                clearHaltedMessages(
-                    envelop.envelop.metadata?.encryptedMessageHash!,
-                    envelop.aliasName,
-                );
+                clearHaltedMessages(envelop.haltedEnvelopId, envelop.aliasName);
             });
-
-            //Clear messages after they have been dispatched
         };
 
         handleHaltedMessages();

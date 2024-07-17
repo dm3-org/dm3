@@ -172,7 +172,7 @@ export function Contacts() {
                 style={{
                     display: 'flex',
                     flexDirection: 'column',
-                    overflow: 'hidden',
+                    overflow: 'unset',
                 }}
                 inverse={false}
                 hasMore={hasMoreContact}

@@ -4,11 +4,23 @@ import { ethers } from 'ethers';
 import humanIcon from '../assets/images/human.svg';
 import { EnsProfileDetails } from '../interfaces/utils';
 import {
+    AVATAR_IPFS_URL_PREFIX,
     ENS_PROFILE_BASE_URL,
     MOBILE_SCREEN_WIDTH,
     getEtherscanUrl,
 } from './common-utils';
 import { RightViewSelected } from './enum-type-utils';
+import axios from 'axios';
+
+const isImageLoadable = async (url: string): Promise<boolean> => {
+    try {
+        const { status } = await axios.get(url);
+        return status === 200;
+    } catch (error) {
+        console.log('error in loading image : ', error);
+        return false;
+    }
+};
 
 // method to get avatar/image url
 export const getAvatar = async (
@@ -33,7 +45,25 @@ export const getAvatarProfilePic = async (
                     const avatar = await resolver
                         .getText('avatar')
                         .catch(() => null);
-                    if (avatar) return avatar;
+                    if (avatar) {
+                        /**
+                         * If the image URL is of IPFS, then it can't be directly loaded by
+                         * the browser, so trim the URL and create a proper IPFS url so that
+                         * image can be rendered. Example :-
+                         * Original URL fetched : ipfs://QmQqzMTavQgT4f4T5v6PWBp7XNKtoPmC9jvn12WPT3gkSE (not loadable in browser)
+                         * Modified URL : https://ipfs.euc.li/ipfs/QmQqzMTavQgT4f4T5v6PWBp7XNKtoPmC9jvn12WPT3gkSE  (loadable in browser)
+                         */
+                        const splittedIpfsUrl = avatar.split('ipfs://');
+                        const imageUrl =
+                            splittedIpfsUrl.length === 2
+                                ? AVATAR_IPFS_URL_PREFIX.concat(
+                                      splittedIpfsUrl[1],
+                                  )
+                                : avatar;
+                        if (await isImageLoadable(imageUrl)) {
+                            return imageUrl;
+                        }
+                    }
                 }
                 const address = await provider.resolveName(ensName);
                 if (address) {

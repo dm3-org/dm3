@@ -85,6 +85,7 @@ describe('useConversation hook test cases', () => {
                 },
                 addConversationAsync: jest.fn(),
                 toggleHideContactAsync: jest.fn(),
+                getHaltedMessages: () => Promise.resolve([]),
                 initialized: true,
             });
             const deliveryServiceContext: DeliveryServiceContextType =

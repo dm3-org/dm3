@@ -11,7 +11,7 @@ export function handleResolveProfileExtension(axios: Axios, db: IDatabase) {
         const idEnsName = await db.getIdEnsName(ensName);
 
         //Get the Session to retrieve profileExtension
-        const session = await db.getSession(idEnsName);
+        const session = await db.getAccount(idEnsName);
 
         if (!session) {
             //The requested ens-name is not known to the delivery service

@@ -13,14 +13,9 @@ import { ethers } from 'ethers';
 import express from 'express';
 import http from 'http';
 import request from 'supertest';
-import winston from 'winston';
 import { IDatabase } from './persistence/getDatabase';
 import profile from './profile';
 import storage from './storage';
-
-global.logger = winston.createLogger({
-    transports: [new winston.transports.Console()],
-});
 
 const web3ProviderMock: ethers.providers.JsonRpcProvider =
     new ethers.providers.JsonRpcProvider();
@@ -48,13 +43,13 @@ const createDbMock = async () => {
     } as Session & { spamFilterRules: spamFilter.SpamFilterRules };
 
     const dbMock = {
-        getSession: async (ensName: string) =>
+        getAccount: async (ensName: string) =>
             Promise.resolve<
                 Session & {
                     spamFilterRules: spamFilter.SpamFilterRules;
                 }
             >(sessionMocked), // returns some valid session
-        setSession: async (_: string, __: Session) => {},
+        setAccount: async (_: string, __: Session) => {},
         getIdEnsName: async (ensName: string) => ensName,
     };
 
@@ -101,13 +96,12 @@ describe('Profile', () => {
             const _web3ProviderMock = {
                 resolveName: async () => wallet.address,
             };
-            // the db must return null when getSession is called
+            // the db must return null when getAccount is called
             const _dbMock = {
-                getSession: async (ensName: string) => Promise.resolve(null),
-                setSession: async (_: string, __: any) => {
+                getAccount: async (ensName: string) => Promise.resolve(null),
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
-                getPending: (_: any) => [],
                 getIdEnsName: async (ensName: string) => ensName,
             };
 

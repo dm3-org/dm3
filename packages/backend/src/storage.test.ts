@@ -17,7 +17,6 @@ import bodyParser from 'body-parser';
 import { ethers } from 'ethers';
 import express from 'express';
 import request from 'supertest';
-import winston from 'winston';
 import {
     IDatabase,
     Redis,
@@ -44,10 +43,6 @@ const keysA = {
 };
 
 const serverSecret = 'veryImportantSecretToGenerateAndValidateJSONWebTokens';
-
-global.logger = winston.createLogger({
-    transports: [new winston.transports.Console()],
-});
 
 describe('Storage', () => {
     let app;
@@ -96,13 +91,13 @@ describe('Storage', () => {
         } as Session & { spamFilterRules: spamFilter.SpamFilterRules };
 
         const dbMocked = {
-            getSession: async (ensName: string) =>
+            getAccount: async (ensName: string) =>
                 Promise.resolve<
                     Session & {
                         spamFilterRules: spamFilter.SpamFilterRules;
                     }
                 >(sessionMocked),
-            setSession: async (_: string, __: Session) => {},
+            setAccount: async (_: string, __: Session) => {},
             getIdEnsName: async (ensName: string) => ensName,
         };
         const dbFinal: IDatabase = { ...db, ...dbMocked };
@@ -490,8 +485,6 @@ describe('Storage', () => {
                 })
                 .send();
 
-            console.log(body);
-
             expect(body.length).toBe(1);
             expect(body[0].contact).toEqual(sha256(receiver.account.ensName));
             expect(JSON.parse(body[0].previewMessage)).toEqual(envelop3);
@@ -508,8 +501,6 @@ describe('Storage', () => {
                     })
                     .send();
 
-                console.log(body);
-
                 expect(status).toBe(400);
             });
 
@@ -521,8 +512,6 @@ describe('Storage', () => {
                         authorization: 'Bearer ' + token,
                     })
                     .send();
-
-                console.log(body);
 
                 expect(status).toBe(400);
             });
@@ -980,7 +969,7 @@ describe('Storage', () => {
                 .send({
                     encryptedEnvelopContainer: JSON.stringify(envelop1),
                     encryptedContactName: sha256(receiver.account.ensName),
-                    messageId: '123',
+                    messageId: envelop1.metadata.encryptedMessageHash,
                     createdAt: 1,
                     isHalted: true,
                 });
@@ -1007,7 +996,7 @@ describe('Storage', () => {
                     authorization: 'Bearer ' + token,
                 })
                 .send({
-                    messageId: 123,
+                    messageId: messages[0].messageId,
                 });
 
             expect(deleteStatus).toBe(200);
@@ -1161,9 +1150,6 @@ describe('Storage', () => {
                     createdAt: 1,
                     isHalted: false,
                 });
-
-            console.log('xxxx', x.status);
-            console.log('xxxx', x.body);
 
             await request(app)
                 .post(`/new/bob.eth/addMessage`)

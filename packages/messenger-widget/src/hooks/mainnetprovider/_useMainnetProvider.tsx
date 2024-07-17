@@ -33,9 +33,7 @@ export const _useMainnetProvider = (
     const provider = chainID === '1' ? mainnetProvider : sepoliaProvider;
 
     //Use the provider cache to cache the provider
-    const providerWithCache = new Web3ProviderCacheFactory(
-        provider,
-    ).TTLLocalStorage();
+    const providerWithCache = new Web3ProviderCacheFactory(provider).TTL();
 
     return providerWithCache;
 };

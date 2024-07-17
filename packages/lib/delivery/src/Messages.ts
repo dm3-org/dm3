@@ -96,7 +96,7 @@ export async function incomingMessage(
     encryptionKeyPair: KeyPair,
     sizeLimit: number,
     dsNotificationChannels: NotificationChannel[],
-    getSession: (
+    getAccount: (
         accountAddress: string,
     ) => Promise<(Session & { spamFilterRules: SpamFilterRules }) | null>,
     storeNewMessage: (
@@ -128,7 +128,7 @@ export async function incomingMessage(
     logDebug({ text: 'incomingMessage', conversationId, deliveryInformation });
 
     //Retrieves the session of the receiver
-    const receiverSession = await getSession(deliveryInformation.to);
+    const receiverSession = await getAccount(deliveryInformation.to);
     if (!receiverSession) {
         logDebug({
             text: 'incomingMessage unknown session',
