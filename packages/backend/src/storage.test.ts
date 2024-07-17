@@ -1384,34 +1384,4 @@ describe('Storage', () => {
             );
         });
     });
-    describe('Migration', () => {
-        it('should migrate storage', async () => {
-            const { body: preMigrationStatus } = await request(app)
-                .get(`/new/bob.eth/migrationStatus`)
-                .set({
-                    authorization: 'Bearer ' + token,
-                })
-                .send();
-
-            expect(preMigrationStatus).toBe(false);
-
-            const { status } = await request(app)
-                .post(`/new/bob.eth/migrationStatus`)
-                .set({
-                    authorization: 'Bearer ' + token,
-                })
-                .send();
-
-            expect(status).toBe(200);
-
-            const { body: postMigrationStatus } = await request(app)
-                .get(`/new/bob.eth/migrationStatus`)
-                .set({
-                    authorization: 'Bearer ' + token,
-                })
-                .send();
-
-            expect(postMigrationStatus).toBe(true);
-        });
-    });
 });

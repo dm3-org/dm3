@@ -178,16 +178,11 @@ export const useDeliveryService = () => {
         syncAcknowledgment: (
             ensName: string,
             acknowledgments: Acknowledgment[],
-            lastSyncTime: number,
         ) => {
             const connectors = _getConnectors();
             return Promise.all(
                 connectors.map((c) =>
-                    c.syncAcknowledgement(
-                        ensName,
-                        acknowledgments,
-                        lastSyncTime,
-                    ),
+                    c.syncAcknowledgement(ensName, acknowledgments),
                 ),
             );
         },
