@@ -59,7 +59,7 @@ export class WebSocketManager implements IWebSocketManager {
             //Use the already existing function checkToken to check whether the token matches the provided ensName
             const hasSession = await checkToken(
                 this.web3Provider,
-                this.db.getAccount,
+                this.db.doesAccountExist,
                 ensName,
                 token,
                 this.serverSecret,

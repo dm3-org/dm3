@@ -59,7 +59,7 @@ export function socketAuth(
             if (
                 !(await checkToken(
                     web3Provider,
-                    db.getAccount,
+                    db.doesAccountExist,
                     ensName,
                     socket.handshake.auth.token as string,
                     serverSecret,

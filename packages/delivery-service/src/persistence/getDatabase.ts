@@ -74,6 +74,7 @@ export async function getDatabase(
         // Account
         setAccount: Account.setAccount(redis),
         getAccount: Account.getAccount(redis),
+        doesAccountExist: Account.doesAccountExist(redis),
         getIdEnsName: getIdEnsName(redis),
         syncAcknowledge: syncAcknowledge(redis),
         //Notification

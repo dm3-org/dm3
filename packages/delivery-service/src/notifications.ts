@@ -35,7 +35,15 @@ export default (
 
     // Adding a route parameter middleware named 'ensName'
     router.param('ensName', (req, res, next, ensName: string) => {
-        auth(req, res, next, ensName, db, web3Provider, serverSecret);
+        auth(
+            req,
+            res,
+            next,
+            ensName,
+            db.doesAccountExist,
+            web3Provider,
+            serverSecret,
+        );
     });
 
     // Defining a route to enable/disable global notifications

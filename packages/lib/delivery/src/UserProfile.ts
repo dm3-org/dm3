@@ -40,6 +40,7 @@ export async function submitUserProfile(
     return session.token;
 }
 
+// todo: remove this function (profiles should be loaded from chain and possibly cached)
 export async function getUserProfile(
     getAccount: (accountAddress: string) => Promise<Session | null>,
     ensName: string,

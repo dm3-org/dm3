@@ -39,7 +39,15 @@ export default (
     //TODO remove
     router.use(cors());
     router.param('ensName', async (req, res, next, ensName: string) => {
-        auth(req, res, next, ensName, db, web3Provider, serverSecret);
+        auth(
+            req,
+            res,
+            next,
+            ensName,
+            db.doesAccountExist,
+            web3Provider,
+            serverSecret,
+        );
     });
     //Returns all incoming messages for a specific contact name
     router.get(
