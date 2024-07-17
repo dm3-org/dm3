@@ -107,16 +107,17 @@ export default (
                 syncAcknowledgementBodySchema,
                 req.body,
             );
-
             if (!hasValidParams || !hasValidBody) {
+                console.error('sync acknowledgements invalid schema');
                 return res.sendStatus(400);
             }
 
             try {
                 const ensName = await db.getIdEnsName(req.params.ensName);
+                console.log('lets go');
 
                 await Promise.all(
-                    req.body.acknowledgements.map(
+                    req.body.acknowledgments.map(
                         async (ack: Acknowledgment) => {
                             const contactEnsName = await db.getIdEnsName(
                                 ack.contactAddress,

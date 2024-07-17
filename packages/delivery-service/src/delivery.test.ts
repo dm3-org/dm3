@@ -119,7 +119,7 @@ describe('Delivery', () => {
                 })
 
                 .send({
-                    acknowledgements: [
+                    acknowledgments: [
                         {
                             contactAddress:
                                 '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
