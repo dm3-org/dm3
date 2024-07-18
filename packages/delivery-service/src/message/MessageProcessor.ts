@@ -83,7 +83,7 @@ export class MessageProcessor {
         console.debug(conversationId, deliveryInformation);
 
         //Retrieves the session of the receiver
-        const receiverSession = await this.db.getSession(
+        const receiverSession = await this.db.getAccount(
             deliveryInformation.to,
         );
         if (!receiverSession) {

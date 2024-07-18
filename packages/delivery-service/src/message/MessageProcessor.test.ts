@@ -9,10 +9,10 @@ import {
 import { BigNumber, ethers } from 'ethers';
 import { MessageProcessor } from './MessageProcessor';
 
+import { checkSignature, decryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
 import {
     DeliveryServiceProperties,
     Session,
-    getConversationId,
     spamFilter,
 } from '@dm3-org/dm3-lib-delivery';
 import { UserProfile, normalizeEnsName } from '@dm3-org/dm3-lib-profile';
@@ -24,8 +24,6 @@ import {
     mockUserProfile,
 } from '@dm3-org/dm3-lib-test-helper';
 import { IDatabase } from '../persistence/getDatabase';
-import { checkSignature, decryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
-import exp from 'constants';
 
 jest.mock('nodemailer');
 
@@ -58,7 +56,7 @@ describe('MessageProcessor', () => {
             'http://localhost:3000',
         );
     });
-    const getSession = async (
+    const getAccount = async (
         ensName: string,
         socketId?: string,
     ): Promise<
@@ -117,7 +115,7 @@ describe('MessageProcessor', () => {
         const db = {
             createMessage: async () => {},
             getIdEnsName: () => '',
-            getSession,
+            getAccount,
             getUsersNotificationChannels: () => Promise.resolve([]),
         } as any as IDatabase;
 
@@ -162,7 +160,7 @@ describe('MessageProcessor', () => {
         const db = {
             createMessage: async () => {},
             getIdEnsName: () => '',
-            getSession,
+            getAccount,
             getUsersNotificationChannels: () => Promise.resolve([]),
         } as any as IDatabase;
 
@@ -206,7 +204,7 @@ describe('MessageProcessor', () => {
         const db = {
             createMessage: async () => {},
             getIdEnsName: () => '',
-            getSession,
+            getAccount,
             getUsersNotificationChannels: () => Promise.resolve([]),
         } as any as IDatabase;
 
@@ -249,16 +247,16 @@ describe('MessageProcessor', () => {
     // //TODO remove skip once spam-filter is implemented
     // //TODO remove skip once spam-filter is implemented
     it.skip('rejects message if the senders nonce is below the threshold', async () => {
-        const _getSession = async (address: string) =>
+        const _getAccount = async (address: string) =>
             ({
-                ...(await getSession(address)),
+                ...(await getAccount(address)),
                 spamFilterRules: { minNonce: 2 },
             } as Session & { spamFilterRules: spamFilter.SpamFilterRules });
 
         const db = {
             createMessage: async () => {},
             getIdEnsName: () => '',
-            getSession: _getSession,
+            getAccount: _getAccount,
             getUsersNotificationChannels: () => Promise.resolve([]),
         } as any as IDatabase;
 
@@ -303,16 +301,16 @@ describe('MessageProcessor', () => {
         }
     });
     it.skip('rejects message if the senders eth balance is below the threshold', async () => {
-        const _getSession = async (address: string) =>
+        const _getAccount = async (address: string) =>
             ({
-                ...(await getSession(address)),
+                ...(await getAccount(address)),
                 spamFilterRules: { minBalance: '0xa' },
             } as Session & { spamFilterRules: spamFilter.SpamFilterRules });
 
         const db = {
             createMessage: async () => {},
             getIdEnsName: () => '',
-            getSession: _getSession,
+            getAccount: _getAccount,
             getUsersNotificationChannels: () => Promise.resolve([]),
         } as any as IDatabase;
 
@@ -357,9 +355,9 @@ describe('MessageProcessor', () => {
     });
     // //TODO remove skip once spam-filter is implemented
     it.skip('rejects message if the senders token balance is below the threshold', async () => {
-        const _getSession = async (address: string) =>
+        const _getAccount = async (address: string) =>
             ({
-                ...(await getSession(address)),
+                ...(await getAccount(address)),
                 spamFilterRules: {
                     minTokenBalance: {
                         address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
@@ -371,7 +369,7 @@ describe('MessageProcessor', () => {
         const db = {
             createMessage: async () => {},
             getIdEnsName: () => '',
-            getSession: _getSession,
+            getAccount: _getAccount,
             getUsersNotificationChannels: () => Promise.resolve([]),
         } as any as IDatabase;
 
@@ -444,7 +442,7 @@ describe('MessageProcessor', () => {
         const db = {
             createMessage: async () => {},
             getIdEnsName: () => '',
-            getSession,
+            getAccount,
             getUsersNotificationChannels: getNotificationChannels,
         } as any as IDatabase;
 
@@ -515,7 +513,7 @@ describe('MessageProcessor', () => {
         const db = {
             createMessage: createMessageMock,
             getIdEnsName: () => '',
-            getSession,
+            getAccount,
             getUsersNotificationChannels: () => Promise.resolve([]),
         } as any as IDatabase;
 
@@ -597,7 +595,7 @@ describe('MessageProcessor', () => {
         const db = {
             createMessage: createMessageMock,
             getIdEnsName: () => '',
-            getSession,
+            getAccount,
             getUsersNotificationChannels: () => Promise.resolve([]),
         } as any as IDatabase;
 
