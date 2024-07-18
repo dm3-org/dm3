@@ -35,6 +35,8 @@ export async function submitUserProfile(
         profileExtension: getDefaultProfileExtension(),
     };
     logDebug({ text: 'submitUserProfile', session });
+
+    //TODO use addr
     await setSession(account.toLocaleLowerCase(), session);
 
     return session.token;

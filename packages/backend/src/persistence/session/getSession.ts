@@ -4,6 +4,7 @@ import { getIdEnsName } from '../getIdEnsName';
 
 export function getSession(redis: Redis) {
     return async (ensName: string) => {
+        //TODO use addr
         let session = await redis.get(
             RedisPrefix.Session + (await getIdEnsName(redis)(ensName)),
         );

@@ -38,6 +38,7 @@ export async function checkToken(
     token: string,
     serverSecret: string,
 ): Promise<boolean> {
+    //
     const session = await getSession(ensName.toLocaleLowerCase());
     if (!session) {
         console.debug('there is no account for this ens name: ', ensName);
