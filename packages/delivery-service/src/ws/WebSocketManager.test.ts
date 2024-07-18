@@ -59,7 +59,7 @@ describe('WebSocketManager', () => {
                 resolveName: (_: string) => Promise.resolve('0x'),
             } as any;
             const mockedDatabase = {
-                getSession: () => Promise.resolve(null),
+                getAccount: () => Promise.resolve(null),
             } as any;
 
             client0 = await Client('http://localhost:4060', {
@@ -94,7 +94,7 @@ describe('WebSocketManager', () => {
             } as any;
 
             const mockedDatabase = {
-                getSession: () =>
+                getAccount: () =>
                     Promise.resolve({
                         token: 'token',
                         createdAt: new Date().getTime(),
@@ -138,7 +138,7 @@ describe('WebSocketManager', () => {
             } as any;
 
             const mockedDatabase = {
-                getSession: () =>
+                getAccount: () =>
                     Promise.resolve({
                         token: 'old token that is not used anymore',
                         createdAt: new Date().getTime(),
@@ -182,7 +182,7 @@ describe('WebSocketManager', () => {
             } as any;
 
             const mockedDatabase = {
-                getSession: () =>
+                getAccount: () =>
                     Promise.resolve({
                         token: 'old token that is not used anymore',
                         createdAt: new Date().getTime(),
@@ -248,7 +248,7 @@ describe('WebSocketManager', () => {
             } as any;
 
             const mockedDatabase = {
-                getSession: () =>
+                getAccount: () =>
                     Promise.resolve({
                         token: 'old token that is not used anymore',
                         createdAt: new Date().getTime(),
@@ -292,7 +292,7 @@ describe('WebSocketManager', () => {
             } as any;
 
             const mockedDatabase = {
-                getSession: () =>
+                getAccount: () =>
                     Promise.resolve({
                         token: 'old token that is not used anymore',
                         createdAt: new Date().getTime(),
@@ -381,7 +381,7 @@ describe('WebSocketManager', () => {
             } as any;
 
             const mockedDatabase = {
-                getSession: () =>
+                getAccount: () =>
                     Promise.resolve({
                         token: 'old token that is not used anymore',
                         createdAt: new Date().getTime(),

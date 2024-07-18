@@ -1,4 +1,4 @@
-import { Acknoledgment } from '@dm3-org/dm3-lib-delivery';
+import { Acknowledgment } from '@dm3-org/dm3-lib-delivery';
 import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
 import { DeliveryServiceContextType } from '../DeliveryServiceContext';
 
@@ -20,8 +20,7 @@ export const getMockedDeliveryServiceContext = (
         },
         syncAcknowledgment: function (
             ensName: string,
-            acknoledgments: Acknoledgment[],
-            lastSyncTime: number,
+            acknowledgments: Acknowledgment[],
         ): void {
             throw new Error('Function not implemented.');
         },

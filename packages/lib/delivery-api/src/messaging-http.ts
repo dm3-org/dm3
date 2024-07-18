@@ -4,7 +4,7 @@ import {
     getDeliveryServiceClient,
     normalizeEnsName,
 } from '@dm3-org/dm3-lib-profile';
-import { Acknoledgment } from '@dm3-org/dm3-lib-delivery';
+import { Acknowledgment } from '@dm3-org/dm3-lib-delivery';
 import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
 import { ethers } from 'ethers';
 import { checkAccount, getAxiosConfig } from './utils';
@@ -15,7 +15,7 @@ const DELIVERY_PATH = process.env.REACT_APP_BACKEND + '/delivery';
 export async function syncAcknoledgment(
     provider: ethers.providers.JsonRpcProvider,
     account: Account,
-    acknoledgments: Acknoledgment[],
+    acknoledgments: Acknowledgment[],
     token: string,
     lastMessagePull: number,
 ): Promise<void> {
@@ -45,7 +45,7 @@ export type SyncAcknoledgment = typeof syncAcknoledgment;
 export async function syncAcknowledgment(
     provider: ethers.providers.JsonRpcProvider,
     account: Account,
-    acknoledgments: Acknoledgment[],
+    acknoledgments: Acknowledgment[],
     token: string,
     lastSyncTime: number,
 ): Promise<void> {

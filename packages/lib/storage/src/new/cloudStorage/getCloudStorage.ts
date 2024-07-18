@@ -153,6 +153,7 @@ export const getCloudStorage = (
                             storageEnvelopContainer.envelop.metadata
                                 ?.encryptedMessageHash! ??
                             storageEnvelopContainer.envelop.id,
+                        isHalted: false,
                     };
                 },
             ),
