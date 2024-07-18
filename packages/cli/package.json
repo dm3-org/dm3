@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "scripts": {
     "dm3": "ts-node index.ts",
-    "test": "yarn hardhat test cli.test.ts --network hardhat",
+    "test": "npx hardhat test cli.test.ts --network hardhat",
     "start-hh-node": "npx hardhat node"
   },
   "dependencies": {
