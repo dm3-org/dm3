@@ -222,7 +222,7 @@ There are 3 remote environments where the code is deployed:
 In order to deploy a branch to testing, do this:
 
 1. talk to the team to make sure nobody is actively using the testing environment at the moment
-2. push tje branch to the remote repository
+2. push the branch to the remote repository
 3. open the [deploy action](https://github.com/dm3-org/dm3/actions/workflows/deploy.yml)
 4. click on `Run workflow` (right side of the screen) ![alt text](docs/images/runWorkflow.png)
 5. select the branch you want to deploy
