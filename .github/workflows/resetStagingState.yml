@@ -1,4 +1,4 @@
-name: deploy
+name: resetStagingState
 on: workflow_dispatch
 
 jobs:
