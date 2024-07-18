@@ -1,4 +1,4 @@
-import { Acknoledgment, getMessages, schema } from '@dm3-org/dm3-lib-delivery';
+import { Acknowledgment, getMessages, schema } from '@dm3-org/dm3-lib-delivery';
 import { auth } from '@dm3-org/dm3-lib-server-side';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import { getConversationId } from '@dm3-org/dm3-lib-delivery';
@@ -8,24 +8,23 @@ import express from 'express';
 import { IDatabase } from './persistence/getDatabase';
 import { DeliveryServiceProfileKeys } from '@dm3-org/dm3-lib-profile';
 
-const syncAcknoledgmentParamsSchema = {
+const syncAcknowledgementParamsSchema = {
     type: 'object',
     properties: {
         ensName: { type: 'string' },
-        last_message_pull: { type: 'string' },
     },
-    required: ['ensName', 'last_message_pull'],
+    required: ['ensName'],
     additionalProperties: false,
 };
-const syncAcknoledgmentBodySchema = {
+const syncAcknowledgementBodySchema = {
     type: 'object',
     properties: {
-        acknoledgments: {
+        acknowledgments: {
             type: 'array',
-            items: schema.Acknoledgment,
+            items: schema.Acknowledgment,
         },
     },
-    required: ['acknoledgments'],
+    required: ['acknowledgments'],
     additionalProperties: false,
 };
 
@@ -104,98 +103,44 @@ export default (
             }
         },
     );
-
-    //TODO remove after storage refactoring
     router.post(
-        '/messages/:ensName/syncAcknoledgment/:last_message_pull',
+        '/messages/:ensName/syncAcknowledgments/',
         async (req, res, next) => {
             const hasValidParams = validateSchema(
-                syncAcknoledgmentParamsSchema,
+                syncAcknowledgementParamsSchema,
                 req.params,
             );
 
             const hasValidBody = validateSchema(
-                syncAcknoledgmentBodySchema,
+                syncAcknowledgementBodySchema,
                 req.body,
             );
-
-            // eslint-disable-next-line max-len
-            //Express transform number inputs into strings. So we have to check if a string used as last_message_pull can be converted to a number later on.
-            const isLastMessagePullNumber = !isNaN(
-                Number.parseInt(req.params.last_message_pull),
-            );
-
-            if (!hasValidParams || !isLastMessagePullNumber || !hasValidBody) {
+            if (!hasValidParams || !hasValidBody) {
+                console.error('sync acknowledgements invalid schema');
                 return res.sendStatus(400);
             }
 
             try {
                 const ensName = await db.getIdEnsName(req.params.ensName);
+                console.log('lets go');
 
                 await Promise.all(
-                    req.body.acknoledgments.map(async (ack: Acknoledgment) => {
-                        const contactEnsName = await db.getIdEnsName(
-                            ack.contactAddress,
-                        );
-                        const conversationId = getConversationId(
-                            ensName,
-                            contactEnsName,
-                        );
+                    req.body.acknowledgments.map(
+                        async (ack: Acknowledgment) => {
+                            const contactEnsName = await db.getIdEnsName(
+                                ack.contactAddress,
+                            );
+                            const conversationId = getConversationId(
+                                ensName,
+                                contactEnsName,
+                            );
 
-                        await db.syncAcknowledge(
-                            conversationId,
-                            Number.parseInt(req.params.last_message_pull),
-                        );
-                    }),
-                );
-
-                res.json();
-            } catch (e) {
-                next(e);
-            }
-        },
-    );
-    router.post(
-        '/messages/:ensName/syncAcknowledgment/:last_message_pull',
-        async (req, res, next) => {
-            const hasValidParams = validateSchema(
-                syncAcknoledgmentParamsSchema,
-                req.params,
-            );
-
-            const hasValidBody = validateSchema(
-                syncAcknoledgmentBodySchema,
-                req.body,
-            );
-
-            // eslint-disable-next-line max-len
-            //Express transform number inputs into strings. So we have to check if a string used as last_message_pull can be converted to a number later on.
-            const isLastMessagePullNumber = !isNaN(
-                Number.parseInt(req.params.last_message_pull),
-            );
-
-            if (!hasValidParams || !isLastMessagePullNumber || !hasValidBody) {
-                return res.sendStatus(400);
-            }
-
-            try {
-                const ensName = await db.getIdEnsName(req.params.ensName);
-
-                await Promise.all(
-                    req.body.acknoledgments.map(async (ack: Acknoledgment) => {
-                        const contactEnsName = await db.getIdEnsName(
-                            ack.contactAddress,
-                        );
-                        const conversationId = getConversationId(
-                            ensName,
-                            contactEnsName,
-                        );
-
-                        await db.syncAcknowledge(
-                            conversationId,
-                            Number.parseInt(req.params.last_message_pull),
-                        );
-                    }),
+                            await db.syncAcknowledge(
+                                conversationId,
+                                ack.messageHash,
+                            );
+                        },
+                    ),
                 );
 
                 res.json();

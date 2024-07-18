@@ -28,48 +28,6 @@ describe('Sync Acknowledge', () => {
     });
 
     it('Removes acknowledged messages from DS', async () => {
-        const envelop: EncryptionEnvelop = {
-            message: '',
-            metadata: {
-                deliveryInformation: {
-                    to: RECEIVER_ADDRESS,
-                    from: SENDER_ADDRESS,
-                },
-                signature: '',
-                encryptedMessageHash: '',
-                version: '',
-                encryptionScheme: 'x25519-chacha20-poly1305',
-            },
-        };
-
-        const conversionId = SENDER_ADDRESS + RECEIVER_ADDRESS;
-
-        const priorCreateMessages = await db.getIncomingMessages(
-            RECEIVER_ADDRESS,
-            10,
-        );
-
-        expect(priorCreateMessages.length).toBe(0);
-
-        await db.createMessage(conversionId, envelop, 200);
-
-        const afterCreateMessages = await db.getIncomingMessages(
-            RECEIVER_ADDRESS,
-            10,
-        );
-
-        expect(afterCreateMessages.length).toBe(1);
-
-        await db.syncAcknowledge(conversionId, 300);
-
-        const afterSyncAcknowledge = await db.getIncomingMessages(
-            RECEIVER_ADDRESS,
-            10,
-        );
-
-        expect(afterSyncAcknowledge.length).toBe(0);
-    });
-    it('Keeps messages on the DS that have been created after the sync ', async () => {
         const envelop1: EncryptionEnvelop = {
             message: '',
             metadata: {
@@ -78,33 +36,20 @@ describe('Sync Acknowledge', () => {
                     from: SENDER_ADDRESS,
                 },
                 signature: '',
-                encryptedMessageHash: '',
+                encryptedMessageHash: '0x123',
                 version: '',
                 encryptionScheme: 'x25519-chacha20-poly1305',
             },
         };
         const envelop2: EncryptionEnvelop = {
-            message: 'foo',
+            message: '',
             metadata: {
                 deliveryInformation: {
                     to: RECEIVER_ADDRESS,
                     from: SENDER_ADDRESS,
                 },
                 signature: '',
-                encryptedMessageHash: '',
-                version: '',
-                encryptionScheme: 'x25519-chacha20-poly1305',
-            },
-        };
-        const envelop3: EncryptionEnvelop = {
-            message: 'bar',
-            metadata: {
-                deliveryInformation: {
-                    to: RECEIVER_ADDRESS,
-                    from: SENDER_ADDRESS,
-                },
-                signature: '',
-                encryptedMessageHash: '',
+                encryptedMessageHash: '0x456',
                 version: '',
                 encryptionScheme: 'x25519-chacha20-poly1305',
             },
@@ -119,32 +64,65 @@ describe('Sync Acknowledge', () => {
 
         expect(priorCreateMessages.length).toBe(0);
 
-        await db.createMessage(conversionId, envelop1, 200);
-        await db.createMessage(conversionId, envelop2, 301);
-        await db.createMessage(conversionId, envelop3, 302);
+        await db.createMessage(conversionId, envelop1);
+        await db.createMessage(conversionId, envelop2);
 
         const afterCreateMessages = await db.getIncomingMessages(
             RECEIVER_ADDRESS,
             10,
         );
 
-        expect(afterCreateMessages.length).toBe(3);
+        expect(afterCreateMessages.length).toBe(2);
 
-        await db.syncAcknowledge(conversionId, 300);
+        const res = await db.syncAcknowledge(conversionId, '0x123');
 
-        let afterSyncAcknowledge = await db.getIncomingMessages(
+        expect(res).toBe(true);
+
+        const afterSyncAcknowledge = await db.getIncomingMessages(
             RECEIVER_ADDRESS,
             10,
         );
 
-        expect(afterSyncAcknowledge.length).toBe(2);
+        expect(afterSyncAcknowledge.length).toBe(1);
+        expect(afterSyncAcknowledge[0].metadata.encryptedMessageHash).toBe(
+            '0x456',
+        );
+    });
+    it('returns false if message is not found', async () => {
+        const envelop1: EncryptionEnvelop = {
+            message: '',
+            metadata: {
+                deliveryInformation: {
+                    to: RECEIVER_ADDRESS,
+                    from: SENDER_ADDRESS,
+                },
+                signature: '',
+                encryptedMessageHash: '0x123',
+                version: '',
+                encryptionScheme: 'x25519-chacha20-poly1305',
+            },
+        };
 
-        await db.syncAcknowledge(conversionId, 303);
+        const conversionId = SENDER_ADDRESS + RECEIVER_ADDRESS;
 
-        afterSyncAcknowledge = await db.getIncomingMessages(
+        const priorCreateMessages = await db.getIncomingMessages(
             RECEIVER_ADDRESS,
             10,
         );
-        expect(afterSyncAcknowledge.length).toBe(0);
+
+        expect(priorCreateMessages.length).toBe(0);
+
+        await db.createMessage(conversionId, envelop1);
+
+        const afterCreateMessages = await db.getIncomingMessages(
+            RECEIVER_ADDRESS,
+            10,
+        );
+
+        expect(afterCreateMessages.length).toBe(1);
+
+        const res = await db.syncAcknowledge(conversionId, 'foooo');
+
+        expect(res).toBe(false);
     });
 });

@@ -1,5 +1,3 @@
-import { getUserStorageOld } from './getUserStorageOld';
-import { setUserStorageOld } from './setUserStorageOld';
 import { addConversation } from './postgres/addConversation';
 import { addMessageBatch } from './postgres/addMessageBatch';
 import { editMessageBatch } from './postgres/editMessageBatch';
@@ -9,8 +7,7 @@ import { getNumberOfConversations } from './postgres/getNumberOfConversations';
 import { getNumberOfMessages } from './postgres/getNumberOfMessages';
 import { toggleHideConversation } from './postgres/toggleHideConversation';
 import { MessageRecord } from './postgres/dto/MessageRecord';
-import { getUserDbMigrationStatus } from './getUserDbMigrationStatus';
-import { setUserDbMigrated } from './setUserDbMigrated';
+
 import { getHaltedMessages } from './postgres/haltedMessage/getHaltedMessages';
 import { clearHaltedMessage } from './postgres/haltedMessage/clearHaltedMessage';
 import { getAccount } from './postgres/getAccount';
@@ -18,8 +15,6 @@ import { setAccount } from './postgres/setAccount';
 import { doesAccountExist } from './postgres/doesAccountExist';
 
 export default {
-    getUserStorageOld,
-    setUserStorageOld,
     addConversation,
     addMessageBatch,
     editMessageBatch,
@@ -30,8 +25,6 @@ export default {
     toggleHideConversation,
     getHaltedMessages,
     clearHaltedMessage,
-    getUserDbMigrationStatus,
-    setUserDbMigrated,
     getAccount,
     setAccount,
     doesAccountExist,

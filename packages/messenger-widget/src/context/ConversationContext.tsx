@@ -7,6 +7,7 @@ import { DM3Configuration } from '../interfaces/config';
 export type ConversationContextType = {
     contacts: ContactPreview[];
     conversationCount: number;
+    selectedContactName: string | undefined;
     selectedContact?: ContactPreview;
     setSelectedContactName: (contactEnsName: string | undefined) => void;
     initialized: boolean;
@@ -22,6 +23,7 @@ export const ConversationContext = React.createContext<ConversationContextType>(
         setSelectedContactName: (contactEnsName: string | undefined) => {},
         conversationCount: 0,
         initialized: false,
+        selectedContactName: undefined,
         selectedContact: undefined,
         addConversation: (ensName: string) => {
             return {} as ContactPreview;
@@ -48,6 +50,7 @@ export const ConversationContextProvider = ({
         initialized,
         setSelectedContactName,
         selectedContact,
+        selectedContactName,
         hideContact,
         loadMoreConversations,
         updateConversationList,
@@ -63,6 +66,7 @@ export const ConversationContextProvider = ({
                 initialized,
                 setSelectedContactName,
                 selectedContact,
+                selectedContactName,
                 hideContact,
                 updateConversationList,
             }}

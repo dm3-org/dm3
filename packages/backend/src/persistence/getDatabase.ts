@@ -1,6 +1,5 @@
 import { Session as DSSession, spamFilter } from '@dm3-org/dm3-lib-delivery';
 import { IAccountDatabase } from '@dm3-org/dm3-lib-server-side';
-import { UserStorage } from '@dm3-org/dm3-lib-storage';
 import { Account, PrismaClient } from '@prisma/client';
 import { createClient } from 'redis';
 import Storage from './storage';
@@ -13,7 +12,7 @@ export enum RedisPrefix {
     Sync = 'sync:',
     // Account used to be called Session. The prefix still resolves to "session:" for now.
     Account = 'session:',
-    UserStorage = 'user.storage:',
+    Session = 'session:',
     NotificationChannel = 'notificationChannel:',
     GlobalNotification = 'globalNotification:',
     Otp = 'otp:',
@@ -65,9 +64,6 @@ export async function getDatabase(
         setAccount: Storage.setAccount(prisma),
         getAccount: Storage.getAccount(prisma),
         doesAccountExist: Storage.doesAccountExist(prisma),
-        //Legacy remove after storage has been merged
-        getUserStorage: Storage.getUserStorageOld(redis),
-        setUserStorage: Storage.setUserStorageOld(redis),
         //Storage AddConversation
         addConversation: Storage.addConversation(prisma),
         getConversationList: Storage.getConversationList(prisma),
@@ -87,10 +83,6 @@ export async function getDatabase(
         getHaltedMessages: Storage.getHaltedMessages(prisma),
         //Storage Delete Halted Message
         clearHaltedMessage: Storage.clearHaltedMessage(prisma),
-        //Get the user db migration status
-        getUserDbMigrationStatus: Storage.getUserDbMigrationStatus(redis),
-        //Set the user db migration status to true
-        setUserDbMigrated: Storage.setUserDbMigrated(redis),
     };
 }
 
@@ -143,8 +135,6 @@ export interface IBackendDatabase {
         aliasName: string,
         messageId: string,
     ) => Promise<boolean>;
-    getUserDbMigrationStatus: (ensName: string) => Promise<boolean>;
-    setUserDbMigrated: (ensName: string) => Promise<void>;
 }
 
 export type Redis = Awaited<ReturnType<typeof getRedisClient>>;

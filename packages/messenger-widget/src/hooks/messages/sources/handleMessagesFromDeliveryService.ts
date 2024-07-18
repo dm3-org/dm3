@@ -7,7 +7,7 @@ import {
 import { MessageModel, MessageSource } from '../useMessage';
 import { Account, ProfileKeys } from '@dm3-org/dm3-lib-profile';
 import { AddConversation, StoreMessageBatch } from '../../storage/useStorage';
-import { Acknoledgment } from '@dm3-org/dm3-lib-delivery';
+import { Acknowledgment } from '@dm3-org/dm3-lib-delivery';
 
 export const handleMessagesFromDeliveryService = async (
     account: Account,
@@ -18,12 +18,10 @@ export const handleMessagesFromDeliveryService = async (
     fetchNewMessages: (ensName: string, contactAddress: string) => any,
     syncAcknowledgment: (
         ensName: string,
-        acknoledgments: Acknoledgment[],
-        lastSyncTime: number,
+        acknoledgments: Acknowledgment[],
     ) => void,
     updateConversationList: (conversation: string, updatedAt: number) => void,
 ) => {
-    const lastSyncTime = Date.now();
     //Fetch the messages from the delivery service
     const encryptedIncommingMessages = await fetchNewMessages(
         account.ensName,
@@ -80,16 +78,11 @@ export const handleMessagesFromDeliveryService = async (
         await storeMessageBatch(contact, messagesSortedASC);
     }
 
-    await syncAcknowledgment(
-        account.ensName,
-        [
-            {
-                contactAddress: contact,
-                //This value is not used in the backend hence we can set it to 0
-                messageDeliveryServiceTimestamp: 0,
-            },
-        ],
-        lastSyncTime,
-    );
+    const acks: Acknowledgment[] = messagesSortedASC.map((message) => ({
+        contactAddress: contact,
+        messageHash: message.envelop.metadata?.encryptedMessageHash!,
+    }));
+
+    await syncAcknowledgment(account.ensName, acks);
     return messagesSortedASC;
 };
