@@ -95,7 +95,7 @@ describe('Delivery', () => {
 
             const db = {
                 ...(await getDatabase(redisClient)),
-                getSession: async (ensName: string) => ({
+                getAccount: async (ensName: string) => ({
                     challenge: '123',
                     token,
                 }),
@@ -142,7 +142,7 @@ describe('Delivery', () => {
             );
             const db = {
                 ...(await getDatabase(redisClient)),
-                getSession: async (ensName: string) => ({
+                getAccount: async (ensName: string) => ({
                     challenge: '123',
                     token,
                 }),
