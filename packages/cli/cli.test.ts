@@ -1,21 +1,19 @@
 import {
-    ENSRegistry__factory,
-    ERC3668Resolver__factory,
-} from 'ccip-resolver/dist/typechain/';
-import { expect } from 'chai';
-import { Wallet } from 'ethers';
-import execa from 'execa';
-import { ethers } from 'hardhat';
-
-import publicResolverArtifact from '@ensdomains/resolver/build/contracts/PublicResolver.json';
-import {
     createKeyPair,
     createSigningKeyPair,
     createStorageKey,
 } from '@dm3-org/dm3-lib-crypto';
+import publicResolverArtifact from '@ensdomains/resolver/build/contracts/PublicResolver.json';
+import {
+    ENSRegistry__factory,
+    ERC3668Resolver__factory,
+} from 'ccip-resolver/dist/typechain/';
+import { expect } from 'chai';
+import { Wallet, ethers } from 'ethers';
+import execa from 'execa';
+
 describe('cli', () => {
     let alice, owner: Wallet;
-    let rpc: string;
     let ensRegistry, publicResolver, erc3668Resolver;
 
     afterEach(async () => {
@@ -29,13 +27,21 @@ describe('cli', () => {
             detached: true,
         });
 
-        const wait = (ms: number) =>
-            new Promise((resolve) => setTimeout(resolve, ms));
+        const wait = () =>
+            new Promise((resolve) => {
+                const i = setInterval(async () => {
+                    const provider = new ethers.providers.JsonRpcProvider(
+                        'http://127.0.0.1:8545/',
+                    );
+                    try {
+                        await provider.detectNetwork();
+                        clearInterval(i);
+                        resolve('done');
+                    } catch (e) {}
+                }, 100);
+            });
 
-        //Wait unitl hh node has started
-        await wait(2000);
-
-        rpc = ethers.provider.connection.url;
+        await wait();
 
         const provider = new ethers.providers.JsonRpcProvider(
             'http://127.0.0.1:8545/',
@@ -48,13 +54,13 @@ describe('cli', () => {
         owner = new Wallet(
             '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d',
         );
-
         const ownerWithProvider = owner.connect(provider);
         const aliceWithProvider = alice.connect(provider);
 
         ensRegistry = await new ENSRegistry__factory()
             .connect(ownerWithProvider)
             .deploy();
+
         erc3668Resolver = await new ERC3668Resolver__factory()
             .connect(ownerWithProvider)
             .deploy(
@@ -323,14 +329,14 @@ describe('cli', () => {
     describe('setup onChain', () => {
         describe('sanitize input', () => {
             it('reverts for unknown input', async () => {
-                const res = await cli('dm3 setup onchainDs --efeh');
+                const res = await cli('dm3 setup onChainDs --efeh');
                 expect(res.stderr).to.equal("error: unknown option '--efeh'");
             });
 
             it('reverts if rpc url is undefined', async () => {
                 const wallet = ethers.Wallet.createRandom();
                 const res = await cli(
-                    `dm3 setup onchainDs --pk ${wallet.privateKey} --domain test.eth`,
+                    `dm3 setup onChainDs --pk ${wallet.privateKey} --domain test.eth`,
                 );
                 expect(res.stderr).to.equal(
                     'error: option --rpc <rpc> argument missing',
@@ -339,7 +345,7 @@ describe('cli', () => {
 
             it('reverts if privateKey is undefined', async () => {
                 const res = await cli(
-                    'dm3 setup onchainDs --rpc www.rpc.io --domain test.eth',
+                    'dm3 setup onChainDs --rpc www.rpc.io --domain test.eth',
                 );
                 expect(res.stderr).to.equal(
                     'error: option --pk <pk> argument missing',
@@ -347,7 +353,7 @@ describe('cli', () => {
             });
             it('reverts if privateKey is invalid', async () => {
                 const res = await cli(
-                    'dm3 setup onchainDs --rpc www.rpc.io --domain test.eth --pk 123',
+                    'dm3 setup onChainDs --rpc www.rpc.io --domain test.eth --pk 123',
                 );
                 expect(res.stderr).to.equal(
                     'error: option --pk <pk> argument invalid',
@@ -356,19 +362,19 @@ describe('cli', () => {
             it('reverts if domain is undefined', async () => {
                 const wallet = ethers.Wallet.createRandom();
                 const res = await cli(
-                    `dm3 setup onchainDs --rpc www.rpc.io --pk ${wallet.privateKey}`,
+                    `dm3 setup onChainDs --rpc www.rpc.io --pk ${wallet.privateKey}`,
                 );
                 expect(res.stderr).to.equal(
                     'error: option --domain <domain> argument missing',
                 );
             });
         });
-        describe('setup onchainDsAll', () => {
+        describe('setup onChainDsAll', () => {
             it('test all', async () => {
                 const owner = ethers.Wallet.createRandom();
 
                 const res = await cli(
-                    `dm3 setup onchainDs 
+                    `dm3 setup onChainDs 
                     --rpc  http://127.0.0.1:8545
                     --pk ${alice.privateKey} 
                     --domain alice.eth 
@@ -400,7 +406,7 @@ describe('cli', () => {
             });
             it('test all with random profile wallet', async () => {
                 const res = await cli(
-                    `dm3 setup onchainDs 
+                    `dm3 setup onChainDs 
                     --rpc  http://127.0.0.1:8545
                     --pk ${alice.privateKey} 
                     --domain alice.eth 
@@ -436,7 +442,7 @@ describe('cli', () => {
                 );
 
                 const res = await cli(
-                    `dm3 setup onchainDs 
+                    `dm3 setup onChainDs 
                     --rpc  http://127.0.0.1:8545
                     --pk ${underfundedWallet.privateKey} 
                     --domain alice.eth 
