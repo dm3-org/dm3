@@ -206,3 +206,32 @@ After processing the envelope, the delivery service forwards the message to the 
 **ERC3668Resolver**: 0x88c8cC822095cdE6F92c8d20311C8e7dE6A98694
 
 **SignatureVerifier**: 0xA76d65E1241CF77944AB66835Bb5389a3E53A269
+
+# Contributing
+
+We open feature branches from `develop` and merge them back via pull requests. The `main` branch holds the current production release.
+
+There are 3 remote environments where the code is deployed:
+
+1. `production` - the production environment that is automatically deployed from the `main` branch
+2. `staging` - the staging environment that is automatically deployed from the `develop` branch and is used to test and review the code before it is deployed to production
+3. `testing` - this environment is used to deploy feature branches people are working on and need to test in a real environment
+
+## Using the testing environment
+
+In order to deploy a branch to testing, do this:
+
+1. talk to the team to make sure nobody is actively using the testing environment at the moment
+2. push tje branch to the remote repository
+3. open the [deploy action](https://github.com/dm3-org/dm3/actions/workflows/deploy.yml)
+4. click on `Run workflow` (right side of the screen) ![alt text](docs/images/runWorkflow.png)
+5. select the branch you want to deploy
+6. click on the green `Run workflow` button
+
+Please note: if you select the `main` or `develop` branches, they will be deployed to `production` and `staging` respectively. All other branches will be deployed to `testing`.
+
+## Pull Requests
+
+In order to merge a feature branch into `develop`, you need to open a pull request. The pull request will be reviewed by the team and merged if it is approved. The pull request should have a meaningful title and description, and should be linked to the issue it is solving. Please also make sure that the code is properly tested and that the tests are passing. If you need help with testing, please ask the team. Ideally, link the pull request to the issue it is solving.
+
+Once you created a pull request, letting the team know about it is a good idea. Reach out to do so.
