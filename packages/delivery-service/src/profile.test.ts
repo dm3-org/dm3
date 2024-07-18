@@ -35,10 +35,10 @@ describe('Profile', () => {
     describe('getProfile', () => {
         it('Returns 200 if schema is valid', async () => {
             const db = {
-                getSession: async (ensName: string) => ({
+                getAccount: async (ensName: string) => ({
                     signedUserProfile: {},
                 }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 getIdEnsName: async (ensName: string) => ensName,
@@ -60,8 +60,8 @@ describe('Profile', () => {
         it('Returns 200 if schema is valid', async () => {
             const web3Provider = { resolveName: async () => wallet.address };
             const db = {
-                getSession: async (ensName: string) => Promise.resolve(null),
-                setSession: async (_: string, __: any) => {
+                getAccount: async (ensName: string) => Promise.resolve(null),
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 getIdEnsName: async (ensName: string) => ensName,
@@ -104,9 +104,9 @@ describe('Profile', () => {
         });
         it('Returns 400 if schema is invalid', async () => {
             const db = {
-                getSession: async (accountAddress: string) =>
+                getAccount: async (accountAddress: string) =>
                     Promise.resolve(null),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 getIdEnsName: async (ensName: string) => ensName,

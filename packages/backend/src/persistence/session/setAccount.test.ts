@@ -1,13 +1,8 @@
 import { Redis, IDatabase, getRedisClient, getDatabase } from '../getDatabase';
 import { UserProfile } from '@dm3-org/dm3-lib-profile';
 import { Session } from '@dm3-org/dm3-lib-delivery';
-import winston from 'winston';
 
 const USER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
-
-global.logger = winston.createLogger({
-    transports: [new winston.transports.Console()],
-});
 
 describe('Set Session', () => {
     let redisClient: Redis;
@@ -40,12 +35,12 @@ describe('Set Session', () => {
             },
         };
 
-        const priorSetSession = await db.getSession(USER_ADDRESS);
+        const priorSetSession = await db.getAccount(USER_ADDRESS);
         //User has no session yet
         expect(priorSetSession).toBe(null);
-        await db.setSession(USER_ADDRESS, session);
+        await db.setAccount(USER_ADDRESS, session);
 
-        const afterSetSession = await db.getSession(USER_ADDRESS);
+        const afterSetSession = await db.getAccount(USER_ADDRESS);
         //User has no session yet
         expect(afterSetSession?.signedUserProfile).toEqual({
             profile,
@@ -53,10 +48,10 @@ describe('Set Session', () => {
         });
     });
 
-    it('Rejects session with an invalid schema', async () => {
+    it('Rejcts session with an invalid schema', async () => {
         const invalidSession = {} as Session;
         try {
-            await db.setSession('foo', invalidSession);
+            await db.setAccount('foo', invalidSession);
             fail();
         } catch (e) {
             expect(e).toStrictEqual(Error('Invalid session'));

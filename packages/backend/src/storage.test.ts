@@ -17,7 +17,6 @@ import bodyParser from 'body-parser';
 import { ethers } from 'ethers';
 import express from 'express';
 import request from 'supertest';
-import winston from 'winston';
 import {
     IDatabase,
     Redis,
@@ -44,10 +43,6 @@ const keysA = {
 };
 
 const serverSecret = 'veryImportantSecretToGenerateAndValidateJSONWebTokens';
-
-global.logger = winston.createLogger({
-    transports: [new winston.transports.Console()],
-});
 
 describe('Storage', () => {
     let app;
@@ -96,13 +91,13 @@ describe('Storage', () => {
         } as Session & { spamFilterRules: spamFilter.SpamFilterRules };
 
         const dbMocked = {
-            getSession: async (ensName: string) =>
+            getAccount: async (ensName: string) =>
                 Promise.resolve<
                     Session & {
                         spamFilterRules: spamFilter.SpamFilterRules;
                     }
                 >(sessionMocked),
-            setSession: async (_: string, __: Session) => {},
+            setAccount: async (_: string, __: Session) => {},
             getIdEnsName: async (ensName: string) => ensName,
         };
         const dbFinal: IDatabase = { ...db, ...dbMocked };
@@ -1387,36 +1382,6 @@ describe('Storage', () => {
             expect(JSON.parse(body[0]).encryptedEnvelopContainer).toBe(
                 updatedPayload[0].encryptedEnvelopContainer,
             );
-        });
-    });
-    describe('Migration', () => {
-        it('should migrate storage', async () => {
-            const { body: preMigrationStatus } = await request(app)
-                .get(`/new/bob.eth/migrationStatus`)
-                .set({
-                    authorization: 'Bearer ' + token,
-                })
-                .send();
-
-            expect(preMigrationStatus).toBe(false);
-
-            const { status } = await request(app)
-                .post(`/new/bob.eth/migrationStatus`)
-                .set({
-                    authorization: 'Bearer ' + token,
-                })
-                .send();
-
-            expect(status).toBe(200);
-
-            const { body: postMigrationStatus } = await request(app)
-                .get(`/new/bob.eth/migrationStatus`)
-                .set({
-                    authorization: 'Bearer ' + token,
-                })
-                .send();
-
-            expect(postMigrationStatus).toBe(true);
         });
     });
 });

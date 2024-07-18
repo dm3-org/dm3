@@ -33,13 +33,12 @@ export interface Session {
 
 export async function checkToken(
     provider: ethers.providers.JsonRpcProvider,
-    getSession: (ensName: string) => Promise<Session | null>,
+    getAccount: (ensName: string) => Promise<Session | null>,
     ensName: string,
     token: string,
     serverSecret: string,
 ): Promise<boolean> {
-    //
-    const session = await getSession(ensName.toLocaleLowerCase());
+    const session = await getAccount(ensName.toLocaleLowerCase());
     if (!session) {
         console.debug('there is no account for this ens name: ', ensName);
         return false;

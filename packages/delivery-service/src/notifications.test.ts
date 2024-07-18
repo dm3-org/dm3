@@ -43,7 +43,7 @@ describe('Notifications', () => {
             app.use(bodyParser.json());
 
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
@@ -54,7 +54,7 @@ describe('Notifications', () => {
                             },
                         },
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 getUserStorage: async (addr: string) => {
@@ -100,7 +100,7 @@ describe('Notifications', () => {
             const app = express();
             app.use(bodyParser.json());
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
@@ -111,7 +111,7 @@ describe('Notifications', () => {
                             },
                         },
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 getUserStorage: async (addr: string) => {
@@ -161,12 +161,12 @@ describe('Notifications', () => {
             const addUsersNotificationChannelMock = jest.fn();
 
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -208,12 +208,12 @@ describe('Notifications', () => {
             const addUsersNotificationChannelMock = jest.fn();
 
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -256,12 +256,12 @@ describe('Notifications', () => {
             const addUsersNotificationChannelMock = jest.fn();
 
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -325,12 +325,12 @@ describe('Notifications', () => {
             const setOtpMock = jest.fn();
 
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -389,12 +389,12 @@ describe('Notifications', () => {
             const setOtpMock = jest.fn();
 
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -452,7 +452,7 @@ describe('Notifications', () => {
             const app = express();
             app.use(bodyParser.json());
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
@@ -463,7 +463,7 @@ describe('Notifications', () => {
                             },
                         },
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 getUserStorage: async (addr: string) => {
@@ -512,12 +512,12 @@ describe('Notifications', () => {
             const setGlobalNotificationMock = jest.fn();
 
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -562,12 +562,12 @@ describe('Notifications', () => {
             const setGlobalNotificationMock = jest.fn();
 
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -611,12 +611,12 @@ describe('Notifications', () => {
             const setGlobalNotificationMock = jest.fn();
 
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -658,12 +658,12 @@ describe('Notifications', () => {
             const resendOtpMock = jest.fn();
 
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -706,12 +706,12 @@ describe('Notifications', () => {
             const resendOtpMock = jest.fn();
 
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -774,12 +774,12 @@ describe('Notifications', () => {
             const getOtpMock = jest.fn();
 
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -837,12 +837,12 @@ describe('Notifications', () => {
             const verifyOtpMock = jest.fn();
 
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -888,12 +888,12 @@ describe('Notifications', () => {
             const verifyOtpMock = jest.fn();
 
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -939,12 +939,12 @@ describe('Notifications', () => {
             const verifyOtpMock = jest.fn();
 
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -1026,12 +1026,12 @@ describe('Notifications', () => {
             const setNotificationChannelAsVerifiedMock = jest.fn();
 
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -1080,12 +1080,12 @@ describe('Notifications', () => {
     describe('Enable/Disable Email notification channel', () => {
         it('Returns 400 as isEnabled is not set in body', async () => {
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -1128,12 +1128,12 @@ describe('Notifications', () => {
 
         it('Returns 400 as isEnabled value is invalid in body', async () => {
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -1177,12 +1177,12 @@ describe('Notifications', () => {
 
         it('Returns 400 as notification channel type is not set in body', async () => {
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -1226,12 +1226,12 @@ describe('Notifications', () => {
 
         it('Returns 400 as notification channel type value is invalid in body', async () => {
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -1275,12 +1275,12 @@ describe('Notifications', () => {
 
         it('Returns 400 as global notification channel is turned off', async () => {
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -1342,12 +1342,12 @@ describe('Notifications', () => {
             };
 
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -1418,12 +1418,12 @@ describe('Notifications', () => {
             };
 
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -1479,12 +1479,12 @@ describe('Notifications', () => {
     describe('Remove Email notification channel', () => {
         it('Returns 400 on as channel type is invalid in params', async () => {
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -1526,12 +1526,12 @@ describe('Notifications', () => {
 
         it('Returns 400 as global notifications is turned off', async () => {
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -1587,12 +1587,12 @@ describe('Notifications', () => {
             const removeNotificationChannelMock = jest.fn();
 
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -1648,12 +1648,12 @@ describe('Notifications', () => {
             const addUsersNotificationChannelMock = jest.fn();
 
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -1703,12 +1703,12 @@ describe('Notifications', () => {
             const addUsersNotificationChannelMock = jest.fn();
 
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -1757,12 +1757,12 @@ describe('Notifications', () => {
             const addUsersNotificationChannelMock = jest.fn();
 
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -1814,12 +1814,12 @@ describe('Notifications', () => {
             const addUsersNotificationChannelMock = jest.fn();
 
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -1871,12 +1871,12 @@ describe('Notifications', () => {
             const addUsersNotificationChannelMock = jest.fn();
 
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -1918,12 +1918,12 @@ describe('Notifications', () => {
             const addUsersNotificationChannelMock = jest.fn();
 
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -1966,12 +1966,12 @@ describe('Notifications', () => {
             const addUsersNotificationChannelMock = jest.fn();
 
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -2033,12 +2033,12 @@ describe('Notifications', () => {
             const setNotificationChannelAsVerifiedMock = jest.fn();
 
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -2097,12 +2097,12 @@ describe('Notifications', () => {
             const addUsersNotificationChannelMock = jest.fn();
 
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -2158,12 +2158,12 @@ describe('Notifications', () => {
     describe('Remove Push notification channel', () => {
         it('Returns 400 on as channel type is invalid in params', async () => {
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -2205,12 +2205,12 @@ describe('Notifications', () => {
 
         it('Returns 400 as global notifications is turned off', async () => {
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
@@ -2274,12 +2274,12 @@ describe('Notifications', () => {
             const removeNotificationChannelMock = jest.fn();
 
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},

@@ -1,15 +1,11 @@
-import { checkToken, incomingMessage } from '@dm3-org/dm3-lib-delivery';
 import { EncryptionEnvelop, schema } from '@dm3-org/dm3-lib-messaging';
-import {
-    DeliveryServiceProfileKeys,
-    normalizeEnsName,
-} from '@dm3-org/dm3-lib-profile';
-import { validateSchema } from '@dm3-org/dm3-lib-shared';
+import { DeliveryServiceProfileKeys } from '@dm3-org/dm3-lib-profile';
+import { IWebSocketManager, validateSchema } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import { Server, Socket } from 'socket.io';
 import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
+import { MessageProcessor } from './message/MessageProcessor';
 import { IDatabase } from './persistence/getDatabase';
-import { IWebSocketManager } from '@dm3-org/dm3-lib-shared';
 
 export function onConnection(
     io: Server,
@@ -79,23 +75,19 @@ export function onConnection(
                         keys: keys.encryptionKeyPair.publicKey,
                     });
 
-                    await incomingMessage(
-                        data.envelop,
-                        keys.signingKeyPair,
-                        keys.encryptionKeyPair,
-                        deliveryServiceProperties.sizeLimit,
-                        deliveryServiceProperties.notificationChannel,
-                        db.getSession,
-                        db.createMessage,
+                    const messageProcessor = new MessageProcessor(
+                        db,
+                        web3Provider,
+                        webSocketManager,
+                        deliveryServiceProperties,
+                        keys,
                         (socketId: string, envelop: EncryptionEnvelop) => {
                             io.sockets.to(socketId).emit('message', envelop);
                         },
-                        web3Provider,
-                        db.getIdEnsName,
-                        db.getUsersNotificationChannels,
-                        webSocketManager,
-                    ),
-                        callback({ response: 'success' });
+                    );
+                    await messageProcessor.processEnvelop(data.envelop);
+
+                    callback({ response: 'success' });
                 } catch (error: any) {
                     global.logger.warn({
                         method: 'WS SUBMIT MESSAGE',

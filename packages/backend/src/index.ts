@@ -13,7 +13,6 @@ import 'dotenv/config';
 import express from 'express';
 import http from 'http';
 import path from 'path';
-import winston from 'winston';
 import { getDatabase } from './persistence/getDatabase';
 import Profile from './profile';
 import Storage from './storage';
@@ -28,17 +27,6 @@ const server = http.createServer(app);
 app.use(cors());
 app.use(bodyParser.json());
 
-declare global {
-    var logger: winston.Logger;
-}
-
-global.logger = winston.createLogger({
-    level: process.env.LOG_LEVEL ?? 'info',
-    transports: [new winston.transports.Console()],
-});
-
-winston.loggers.add('default', global.logger);
-
 (async () => {
     const db = await getDatabase();
     const web3Provider = await getCachedWebProvider(process.env);
@@ -51,7 +39,7 @@ winston.loggers.add('default', global.logger);
     });
     app.use('/profile', Profile(db, web3Provider, serverSecret));
     app.use('/storage', Storage(db, web3Provider, serverSecret));
-    app.use('/auth', Auth(db.getSession as any, serverSecret));
+    app.use('/auth', Auth(db.getAccount as any, serverSecret));
     app.use(logError);
     app.use(errorHandler);
 })();

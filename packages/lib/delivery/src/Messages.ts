@@ -20,9 +20,9 @@ import {
 } from '@dm3-org/dm3-lib-messaging';
 import { sha256 } from '@dm3-org/dm3-lib-shared';
 
-export interface Acknoledgment {
+export interface Acknowledgment {
     contactAddress: string;
-    messageDeliveryServiceTimestamp: number;
+    messageHash: string;
 }
 
 export function getConversationId(ensNameA: string, ensNameB: string): string {

@@ -11,8 +11,8 @@ import { Session } from './Session';
 
 export async function submitUserProfile(
     provider: ethers.providers.JsonRpcProvider,
-    getSession: (accountAddress: string) => Promise<Session | null>,
-    setSession: (accountAddress: string, session: Session) => Promise<void>,
+    getAccount: (accountAddress: string) => Promise<Session | null>,
+    setAccount: (accountAddress: string, session: Session) => Promise<void>,
     ensName: string,
     signedUserProfile: SignedUserProfile,
     serverSecret: string,
@@ -23,7 +23,7 @@ export async function submitUserProfile(
         logDebug('submitUserProfile - Signature invalid');
         throw Error('Signature invalid.');
     }
-    if (await getSession(account)) {
+    if (await getAccount(account)) {
         logDebug('submitUserProfile - Profile exists already');
         throw Error('Profile exists already');
     }
@@ -35,18 +35,16 @@ export async function submitUserProfile(
         profileExtension: getDefaultProfileExtension(),
     };
     logDebug({ text: 'submitUserProfile', session });
-
-    //TODO use addr
-    await setSession(account.toLocaleLowerCase(), session);
+    await setAccount(account.toLocaleLowerCase(), session);
 
     return session.token;
 }
 
 export async function getUserProfile(
-    getSession: (accountAddress: string) => Promise<Session | null>,
+    getAccount: (accountAddress: string) => Promise<Session | null>,
     ensName: string,
 ): Promise<SignedUserProfile | undefined> {
     const account = normalizeEnsName(ensName);
-    const session = await getSession(account);
+    const session = await getAccount(account);
     return session?.signedUserProfile;
 }
