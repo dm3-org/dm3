@@ -2,14 +2,15 @@ import { DeliveryServiceProfileKeys } from '@dm3-org/dm3-lib-profile';
 import { IWebSocketManager, stringify } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 
-import { decryptAsymmetric, KeyPair } from '@dm3-org/dm3-lib-crypto';
 import {
     addPostmark,
+    decryptDeliveryInformation,
     DeliveryServiceProperties,
     getConversationId,
     NotificationBroker,
     NotificationType,
 } from '@dm3-org/dm3-lib-delivery';
+import { spamFilter } from '@dm3-org/dm3-lib-delivery';
 import {
     DeliveryInformation,
     EncryptionEnvelop,
@@ -17,7 +18,6 @@ import {
 } from '@dm3-org/dm3-lib-messaging';
 import { logDebug } from '@dm3-org/dm3-lib-shared';
 import { IDatabase } from '../persistence/getDatabase';
-import { isSpam } from './spam-filter';
 
 type onSubmitMessage = (socketId: string, envelop: EncryptionEnvelop) => void;
 
@@ -91,15 +91,14 @@ export class MessageProcessor {
             throw Error('unknown session');
         }
 
-        console.debug(
-            'incomingMessage',
-            conversationId,
-            deliveryInformation,
-            receiverSession,
-        );
-
         //Checks if the message is spam
-        if (await isSpam(this.provider, receiverSession, deliveryInformation)) {
+        if (
+            await spamFilter.isSpam(
+                this.provider,
+                receiverSession,
+                deliveryInformation,
+            )
+        ) {
             console.debug(
                 `incomingMessage fro ${deliveryInformation.to} is spam`,
             );

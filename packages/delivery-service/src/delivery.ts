@@ -22,7 +22,7 @@ const syncAcknoledgmentBodySchema = {
     properties: {
         acknoledgments: {
             type: 'array',
-            items: schema.Acknowledgment,
+            items: schema.Acknoledgment,
         },
     },
     required: ['acknoledgments'],
