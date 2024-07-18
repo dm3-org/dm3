@@ -22,7 +22,6 @@ export const handleMessagesFromDeliveryService = async (
     ) => void,
     updateConversationList: (conversation: string, updatedAt: number) => void,
 ) => {
-    const lastSyncTime = Date.now();
     //Fetch the messages from the delivery service
     const encryptedIncommingMessages = await fetchNewMessages(
         account.ensName,
