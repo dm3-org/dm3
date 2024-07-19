@@ -76,5 +76,6 @@ export const handleMessagesFromWebSocket = async (
         contact,
         messageModel.envelop.message.metadata.timestamp,
     );
+
     storeMessage(contact, messageModel);
 };
