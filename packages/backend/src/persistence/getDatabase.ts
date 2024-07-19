@@ -1,5 +1,3 @@
-import { Session as DSSession, spamFilter } from '@dm3-org/dm3-lib-delivery';
-import { IAccountDatabase } from '@dm3-org/dm3-lib-server-side';
 import { Account, PrismaClient } from '@prisma/client';
 import { createClient } from 'redis';
 import Storage from './storage';
