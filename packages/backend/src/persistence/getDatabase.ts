@@ -50,10 +50,8 @@ export async function getPrismaClient() {
 }
 
 export async function getDatabase(
-    _redis?: Redis,
     _prisma?: PrismaClient,
 ): Promise<IBackendDatabase> {
-    const redis = _redis ?? (await getRedisClient());
     const prisma = _prisma ?? (await getPrismaClient());
 
     return {

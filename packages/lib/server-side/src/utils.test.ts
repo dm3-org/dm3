@@ -18,20 +18,7 @@ describe('Utils', () => {
                 notBefore: 0,
             });
 
-            const getAccount = async (accountAddress: string) =>
-                Promise.resolve({
-                    signedUserProfile: {},
-                    token: 'testToken',
-                    createdAt: new Date().getTime(),
-                });
-            const setAccount = async (_: string, __: any) => {
-                return (_: any, __: any, ___: any) => {};
-            };
-
-            const db = {
-                getAccount,
-                setAccount,
-            };
+            const hasAccount = (_: string) => Promise.resolve(true);
 
             const web3Provider = {
                 resolveName: async () =>
@@ -55,7 +42,7 @@ describe('Utils', () => {
                         res,
                         next,
                         ensName,
-                        db as any,
+                        hasAccount,
                         web3Provider as any,
                         serverSecret,
                     );
@@ -80,20 +67,7 @@ describe('Utils', () => {
                 notBefore: 0,
             });
 
-            const getAccount = async (accountAddress: string) =>
-                Promise.resolve({
-                    signedUserProfile: {},
-                    token: 'testToken',
-                    createdAt: new Date().getTime(),
-                });
-            const setAccount = async (_: string, __: any) => {
-                return (_: any, __: any, ___: any) => {};
-            };
-
-            const db = {
-                getAccount,
-                setAccount,
-            };
+            const hasAccount = (_: string) => Promise.resolve(true);
 
             const web3Provider = {
                 resolveName: async () =>
@@ -117,7 +91,7 @@ describe('Utils', () => {
                         res,
                         next,
                         ensName,
-                        db as any,
+                        hasAccount,
                         web3Provider as any,
                         serverSecret,
                     );
@@ -140,13 +114,8 @@ describe('Utils', () => {
             const token = sign({ account: 'alice.eth' }, serverSecret, {
                 expiresIn: '1h',
             });
-            const db = {
-                getAccount: async (accountAddress: string) =>
-                    Promise.resolve(null),
-                setAccount: async (_: string, __: any) => {
-                    return (_: any, __: any, ___: any) => {};
-                },
-            };
+
+            const hasAccount = (_: string) => Promise.resolve(false);
 
             const web3Provider = {
                 resolveName: async () =>
@@ -170,7 +139,7 @@ describe('Utils', () => {
                         res,
                         next,
                         ensName,
-                        db as any,
+                        hasAccount,
                         web3Provider as any,
                         serverSecret,
                     );
@@ -203,16 +172,7 @@ describe('Utils', () => {
             const token = sign({ account: 'some.other.name' }, serverSecret, {
                 expiresIn: '1h',
             });
-            const db = {
-                getAccount: async (accountAddress: string) =>
-                    Promise.resolve({
-                        signedUserProfile: {},
-                        token: 'foo',
-                    }),
-                setAccount: async (_: string, __: any) => {
-                    return (_: any, __: any, ___: any) => {};
-                },
-            };
+            const hasAccount = (_: string) => Promise.resolve(true);
 
             const web3Provider = {
                 resolveName: async () =>
@@ -236,7 +196,7 @@ describe('Utils', () => {
                         res,
                         next,
                         ensName,
-                        db as any,
+                        hasAccount,
                         web3Provider as any,
                         serverSecret,
                     );
@@ -281,17 +241,7 @@ describe('Utils', () => {
                 serverSecret,
             );
 
-            const db = {
-                getAccount: async (accountAddress: string) =>
-                    Promise.resolve({
-                        signedUserProfile: {},
-                        token: 'foo',
-                        createdAt: 1,
-                    }),
-                setAccount: async (_: string, __: any) => {
-                    return (_: any, __: any, ___: any) => {};
-                },
-            };
+            const hasAccount = (_: string) => Promise.resolve(true);
 
             const web3Provider = {
                 resolveName: async () =>
@@ -315,7 +265,7 @@ describe('Utils', () => {
                         res,
                         next,
                         ensName,
-                        db as any,
+                        hasAccount,
                         web3Provider as any,
                         serverSecret,
                     );
@@ -380,17 +330,7 @@ describe('Utils', () => {
                 },
                 serverSecret,
             );
-            const db = {
-                getAccount: async (accountAddress: string) =>
-                    Promise.resolve({
-                        signedUserProfile: {},
-                        token: 'foo',
-                        createdAt: 1,
-                    }),
-                setAccount: async (_: string, __: any) => {
-                    return (_: any, __: any, ___: any) => {};
-                },
-            };
+            const hasAccount = (_: string) => Promise.resolve(true);
 
             const web3Provider = {
                 resolveName: async () =>
@@ -414,7 +354,7 @@ describe('Utils', () => {
                         res,
                         next,
                         ensName,
-                        db as any,
+                        hasAccount,
                         web3Provider as any,
                         serverSecret,
                     );

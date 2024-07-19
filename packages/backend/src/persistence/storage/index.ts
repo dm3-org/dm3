@@ -27,7 +27,7 @@ export default {
     clearHaltedMessage,
     getAccount,
     setAccount,
-    hasAccount: hasAccount,
+    hasAccount,
 };
 
 export type { MessageRecord };

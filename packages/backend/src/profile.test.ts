@@ -1,22 +1,21 @@
-import {
-    Session,
-    generateAuthJWT,
-    spamFilter,
-} from '@dm3-org/dm3-lib-delivery';
+import { generateAuthJWT } from '@dm3-org/dm3-lib-delivery';
 import {
     UserProfile,
     getProfileCreationMessage,
 } from '@dm3-org/dm3-lib-profile';
 import { stringify } from '@dm3-org/dm3-lib-shared';
+import { Account } from '@prisma/client';
 import bodyParser from 'body-parser';
 import { ethers } from 'ethers';
 import express from 'express';
 import http from 'http';
 import request from 'supertest';
-import { IDatabase } from './persistence/getDatabase';
+import { IBackendDatabase } from './persistence/getDatabase';
 import profile from './profile';
 import storage from './storage';
 
+// todo: create a web3 provider mock that returns a resolver and that thren returns a text when the respective functions
+// are called
 const web3ProviderMock: ethers.providers.JsonRpcProvider =
     new ethers.providers.JsonRpcProvider();
 
@@ -26,7 +25,7 @@ let token = generateAuthJWT('alice.eth', serverSecret);
 
 const setUpApp = async (
     app: express.Express,
-    db: IDatabase,
+    db: IBackendDatabase,
     web3Provider: ethers.providers.JsonRpcProvider,
     serverSecret: string = 'my-secret',
 ) => {
@@ -36,20 +35,13 @@ const setUpApp = async (
 };
 
 const createDbMock = async () => {
-    const sessionMocked = {
-        challenge: '123',
-        token: 'deprecated token that is not used anymore',
-        signedUserProfile: {},
-    } as Session & { spamFilterRules: spamFilter.SpamFilterRules };
+    const accountMocked = {
+        id: 'alice.eth',
+    } as Account;
 
     const dbMock = {
-        getAccount: async (ensName: string) =>
-            Promise.resolve<
-                Session & {
-                    spamFilterRules: spamFilter.SpamFilterRules;
-                }
-            >(sessionMocked), // returns some valid session
-        setAccount: async (_: string, __: Session) => {},
+        getAccount: async (ensName: string) => Promise.resolve(accountMocked),
+        setAccount: async (id: string) => {},
         getIdEnsName: async (ensName: string) => ensName,
     };
 
