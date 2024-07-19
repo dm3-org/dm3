@@ -10,7 +10,6 @@ export enum RedisPrefix {
     Sync = 'sync:',
     // Account used to be called Session. The prefix still resolves to "session:" for now.
     Account = 'session:',
-    Session = 'session:',
     NotificationChannel = 'notificationChannel:',
     GlobalNotification = 'globalNotification:',
     Otp = 'otp:',
@@ -61,7 +60,7 @@ export async function getDatabase(
         //Session
         setAccount: Storage.setAccount(prisma),
         getAccount: Storage.getAccount(prisma),
-        doesAccountExist: Storage.doesAccountExist(prisma),
+        hasAccount: Storage.hasAccount(prisma),
         //Storage AddConversation
         addConversation: Storage.addConversation(prisma),
         getConversationList: Storage.getConversationList(prisma),
@@ -87,7 +86,7 @@ export async function getDatabase(
 export interface IBackendDatabase {
     setAccount: (ensName: string) => Promise<Account>;
     getAccount: (ensName: string) => Promise<Account | null>;
-    doesAccountExist: (ensName: string) => Promise<boolean>;
+    hasAccount: (ensName: string) => Promise<boolean>;
 
     addConversation: (
         ensName: string,

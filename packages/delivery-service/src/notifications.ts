@@ -40,7 +40,7 @@ export default (
             res,
             next,
             ensName,
-            db.doesAccountExist,
+            db.hasAccount,
             web3Provider,
             serverSecret,
         );

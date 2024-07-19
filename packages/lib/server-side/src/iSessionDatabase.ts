@@ -9,5 +9,5 @@ export interface IAccountDatabase {
           })
         | null
     >;
-    doesAccountExist: (ensName: string) => Promise<boolean>;
+    hasAccount: (ensName: string) => Promise<boolean>;
 }

@@ -1,7 +1,7 @@
 import { Redis, RedisPrefix } from '../getDatabase';
 import { getIdEnsName } from '../getIdEnsName';
 
-export function doesAccountExist(redis: Redis) {
+export function hasAccount(redis: Redis) {
     return async (ensName: string) => {
         let account = await redis.get(
             RedisPrefix.Account + (await getIdEnsName(redis)(ensName)),

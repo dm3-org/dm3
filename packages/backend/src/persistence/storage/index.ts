@@ -12,7 +12,7 @@ import { getHaltedMessages } from './postgres/haltedMessage/getHaltedMessages';
 import { clearHaltedMessage } from './postgres/haltedMessage/clearHaltedMessage';
 import { getAccount } from './postgres/getAccount';
 import { setAccount } from './postgres/setAccount';
-import { doesAccountExist } from './postgres/doesAccountExist';
+import { hasAccount } from './postgres/hasAccount';
 
 export default {
     addConversation,
@@ -27,7 +27,7 @@ export default {
     clearHaltedMessage,
     getAccount,
     setAccount,
-    doesAccountExist,
+    hasAccount: hasAccount,
 };
 
 export type { MessageRecord };

@@ -16,7 +16,7 @@ export async function auth(
     res: Response,
     next: NextFunction,
     ensName: string,
-    doesAccountExist: (ensName: string) => Promise<boolean>,
+    hasAccount: (ensName: string) => Promise<boolean>,
     web3Provider: ethers.providers.JsonRpcProvider,
     serverSecret: string,
 ) {
@@ -28,7 +28,7 @@ export async function auth(
         token &&
         (await checkToken(
             web3Provider,
-            doesAccountExist,
+            hasAccount,
             normalizedEnsName,
             token,
             serverSecret,
@@ -59,7 +59,7 @@ export function socketAuth(
             if (
                 !(await checkToken(
                     web3Provider,
-                    db.doesAccountExist,
+                    db.hasAccount,
                     ensName,
                     socket.handshake.auth.token as string,
                     serverSecret,
