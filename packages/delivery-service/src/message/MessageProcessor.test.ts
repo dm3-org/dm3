@@ -30,21 +30,26 @@ jest.mock('nodemailer');
 describe('MessageProcessor', () => {
     let sender: MockedUserProfile;
     let receiver: MockedUserProfile;
+    let receiverOnGno: MockedUserProfile;
     let rando: MockedUserProfile;
 
     let ds: MockDeliveryServiceProfile;
 
     beforeEach(async () => {
+        //The receiver might use the same address for different networks. Hence we keep the wallet separate
+
+        const receiverWallet = ethers.Wallet.createRandom();
         sender = await mockUserProfile(
             ethers.Wallet.createRandom(),
             'bob.eth',
             ['http://localhost:3000'],
         );
-        receiver = await mockUserProfile(
-            ethers.Wallet.createRandom(),
-            'alice.eth',
-            ['http://localhost:3000'],
-        );
+        receiver = await mockUserProfile(receiverWallet, 'alice.eth', [
+            'http://localhost:3000',
+        ]);
+        receiverOnGno = await mockUserProfile(receiverWallet, 'alice.gno', [
+            'http://localhost:3000',
+        ]);
         rando = await mockUserProfile(
             ethers.Wallet.createRandom(),
             'rando.eth',
@@ -564,6 +569,94 @@ describe('MessageProcessor', () => {
         expect(incommingTimestamp).toBeLessThanOrEqual(Date.now());
         expect(messageHash).toBe(
             ethers.utils.hashMessage(stringify(incomingEnvelop.message)),
+        );
+        const postmarkWithoutSig: Omit<Postmark, 'signature'> = {
+            messageHash,
+            incommingTimestamp,
+        };
+        expect(
+            await checkSignature(
+                ds.keys.signingKeyPair.publicKey,
+                sha256(stringify(postmarkWithoutSig)),
+                signature,
+            ),
+        ).toBe(true);
+        //Check if the message was submitted to the socket
+        expect(sendMock).not.toBeCalled();
+    });
+    it('stores proper incoming message using address', async () => {
+        const sendMock = jest.fn();
+        const createMessageMock = jest.fn();
+
+        const now = Date.now();
+
+        const mockWsManager: IWebSocketManager = {
+            isConnected: function (ensName: string): Promise<boolean> {
+                return Promise.resolve(false);
+            },
+        };
+
+        const db = {
+            createMessage: createMessageMock,
+            getIdEnsName: () => '',
+            getAccount,
+            getUsersNotificationChannels: () => Promise.resolve([]),
+        } as any as IDatabase;
+
+        const web3Provider = {
+            getBalance: async (_: string) => Promise.resolve(BigNumber.from(5)),
+            resolveName: async () =>
+                '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+        } as any;
+
+        const deliveryServiceProperties: DeliveryServiceProperties = {
+            sizeLimit: 2 ** 14,
+            messageTTL: 1000,
+            notificationChannel: [],
+        };
+
+        const messageProcessor = new MessageProcessor(
+            db,
+            web3Provider,
+            mockWsManager,
+            deliveryServiceProperties,
+            ds.keys,
+            () => {},
+        );
+
+        const incomingEnvelop1: EncryptionEnvelop = await MockMessageFactory(
+            sender,
+            receiver,
+            ds,
+        ).createEncryptedEnvelop('hello dm3 from ens');
+        const incomingEnvelop2: EncryptionEnvelop = await MockMessageFactory(
+            sender,
+            receiverOnGno,
+            ds,
+        ).createEncryptedEnvelop('hello dm3 from gno');
+
+        await messageProcessor.processEnvelop(incomingEnvelop1);
+        await messageProcessor.processEnvelop(incomingEnvelop2);
+
+        //createMessageCall
+        const [_, actualEnvelop] = createMessageMock.mock.calls[0];
+
+        expect(createMessageMock).toBeCalled();
+        expect(createMessageMock).toBeCalledTimes(2);
+        expect(actualEnvelop['message']).toBe(incomingEnvelop1.message);
+
+        const actualPostmark = await decryptAsymmetric(
+            receiver.profileKeys.encryptionKeyPair,
+            JSON.parse(actualEnvelop['postmark']),
+        );
+
+        // check postmark
+        const { incommingTimestamp, messageHash, signature } =
+            JSON.parse(actualPostmark);
+        expect(incommingTimestamp).toBeGreaterThanOrEqual(now);
+        expect(incommingTimestamp).toBeLessThanOrEqual(Date.now());
+        expect(messageHash).toBe(
+            ethers.utils.hashMessage(stringify(incomingEnvelop1.message)),
         );
         const postmarkWithoutSig: Omit<Postmark, 'signature'> = {
             messageHash,

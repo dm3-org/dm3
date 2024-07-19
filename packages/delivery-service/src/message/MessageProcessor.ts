@@ -75,6 +75,13 @@ export class MessageProcessor {
             );
         console.debug('incomingMessage', deliveryInformation);
 
+        //the delivery service has to accept any message to the receiver regardelss of the place they have choosen to host their profile.
+        //That means no matter what name the receiver has chosen to use, the delivery service has to resolve it to the correct address
+        //i.E if alice.eth resolves to 0x123
+        //and alice.gno resolves to 0x123 aswell, the ds has to accept both
+        const address = await this.provider.resolveName(deliveryInformation.to);
+        console.log(address);
+
         const conversationId = getConversationId(
             //TODO look into dbIdEnsName
             await this.db.getIdEnsName(deliveryInformation.from),
