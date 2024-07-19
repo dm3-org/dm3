@@ -3,7 +3,6 @@ on:
     workflow_dispatch:
     push:
         branches:
-            - testing
             - develop
             - main
 

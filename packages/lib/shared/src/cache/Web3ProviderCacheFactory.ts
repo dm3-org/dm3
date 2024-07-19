@@ -2,10 +2,10 @@ import { ethers } from 'ethers';
 import { ICache } from './impl/ICache';
 import { LRUCache } from './impl/LRUCache';
 import { TTLCache, TTLCacheItem } from './impl/TTLCache';
-import { IPersistance } from './persistance/IPersistance';
-import { InMemory } from './persistance/InMemory';
+import { IPersistance } from './persistence/IPersistance';
+import { InMemory } from './persistence/InMemory';
 import { sha256 } from '../sha256';
-import { LocalStorage } from './persistance/LocalStorage';
+import { LocalStorage } from './persistence/LocalStorage';
 
 const DEFAULT_CAPACITY = 500;
 //1 hour
@@ -18,16 +18,16 @@ export class Web3ProviderCacheFactory {
     constructor(provider: ethers.providers.JsonRpcProvider) {
         this.provider = provider;
     }
-    //TTL cache with local storage as persistance
+    //TTL cache with local storage as persistence
     public TTLLocalStorage<T>(ttl: number = DEFAULT_TTL) {
         return this.TTL(new LocalStorage<TTLCacheItem<T>>(), ttl);
     }
     //Returns an instance of the web3 provder. Requests are cached for a given time to live
     public TTL<T>(
-        persistance: IPersistance<TTLCacheItem<T>> = new InMemory(),
+        persistence: IPersistance<TTLCacheItem<T>> = new InMemory(),
         ttl: number = DEFAULT_TTL,
     ): ethers.providers.JsonRpcProvider {
-        const cache = new TTLCache<T>(DEFAULT_CAPACITY, ttl, persistance);
+        const cache = new TTLCache<T>(DEFAULT_CAPACITY, ttl, persistence);
         const instance = Web3ProviderCacheFactory._createInstance(
             this.provider,
             cache,
@@ -36,10 +36,10 @@ export class Web3ProviderCacheFactory {
     }
     //Returns an instance of the web3 provider. Requests are cached using LRU strategy
     public LRU<T>(
-        persistance: IPersistance<T> = new InMemory(),
+        persistence: IPersistance<T> = new InMemory(),
         capacity: number = DEFAULT_CAPACITY,
     ): ethers.providers.JsonRpcProvider {
-        const cache = new LRUCache<T>(capacity, persistance);
+        const cache = new LRUCache<T>(capacity, persistence);
         const instance = Web3ProviderCacheFactory._createInstance(
             this.provider,
             cache,

@@ -1,54 +1,54 @@
 //Simple cache using LRU as a cache strategy to keep the most recent values
 
-import { IPersistance } from '../persistance/IPersistance';
-import { InMemory } from '../persistance/InMemory';
+import { IPersistance } from '../persistence/IPersistance';
+import { InMemory } from '../persistence/InMemory';
 import { ICache } from './ICache';
 
 //Thanks to Gashawk.io for the implementation
 export class LRUCache<T> implements ICache<T> {
     private capacity: number;
-    private persistance: IPersistance<T>;
+    private persistence: IPersistance<T>;
 
     constructor(
         capacity: number,
-        persistance: IPersistance<T> = new InMemory(),
+        persistence: IPersistance<T> = new InMemory(),
     ) {
         this.capacity = capacity;
-        this.persistance = persistance;
+        this.persistence = persistence;
     }
 
     get(key: string): T | undefined {
-        if (!this.persistance.has(key)) {
+        if (!this.persistence.has(key)) {
             return undefined;
         }
-        const value = this.persistance.get(key)!;
+        const value = this.persistence.get(key)!;
         // Remove the key and re-insert it to update its position (most recently used)
-        this.persistance.delete(key);
-        this.persistance.set(key, value);
+        this.persistence.delete(key);
+        this.persistence.set(key, value);
         return value;
     }
 
     set(key: string, value: T): void {
-        if (this.persistance.has(key)) {
+        if (this.persistence.has(key)) {
             // Remove the key to update its position (most recently used)
-            this.persistance.delete(key);
-        } else if (this.persistance.size() === this.capacity) {
+            this.persistence.delete(key);
+        } else if (this.persistence.size() === this.capacity) {
             // Remove the least recently used (first) entry
-            const firstKey = this.persistance.keys().next().value;
-            this.persistance.delete(firstKey);
+            const firstKey = this.persistence.keys().next().value;
+            this.persistence.delete(firstKey);
         }
-        this.persistance.set(key, value);
+        this.persistence.set(key, value);
     }
 
     has(key: string): boolean {
-        return this.persistance.has(key);
+        return this.persistence.has(key);
     }
 
     length(): number {
-        return this.persistance.size();
+        return this.persistence.size();
     }
 
     clear(): void {
-        this.persistance.clear();
+        this.persistence.clear();
     }
 }
