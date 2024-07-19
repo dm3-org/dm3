@@ -90,9 +90,6 @@ export interface IBackendDatabase {
     setAccount: (ensName: string) => Promise<Account>;
     getAccount: (ensName: string) => Promise<Account | null>;
     doesAccountExist: (ensName: string) => Promise<boolean>;
-    //Legacy remove after storage has been merged
-    getUserStorage: (ensName: string) => Promise<UserStorage | null>;
-    setUserStorage: (ensName: string, data: string) => Promise<void>;
 
     addConversation: (
         ensName: string,
