@@ -10,7 +10,6 @@ import { AddConversation, StoreMessageAsync } from '../../storage/useStorage';
 import { MessageModel, MessageSource, MessageStorage } from '../useMessage';
 
 export const handleMessagesFromWebSocket = async (
-    contacts: ContactPreview[],
     addConversation: AddConversation,
     setMessages: Function,
     storeMessage: StoreMessageAsync,

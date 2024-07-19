@@ -102,7 +102,6 @@ export const useMessage = () => {
     useEffect(() => {
         onNewMessage((encryptedEnvelop: EncryptionEnvelop) => {
             handleMessagesFromWebSocket(
-                contacts,
                 addConversation,
                 setMessages,
                 storeMessage,
