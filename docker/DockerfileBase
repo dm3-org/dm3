@@ -1,5 +1,5 @@
 ## Create a base image that contains some common tools and all libraries
-FROM --platform=linux/amd64 node:22-alpine as base
+FROM --platform=linux/amd64 node:22-alpine3.18 as base
 RUN apk add --update bash gawk \
    && rm -rf /var/cache/apk/*
 
