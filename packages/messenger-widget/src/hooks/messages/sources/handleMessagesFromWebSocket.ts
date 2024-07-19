@@ -72,16 +72,11 @@ export const handleMessagesFromWebSocket = async (
         };
     });
 
-    // Update the conversation with the latest message timestamp only if the contact already exists
-    // If it's a new contact then automatically it will be added to top of contact list
-    if (
-        contacts.find((data) => data.contactDetails.account.ensName === contact)
-    ) {
-        updateConversationList(
-            contact,
-            messageModel.envelop.message.metadata.timestamp,
-        );
-    }
+    // Update the conversation with the latest message timestamp
+    updateConversationList(
+        contact,
+        messageModel.envelop.message.metadata.timestamp,
+    );
 
     storeMessage(contact, messageModel);
 };
