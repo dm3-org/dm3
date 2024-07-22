@@ -1,5 +1,6 @@
 import {
     Auth,
+    Profile,
     errorHandler,
     getCachedWebProvider,
     getServerSecret,
@@ -23,7 +24,6 @@ import Delivery from './delivery';
 import { onConnection } from './messaging';
 import Notifications from './notifications';
 import { getDatabase } from './persistence/getDatabase';
-import Profile from './profile';
 import RpcProxy from './rpc/rpc-proxy';
 import { WebSocketManager } from './ws/WebSocketManager';
 import webpush from 'web-push';
@@ -91,8 +91,8 @@ global.logger = winston.createLogger({
         return res.send('Hello DM3');
     });
 
-    app.use('/auth', Auth(db.getAccount as any, serverSecret));
-    app.use('/profile', Profile(db, web3Provider, io, serverSecret));
+    app.use('/auth', Auth(db.getAccount, serverSecret));
+    app.use('/profile', Profile(db, web3Provider, serverSecret));
     app.use('/delivery', Delivery(web3Provider, db, keys, serverSecret));
     app.use(
         '/notifications',

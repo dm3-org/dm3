@@ -1,5 +1,6 @@
 import {
     Auth,
+    Profile,
     errorHandler,
     getCachedWebProvider,
     getServerSecret,
@@ -14,7 +15,6 @@ import express from 'express';
 import http from 'http';
 import path from 'path';
 import { getDatabase } from './persistence/getDatabase';
-import Profile from './profile';
 import Storage from './storage';
 
 const app = express();
