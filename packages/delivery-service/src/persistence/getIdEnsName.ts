@@ -5,7 +5,7 @@ export function getIdEnsName(redis: Redis) {
     const resolveAlias = async (ensName: string): Promise<string> => {
         const lowerEnsName = normalizeEnsName(
             (await redis.get(
-                RedisPrefix.Session + 'alias:' + normalizeEnsName(ensName),
+                RedisPrefix.Account + 'alias:' + normalizeEnsName(ensName),
             )) ?? ensName,
         );
 

@@ -1,20 +1,19 @@
 import { Session as DSSession, spamFilter } from '@dm3-org/dm3-lib-delivery';
-import { ISessionDatabase } from '@dm3-org/dm3-lib-server-side';
-import { UserStorage } from '@dm3-org/dm3-lib-storage';
+import { IAccountDatabase } from '@dm3-org/dm3-lib-server-side';
 import { PrismaClient } from '@prisma/client';
 import { createClient } from 'redis';
-import Pending from './pending';
 import Session from './session';
 import Storage from './storage';
-import { MessageRecord } from './storage/postgres/utils/MessageRecord';
+import { ConversationRecord } from './storage/postgres/dto/ConversationRecord';
+import { MessageRecord } from './storage/postgres/dto/MessageRecord';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',
     IncomingConversations = 'incoming.conversations:',
     Sync = 'sync:',
+    // Account used to be called Session. The prefix still resolves to "session:" for now.
+    Account = 'session:',
     Session = 'session:',
-    UserStorage = 'user.storage:',
-    Pending = 'pending:',
     NotificationChannel = 'notificationChannel:',
     GlobalNotification = 'globalNotification:',
     Otp = 'otp:',
@@ -39,11 +38,11 @@ export async function getRedisClient() {
     );
 
     client.on('error', (err) => {
-        global.logger.error('Redis error: ' + (err as Error).message);
+        console.error('Redis error: ' + (err as Error).message);
     });
 
-    client.on('reconnecting', () => global.logger.info('Redis reconnection'));
-    client.on('ready', () => global.logger.info('Redis ready'));
+    client.on('reconnecting', () => console.info('Redis reconnection'));
+    client.on('ready', () => console.info('Redis ready'));
 
     await client.connect();
 
@@ -63,15 +62,8 @@ export async function getDatabase(
 
     return {
         //Session
-        setSession: Session.setSession(redis),
-        getSession: Session.getSession(redis),
-        //Legacy remove after storage has been merged
-        getUserStorage: Storage.getUserStorageOld(redis),
-        setUserStorage: Storage.setUserStorageOld(redis),
-        //Pending
-        addPending: Pending.addPending(redis),
-        getPending: Pending.getPending(redis),
-        deletePending: Pending.deletePending(redis),
+        setAccount: Session.setAccount(redis),
+        getAccount: Session.getAccount(redis),
         //Storage AddConversation
         addConversation: Storage.addConversation(prisma),
         getConversationList: Storage.getConversationList(prisma),
@@ -87,33 +79,30 @@ export async function getDatabase(
         getNumberOfConverations: Storage.getNumberOfConversations(prisma),
         //Storage Toggle Hide Conversation
         toggleHideConversation: Storage.toggleHideConversation(prisma),
-        //Get the user db migration status
-        getUserDbMigrationStatus: Storage.getUserDbMigrationStatus(redis),
-        //Set the user db migration status to true
-        setUserDbMigrated: Storage.setUserDbMigrated(redis),
+        //Storage Get Halted Messages
+        getHaltedMessages: Storage.getHaltedMessages(prisma),
+        //Storage Delete Halted Message
+        clearHaltedMessage: Storage.clearHaltedMessage(prisma),
     };
 }
 
-export interface IDatabase extends ISessionDatabase {
-    setSession: (ensName: string, session: DSSession) => Promise<void>;
-    getSession: (ensName: string) => Promise<
+export interface IDatabase extends IAccountDatabase {
+    setAccount: (ensName: string, session: DSSession) => Promise<void>;
+    getAccount: (ensName: string) => Promise<
         | (DSSession & {
               spamFilterRules: spamFilter.SpamFilterRules;
           })
         | null
     >;
-    //Legacy remove after storage has been merged
-    getUserStorage: (ensName: string) => Promise<UserStorage | null>;
-    setUserStorage: (ensName: string, data: string) => Promise<void>;
-    addPending: (ensName: string, contactEnsName: string) => Promise<void>;
-    getPending: (ensName: string) => Promise<string[]>;
-    deletePending: (ensName: string) => Promise<void>;
-
     addConversation: (
         ensName: string,
         encryptedContactName: string,
     ) => Promise<boolean>;
-    getConversationList: (ensName: string) => Promise<string[]>;
+    getConversationList: (
+        ensName: string,
+        size: number,
+        offset: number,
+    ) => Promise<ConversationRecord[]>;
     addMessageBatch: (
         ensName: string,
         encryptedContactName: string,
@@ -122,7 +111,8 @@ export interface IDatabase extends ISessionDatabase {
     getMessagesFromStorage: (
         ensName: string,
         encryptedContactName: string,
-        page: number,
+        size: number,
+        offset: number,
     ) => Promise<string[]>;
     editMessageBatch: (
         ensName: string,
@@ -139,8 +129,12 @@ export interface IDatabase extends ISessionDatabase {
         encryptedContactName: string,
         isHidden: boolean,
     ) => Promise<boolean>;
-    getUserDbMigrationStatus: (ensName: string) => Promise<boolean>;
-    setUserDbMigrated: (ensName: string) => Promise<void>;
+    getHaltedMessages: (ensName: string) => Promise<MessageRecord[]>;
+    clearHaltedMessage: (
+        ensName: string,
+        aliasName: string,
+        messageId: string,
+    ) => Promise<boolean>;
 }
 
 export type Redis = Awaited<ReturnType<typeof getRedisClient>>;

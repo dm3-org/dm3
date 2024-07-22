@@ -15,13 +15,22 @@ export class BackendConnector
             encryptedContactName,
         });
     }
-    public async getConversations(ensName: string) {
+    public async getConversations(
+        ensName: string,
+        pageSize: number,
+        offset: number,
+    ) {
         const url = `/storage/new/${normalizeEnsName(
             ensName,
         )}/getConversations`;
         const axios = this.getAuthenticatedAxiosClient();
 
-        const { data } = await axios.get(url);
+        const { data } = await axios.get(url, {
+            params: {
+                pageSize,
+                offset,
+            },
+        });
         return data ?? [];
     }
     public async toggleHideConversation(
@@ -40,13 +49,19 @@ export class BackendConnector
     public async getMessagesFromStorage(
         ensName: string,
         encryptedContactName: string,
-        pageNumber: number,
+        pageSize: number,
+        offset: number,
     ) {
         const url = `/storage/new/${normalizeEnsName(
             ensName,
-        )}/getMessages/${encryptedContactName}/${pageNumber}`;
+        )}/getMessages/${encryptedContactName}`;
 
-        const { data } = await this.getAuthenticatedAxiosClient().get(url);
+        const { data } = await this.getAuthenticatedAxiosClient().get(url, {
+            params: {
+                pageSize,
+                offset,
+            },
+        });
 
         return (
             data.map((message: any) => {
@@ -55,17 +70,43 @@ export class BackendConnector
         );
     }
 
+    public async getHaltedMessages(ensName: string) {
+        const url = `/storage/new/${normalizeEnsName(
+            ensName,
+        )}/getHaltedMessages/`;
+        const { data } = await this.getAuthenticatedAxiosClient().get(url, {});
+        return data ?? [];
+    }
+    public async clearHaltedMessages(
+        ensName: string,
+        messageId: string,
+        aliasName: string,
+    ) {
+        const url = `/storage/new/${normalizeEnsName(
+            ensName,
+        )}/clearHaltedMessage/`;
+        const { data } = await this.getAuthenticatedAxiosClient().post(url, {
+            aliasName,
+            messageId,
+        });
+        return data ?? [];
+    }
+
     public async addMessage(
         ensName: string,
         encryptedContactName: string,
         messageId: string,
+        createdAt: number,
         encryptedEnvelopContainer: string,
+        isHalted: boolean,
     ) {
         const url = `/storage/new/${normalizeEnsName(ensName)}/addMessage`;
         await this.getAuthenticatedAxiosClient().post(url, {
             encryptedContactName,
             messageId,
+            createdAt,
             encryptedEnvelopContainer,
+            isHalted,
         });
     }
 

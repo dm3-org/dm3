@@ -30,10 +30,6 @@ describe('Profile', () => {
     let db: IDatabase;
     let app: express.Express;
 
-    const logger = winston.createLogger({
-        transports: [new winston.transports.Console()],
-    });
-
     const provider: ethers.providers.JsonRpcProvider = new Proxy(
         {
             getBalance: async () => ethers.BigNumber.from(1),
@@ -47,8 +43,8 @@ describe('Profile', () => {
     );
 
     beforeEach(async () => {
-        prismaClient = await getDbClient(logger);
-        db = await getDatabase(logger, prismaClient);
+        prismaClient = await getDbClient();
+        db = await getDatabase(prismaClient);
         await clearDb(prismaClient);
 
         app = express();
@@ -59,16 +55,14 @@ describe('Profile', () => {
         app.locals.config = { spamProtection: true };
         app.locals.db = db;
 
-        app.locals.logger = {
-            // eslint-disable-next-line no-console
-            info: (msg: string) => console.log(msg),
-            // eslint-disable-next-line no-console
-            warn: (msg: string) => console.log(msg),
-        };
-
         app.locals.config.spamProtection = true;
 
-        process.env.REACT_APP_ADDR_ENS_SUBDOMAIN = '.beta-addr.dm3.eth';
+        process.env.RESOLVER_SUPPORTED_ADDR_ENS_SUBDOMAINS = JSON.stringify([
+            'beta-addr.dm3.eth',
+        ]);
+        process.env.RESOLVER_SUPPORTED_NAME_ENS_SUBDOMAINS = JSON.stringify([
+            'beta-name.dm3.eth',
+        ]);
     });
 
     afterEach(async () => {
@@ -83,8 +77,7 @@ describe('Profile', () => {
                 .post(`/name`)
                 .send({
                     dm3Name: 'foo.dm3.eth',
-                    addressName:
-                        SENDER_ADDRESS + globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    addressName: SENDER_ADDRESS + 'beta-addr.dm3.eth',
                     signature: await app.locals.forTests.wallet.signMessage(
                         'alias: foo.dm3.eth',
                     ),
@@ -107,6 +100,7 @@ describe('Profile', () => {
                         signature: offChainProfile1.signature,
                         profile: offChainProfile1.profile,
                     },
+                    subdomain: 'beta-addr.dm3.eth',
                 });
 
             expect(status).to.equal(200);
@@ -115,9 +109,7 @@ describe('Profile', () => {
                 .post(`/name`)
                 .send({
                     dm3Name: 'foo.dm3.eth',
-                    addressName:
-                        offChainProfile1.signer +
-                        globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    addressName: offChainProfile1.signer + '.beta-addr.dm3.eth',
                     signature: await sign(
                         offChainProfile1.privateSigningKey,
                         'alias: bar.dm3.eth',
@@ -144,15 +136,14 @@ describe('Profile', () => {
                         signature: offChainProfile.signature,
                         profile: offChainProfile.profile,
                     },
+                    subdomain: 'beta-addr.dm3.eth',
                 });
 
             const { status, body } = await request(app)
                 .post(`/name`)
                 .send({
                     dm3Name: 'foo.dm3.eth',
-                    addressName:
-                        offChainProfile.signer +
-                        globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    addressName: offChainProfile.signer + '.beta-addr.dm3.eth',
                     signature: await sign(
                         offChainProfile.privateSigningKey,
                         'alias: foo.dm3.eth',
@@ -181,6 +172,7 @@ describe('Profile', () => {
                         signature: offChainProfile1.signature,
                         profile: offChainProfile1.profile,
                     },
+                    subdomain: 'beta-addr.dm3.eth',
                 });
 
             expect(status).to.equal(200);
@@ -188,13 +180,11 @@ describe('Profile', () => {
             const res1 = await request(app)
                 .post(`/name`)
                 .send({
-                    dm3Name: 'foo.dm3.eth',
-                    addressName:
-                        offChainProfile1.signer +
-                        globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    dm3Name: 'foo.beta-name.dm3.eth',
+                    addressName: offChainProfile1.signer + '.beta-addr.dm3.eth',
                     signature: await sign(
                         offChainProfile1.privateSigningKey,
-                        'alias: foo.dm3.eth',
+                        'alias: foo.beta-name.dm3.eth',
                     ),
                 });
 
@@ -214,23 +204,14 @@ describe('Profile', () => {
             app2.locals.config = { spamProtection: true };
             app2.locals.db = db;
 
-            app2.locals.logger = {
-                // eslint-disable-next-line no-console
-                info: (msg: string) => console.log(msg),
-                // eslint-disable-next-line no-console
-                warn: (msg: string) => console.log(msg),
-            };
-
             const res2 = await request(app2)
                 .post(`/name`)
                 .send({
-                    dm3Name: 'foo.dm3.eth',
-                    addressName:
-                        offChainProfile1.signer +
-                        globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    dm3Name: 'foo.beta-name.dm3.eth',
+                    addressName: offChainProfile1.signer + '.beta-addr.dm3.eth',
                     signature: await sign(
                         offChainProfile1.privateSigningKey,
-                        'alias: foo.dm3.eth',
+                        'alias: foo.beta-name.dm3.eth',
                     ),
                 });
 
@@ -272,6 +253,7 @@ describe('Profile', () => {
                         profile: userProfile,
                         signature,
                     },
+                    subdomain: 'beta-addr.dm3.eth',
                 });
 
             expect(status).to.equal(400);
@@ -293,6 +275,7 @@ describe('Profile', () => {
                         signature: offChainProfile1.signature,
                         profile: offChainProfile1.profile,
                     },
+                    subdomain: 'beta-addr.dm3.eth',
                 });
 
             expect(res1.status).to.equal(200);
@@ -305,10 +288,47 @@ describe('Profile', () => {
                         signature: offChainProfile1.signature,
                         profile: offChainProfile1.profile,
                     },
+                    subdomain: 'beta-addr.dm3.eth',
                 });
 
             expect(res2.status).to.equal(400);
             expect(res2.body.error).to.eql('subdomain already claimed');
+        });
+        it('Rejects if subdomain is not supported', async () => {
+            app.use(profile(provider));
+
+            const offChainProfile1 = await getSignedUserProfile();
+
+            //Fund wallets so their balance is not zero
+
+            const res1 = await request(app)
+                .post(`/address`)
+                .send({
+                    address: offChainProfile1.signer,
+                    signedUserProfile: {
+                        signature: offChainProfile1.signature,
+                        profile: offChainProfile1.profile,
+                    },
+                    subdomain: 'beta-addr.dm3.eth',
+                });
+
+            expect(res1.status).to.equal(200);
+
+            const res2 = await request(app)
+                .post(`/address`)
+                .send({
+                    address: offChainProfile1.signer,
+                    signedUserProfile: {
+                        signature: offChainProfile1.signature,
+                        profile: offChainProfile1.profile,
+                    },
+                    subdomain: 'rando.eth',
+                });
+
+            expect(res2.status).to.equal(400);
+            expect(res2.body.error).to.eql(
+                'subdomain rando.eth is not supported',
+            );
         });
 
         it('Stores a valid profile', async () => {
@@ -327,6 +347,7 @@ describe('Profile', () => {
                         signature,
                         profile: userProfile,
                     },
+                    subdomain: 'beta-addr.dm3.eth',
                 });
 
             expect(status).to.equal(200);
@@ -359,17 +380,18 @@ describe('Profile', () => {
                         signature,
                         profile: userProfile,
                     },
+                    subdomain: 'beta-addr.dm3.eth',
                 });
             expect(writeRes.status).to.equal(200);
 
             const writeRes2 = await request(app)
                 .post(`/name`)
                 .send({
-                    dm3Name: 'foo.dm3.eth',
-                    addressName: signer + globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    dm3Name: 'foo.beta-name.dm3.eth',
+                    addressName: signer + '.beta-addr.dm3.eth',
                     signature: await sign(
                         privateSigningKey,
-                        'alias: foo.dm3.eth',
+                        'alias: foo.beta-name.dm3.eth',
                     ),
                 });
             expect(writeRes2.status).to.equal(200);
@@ -377,10 +399,10 @@ describe('Profile', () => {
             const writeRes3 = await request(app)
                 .post(`/deleteName`)
                 .send({
-                    dm3Name: 'foo.dm3.eth',
+                    dm3Name: 'foo.beta-name.dm3.eth',
                     signature: await sign(
                         privateSigningKey,
-                        'remove: foo.dm3.eth',
+                        'remove: foo.beta-name.dm3.eth',
                     ),
                 });
             expect(writeRes3.status).to.equal(200);
@@ -401,6 +423,43 @@ describe('Profile', () => {
             expect(status).to.equal(404);
         });
 
+        it('Rejcts invalid name subdomain', async () => {
+            app.use(profile(provider));
+            const {
+                signer,
+                profile: userProfile,
+                signature,
+                privateSigningKey,
+            } = app.locals.forTests;
+
+            const writeRes = await request(app)
+                .post(`/address`)
+                .send({
+                    address: signer,
+                    signedUserProfile: {
+                        signature,
+                        profile: userProfile,
+                    },
+                    subdomain: 'beta-addr.dm3.eth',
+                });
+            expect(writeRes.status).to.equal(200);
+
+            const createNAmeResponse = await request(app)
+                .post(`/name`)
+                .send({
+                    dm3Name: 'foo.rando.eth',
+                    addressName: signer + '.beta-addr.dm3.eth',
+                    signature: await sign(
+                        privateSigningKey,
+                        'alias: foo.rando.eth',
+                    ),
+                });
+            expect(createNAmeResponse.status).to.equal(400);
+            expect(createNAmeResponse.body.error).to.equal(
+                'dm3 name foo.rando.eth is not supported. Invalid subdomain',
+            );
+        });
+
         it('Returns the profile linked to ', async () => {
             app.use(profile(provider));
             const {
@@ -418,19 +477,21 @@ describe('Profile', () => {
                         signature,
                         profile: userProfile,
                     },
+                    subdomain: 'beta-addr.dm3.eth',
                 });
             expect(writeRes.status).to.equal(200);
 
             const writeRes2 = await request(app)
                 .post(`/name`)
                 .send({
-                    dm3Name: 'foo.dm3.eth',
-                    addressName: signer + globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    dm3Name: 'foo.beta-name.dm3.eth',
+                    addressName: signer + '.beta-addr.dm3.eth',
                     signature: await sign(
                         privateSigningKey,
-                        'alias: foo.dm3.eth',
+                        'alias: foo.beta-name.dm3.eth',
                     ),
                 });
+            console.log('writeRes2', writeRes2.body);
             expect(writeRes2.status).to.equal(200);
 
             const { status, body } = await request(app)

@@ -1,17 +1,17 @@
 name: deploy
 on:
+    workflow_dispatch:
     push:
         branches:
-            - testing
             - develop
             - main
 
 jobs:
     messenger-web-deploy:
-        environment: ${{ github.ref_name == 'main' && 'prod' || (github.ref == 'develop' && 'staging' || 'testing') }}
+        environment: ${{ github.ref_name == 'main' && 'prod' || (github.ref_name == 'develop' && 'staging' || 'testing') }}
         runs-on: ubuntu-latest
         env:
-            environment_name: ${{ github.ref_name == 'main' && 'prod' || (github.ref == 'develop' && 'staging' || 'testing') }}
+            environment_name: ${{ github.ref_name == 'main' && 'prod' || (github.ref_name == 'develop' && 'staging' || 'testing') }}
         steps:
             - uses: actions/checkout@v2
             - uses: actions/setup-node@v3
@@ -55,7 +55,7 @@ jobs:
                   echo "REACT_APP_ENVIRONMENT_NAME=${{ env.environment_name }}" >> ./.env.react
                   echo "REACT_APP_MAINNET_PROVIDER_RPC=${{ secrets.MAINNET_PROVIDER_URL}}" >> ./.env.react
                   echo "REACT_APP_CHAIN_ID=${{ vars.CHAIN_ID }}" >> ./.env.react
-                  echo "REACT_APP_GENOME_REGISTRY_ADDRESS=${{ vars.GENOME_REGISTRY_ADDRESS }}" >> ./.env.react
+                  echo "REACT_APP_NONCE=${{ vars.STORAGE_NONCE }}" >> ./.env.react
                   cat ./.env.react >> ./.env
                   echo "RESOLVER_ADDRESS=${{ vars.ERC3668_RESOLVER_ADDRESS }}" >> ./.env
                   echo "SIGNING_PUBLIC_KEY=${{ secrets.SIGNING_PUBLIC_KEY }}" >> ./.env
@@ -68,6 +68,9 @@ jobs:
                   echo "URL=${{ vars.HOST_DOMAIN }}" >> ./.env
                   echo "CERT_MAIL=${{ vars.CERT_MAIL }}" >> ./.env
                   echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> ./.env
+                  echo "RESOLVER_SUPPORTED_ADDR_ENS_SUBDOMAINS=${{ vars.RESOLVER_SUPPORTED_ADDR_ENS_SUBDOMAINS }}" >> ./.env
+                  echo "RESOLVER_SUPPORTED_NAME_ENS_SUBDOMAINS=${{ vars.RESOLVER_SUPPORTED_NAME_ENS_SUBDOMAINS }}" >> ./.env
+                  echo "PERSISTENCE_DIRECTORY=${{ vars.PERSISTENCE_DIRECTORY }}" >> ./.env
                   envsubst '${TARGET_HOST} ${TARGET_IP}' < ./docker/nginx.conf > ./nginx.conf
                   cat ./.env
             - name: Prepare docker build environment
@@ -142,6 +145,13 @@ jobs:
                   ssh -i ./ssh-key app@${{ vars.HOST_DOMAIN }} "\
                   cd dm3 && ls |grep -E 'dm3-.*tar' | xargs --no-run-if-empty -L 1 docker load -i; \
                   rm dm3-*.tar || true"
+            - name: Reset state of testing environment
+              run: |
+                  if [ $environment_name == "testing" ]; then
+                      ssh -i ./ssh-key root@${{ vars.HOST_DOMAIN }} "\
+                      cd ${{ vars.PERSISTENCE_DIRECTORY }}/db && rm -r * || true;
+                      cd ${{ vars.PERSISTENCE_DIRECTORY }}/storage && rm -r * || true"
+                  fi
             - name: Configure Firewall
               run: |
                   ssh -i ./ssh-key root@${{ vars.HOST_DOMAIN }} "\

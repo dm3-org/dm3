@@ -21,6 +21,9 @@ export const getOrCreateConversation = async (
         data: {
             accountId,
             encryptedContactName,
+            //Internal field to order conversations properly
+            //Will set whenever a conversation is created or a message is added
+            updatedAt: new Date(),
         },
     });
 };

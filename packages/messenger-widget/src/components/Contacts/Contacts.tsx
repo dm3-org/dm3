@@ -10,24 +10,42 @@ import {
 } from '../../utils/enum-type-utils';
 import { ContactMenu } from '../ContactMenu/ContactMenu';
 import { showMenuInBottom } from './bl';
-import { getAccountDisplayName } from '@dm3-org/dm3-lib-profile';
+import {
+    getAccountDisplayName,
+    normalizeEnsName,
+} from '@dm3-org/dm3-lib-profile';
 import { ContactPreview } from '../../interfaces/utils';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 import { UiViewContext } from '../../context/UiViewContext';
 import { ModalContext } from '../../context/ModalContext';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 export function Contacts() {
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
-    const { getMessages, getUnreadMessageCount } = useContext(MessageContext);
-    const { selectedRightView, setSelectedRightView } =
+    const { messages, getMessages, getUnreadMessageCount, contactIsLoading } =
+        useContext(MessageContext);
+    const { selectedRightView, setSelectedRightView, setSelectedLeftView } =
         useContext(UiViewContext);
-    const { contacts, setSelectedContactName, selectedContact } =
-        useContext(ConversationContext);
+    const {
+        contacts,
+        setSelectedContactName,
+        selectedContact,
+        loadMoreConversations,
+    } = useContext(ConversationContext);
     const { setLastMessageAction } = useContext(ModalContext);
 
     const [isMenuAlignedAtBottom, setIsMenuAlignedAtBottom] = useState<
         boolean | null
     >(null);
+
+    const [hasMoreContact, setHasMoreContact] = useState<boolean>(true);
+
+    const getMoreContacts = async () => {
+        const newContactsCount = await loadMoreConversations();
+        if (!newContactsCount) {
+            setHasMoreContact(false);
+        }
+    };
 
     useEffect(() => {
         if (
@@ -68,9 +86,6 @@ export function Contacts() {
         return uniqueContacts;
     };
 
-    /* Hidden content for highlighting css */
-    const hiddenData: number[] = Array.from({ length: 44 }, (_, i) => i + 1);
-
     const scroller = document.getElementById('chat-scroller');
 
     //If a selected contact is selected and the menu is open, we want to align the menu at the bottom
@@ -84,182 +99,228 @@ export function Contacts() {
         });
     }
 
-    const getPreviewMessage = (contact: string) => {
-        const messages = getMessages(contact);
+    const getPreviewMessage = (contactEnsName: string) => {
+        const _contact = normalizeEnsName(contactEnsName);
+        const messages = getMessages(_contact);
+
         if (messages?.length > 0) {
-            return messages[messages.length - 1].envelop.message.message ?? '';
+            return messages[0].envelop.message.message ?? '';
         }
-        return '';
+        const contact = contacts.find(
+            (c) => c.contactDetails.account.ensName === _contact,
+        );
+        const previewMessage = contact?.message;
+        return previewMessage ?? '';
     };
+
+    const isContactSelected = (id: string) => {
+        return selectedContact?.contactDetails.account.ensName === id;
+    };
+
+    const isContactLoading = (id: string) => {
+        const contactName = selectedContact?.contactDetails?.account?.ensName;
+        //If there is no selectedContact return false
+        if (!contactName) {
+            return false;
+        }
+        //selectedContact in the state matches the list entry
+        const contactIsSelected =
+            selectedContact?.contactDetails.account.ensName === id;
+
+        return contactIsSelected && contactIsLoading(contactName);
+    };
+
+    /**
+     * Add height 100% to InfiniteScroll component.
+     * This is done through javascript & not with css directly using class name
+     * because it affects pagination window of chat screen
+     */
+    const element: HTMLElement | null =
+        document.getElementById('chat-scroller');
+    if (element && element.children.length) {
+        element.children[0].classList.add('paginated-contacts');
+    }
 
     return (
         <div
             id="chat-scroller"
-            className={'contacts-scroller width-fill'.concat(
-                ' ',
-                contacts.length > 6 ? 'scroller-active' : 'scroller-hidden',
-            )}
+            className={'contacts-scroller width-fill scroller-active'}
         >
-            {contacts.length > 0 &&
-                filterDuplicateContacts(contacts).map((data) => {
-                    const id = data.contactDetails.account.ensName;
-                    const unreadMessageCount = getUnreadMessageCount(id);
+            <InfiniteScroll
+                dataLength={contacts.length + 1}
+                next={getMoreContacts}
+                style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    overflow: 'unset',
+                    height: '100%',
+                }}
+                inverse={false}
+                hasMore={hasMoreContact}
+                loader={<></>}
+                scrollableTarget="chat-scroller"
+            >
+                {contacts.length > 0 &&
+                    filterDuplicateContacts(contacts).map((data) => {
+                        const id = data.contactDetails.account.ensName;
+                        const unreadMessageCount = getUnreadMessageCount(id);
 
-                    return (
-                        !data.isHidden && (
-                            <div
-                                id={`chat-item-id-${id}`}
-                                key={id}
-                                className={'pointer-cursor width-fill contact-details-container'.concat(
-                                    ' ',
-                                    selectedContact
-                                        ? selectedContact.contactDetails.account
-                                              .ensName !== id
-                                            ? 'highlight-right-border'
-                                            : 'contact-details-container-active'
-                                        : '',
-                                )}
-                                onClick={() => {
-                                    // On change of contact, message action is set to none
-                                    // so that it automatically scrolls to latest message.
-                                    setLastMessageAction(
-                                        MessageActionType.NONE,
-                                    );
-                                    setSelectedContactName(
-                                        data.contactDetails.account.ensName,
-                                    );
-                                    if (
-                                        selectedRightView !==
-                                        RightViewSelected.Chat
-                                    ) {
-                                        setSelectedRightView(
-                                            RightViewSelected.Chat,
-                                        );
-                                    }
-                                    setIsMenuAlignedAtBottom(
-                                        showMenuInBottom(
-                                            data.contactDetails.account.ensName,
-                                        ),
-                                    );
-                                }}
-                            >
+                        return (
+                            !data.isHidden && (
                                 <div
-                                    className="col-12 d-flex flex-row align-items-center 
-                                justify-content-start width-fill"
+                                    id={`chat-item-id-${id}`}
+                                    key={id}
+                                    className={'pointer-cursor width-fill contact-details-container'.concat(
+                                        ' ',
+                                        selectedContact
+                                            ? selectedContact.contactDetails
+                                                  .account.ensName !== id
+                                                ? 'highlight-right-border'
+                                                : 'contact-details-container-active'
+                                            : '',
+                                    )}
+                                    onClick={() => {
+                                        // On change of contact, message action is set to none
+                                        // so that it automatically scrolls to latest message.
+                                        setLastMessageAction(
+                                            MessageActionType.NONE,
+                                        );
+                                        setSelectedContactName(
+                                            data.contactDetails.account.ensName,
+                                        );
+                                        if (
+                                            selectedRightView !==
+                                            RightViewSelected.Chat
+                                        ) {
+                                            setSelectedRightView(
+                                                RightViewSelected.Chat,
+                                            );
+                                        }
+                                        setIsMenuAlignedAtBottom(
+                                            showMenuInBottom(
+                                                data.contactDetails.account
+                                                    .ensName,
+                                            ),
+                                        );
+                                    }}
                                 >
-                                    <div>
-                                        <img
-                                            src={data.image}
-                                            alt="profile-pic"
-                                            className="border-radius-6 pic"
-                                        />
-                                    </div>
-
-                                    <div className="d-flex flex-column font-size-12 width-fill content">
-                                        <div
-                                            className="d-flex flex-row font-weight-500 justify-content-between 
-                                    text-primary-color"
-                                        >
-                                            <div
-                                                className="pb-1"
-                                                title={
-                                                    data.contactDetails
-                                                        ? data.contactDetails
-                                                              .account.ensName
-                                                        : ''
-                                                }
-                                            >
-                                                <p className="display-name">
-                                                    {getAccountDisplayName(
-                                                        data.name,
-                                                        25,
-                                                    )}
-                                                </p>
-                                            </div>
-
-                                            {id !==
-                                                selectedContact?.contactDetails
-                                                    .account.ensName &&
-                                                unreadMessageCount > 0 && (
-                                                    <div>
-                                                        <div className="msg-count">
-                                                            {unreadMessageCount}
-                                                        </div>
-                                                    </div>
-                                                )}
-
-                                            {selectedContact?.contactDetails
-                                                .account.ensName === id ? (
-                                                selectedContact.message !==
-                                                null ? (
-                                                    <div>
-                                                        <div className="action-container">
-                                                            <img
-                                                                className="action-dot"
-                                                                src={
-                                                                    threeDotsIcon
-                                                                }
-                                                                alt="action"
-                                                            />
-                                                            {
-                                                                <ContactMenu
-                                                                    contactDetails={
-                                                                        data
-                                                                    }
-                                                                    isMenuAlignedAtBottom={
-                                                                        isMenuAlignedAtBottom ===
-                                                                        null
-                                                                            ? showMenuInBottom(
-                                                                                  selectedContact
-                                                                                      .contactDetails
-                                                                                      .account
-                                                                                      .ensName,
-                                                                              )
-                                                                            : isMenuAlignedAtBottom
-                                                                    }
-                                                                />
-                                                            }
-                                                        </div>
-                                                    </div>
-                                                ) : (
-                                                    <div className="pe-2">
-                                                        <img
-                                                            className="rotating"
-                                                            src={loader}
-                                                            alt="loader"
-                                                        />
-                                                    </div>
-                                                )
-                                            ) : (
-                                                <></>
-                                            )}
+                                    <div
+                                        className="col-12 d-flex flex-row align-items-center 
+                                justify-content-start width-fill"
+                                    >
+                                        <div>
+                                            <img
+                                                src={data.image}
+                                                alt="profile-pic"
+                                                className="border-radius-6 pic"
+                                            />
                                         </div>
 
-                                        <div className="text-primary-color pe-3">
-                                            <p className="contacts-msg">
-                                                {getPreviewMessage(id)}
-                                            </p>
+                                        <div className="d-flex flex-column font-size-12 width-fill content">
+                                            <div
+                                                className="d-flex flex-row font-weight-500 justify-content-between 
+                                    text-primary-color"
+                                            >
+                                                <div
+                                                    className="pb-1"
+                                                    title={
+                                                        data.contactDetails
+                                                            ? data
+                                                                  .contactDetails
+                                                                  .account
+                                                                  .ensName
+                                                            : ''
+                                                    }
+                                                >
+                                                    <p className="display-name">
+                                                        {getAccountDisplayName(
+                                                            data.name,
+                                                            25,
+                                                        )}
+                                                    </p>
+                                                </div>
+
+                                                {id !==
+                                                    selectedContact
+                                                        ?.contactDetails.account
+                                                        .ensName &&
+                                                    unreadMessageCount > 0 && (
+                                                        <div>
+                                                            <div className="msg-count">
+                                                                {
+                                                                    unreadMessageCount
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                {/* //TODO add loading state for message */}
+                                                {isContactSelected(id) ? (
+                                                    isContactLoading(id) &&
+                                                    !messages[id].length ? (
+                                                        <div className="pe-2">
+                                                            <img
+                                                                className="rotating"
+                                                                src={loader}
+                                                                alt="loader"
+                                                            />
+                                                        </div>
+                                                    ) : (
+                                                        <div>
+                                                            <div className="action-container">
+                                                                <img
+                                                                    className="action-dot"
+                                                                    src={
+                                                                        threeDotsIcon
+                                                                    }
+                                                                    alt="action"
+                                                                />
+                                                                {
+                                                                    <ContactMenu
+                                                                        contactDetails={
+                                                                            data
+                                                                        }
+                                                                        isMenuAlignedAtBottom={
+                                                                            isMenuAlignedAtBottom ===
+                                                                            null
+                                                                                ? showMenuInBottom(
+                                                                                      selectedContact!
+                                                                                          .contactDetails
+                                                                                          .account
+                                                                                          .ensName,
+                                                                                  )
+                                                                                : isMenuAlignedAtBottom
+                                                                        }
+                                                                    />
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                ) : (
+                                                    <></>
+                                                )}
+                                            </div>
+
+                                            <div className="text-primary-color pe-3">
+                                                <p className="contacts-msg">
+                                                    {getPreviewMessage(id)}
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        )
-                    );
-                })}
+                            )
+                        );
+                    })}
 
-            {/* Hidden content for highlighting css */}
-            {hiddenData.map((data) => (
+                {/* Hidden content for highlighting css */}
                 <div
-                    key={data}
-                    className={
-                        selectedContact
-                            ? 'highlight-right-border'
-                            : 'highlight-right-border-none'
-                    }
+                    className={'last-hidden-contact '.concat(
+                        selectedContact ? 'highlight-right-border' : '',
+                    )}
                 >
                     <div className="hidden-data"></div>
                 </div>
-            ))}
+            </InfiniteScroll>
         </div>
     );
 }

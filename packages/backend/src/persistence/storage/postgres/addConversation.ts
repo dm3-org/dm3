@@ -6,7 +6,6 @@ export const addConversation =
         try {
             const account = await getOrCreateAccount(db, ensName);
             await getOrCreateConversation(db, account.id, contactName);
-
             return true;
         } catch (e) {
             console.log('addConversation error ', e);

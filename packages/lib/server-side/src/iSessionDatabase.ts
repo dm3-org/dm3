@@ -1,9 +1,9 @@
 import { Session as DSSession, spamFilter } from '@dm3-org/dm3-lib-delivery';
 
-export interface ISessionDatabase {
-    setSession: (ensName: string, session: DSSession) => Promise<void>;
+export interface IAccountDatabase {
+    setAccount: (ensName: string, session: DSSession) => Promise<void>;
 
-    getSession: (ensName: string) => Promise<
+    getAccount: (ensName: string) => Promise<
         | (DSSession & {
               spamFilterRules: spamFilter.SpamFilterRules;
           })

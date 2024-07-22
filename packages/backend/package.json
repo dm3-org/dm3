@@ -1,7 +1,7 @@
 {
   "name": "@dm3-org/dm3-backend",
   "license": "BSD-2-Clause",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "dependencies": {
@@ -12,6 +12,7 @@
     "@dm3-org/dm3-lib-server-side": "workspace:^",
     "@dm3-org/dm3-lib-shared": "workspace:^",
     "@dm3-org/dm3-lib-storage": "workspace:^",
+    "@dm3-org/dm3-lib-test-helper": "workspace:^",
     "@prisma/client": "4.16.2",
     "axios": "^0.27.2",
     "body-parser": "^1.20.1",
@@ -27,11 +28,12 @@
   },
   "scripts": {
     "docker:up": "docker-compose up -d",
-    "prisma-init": "prisma generate && prisma migrate dev ",
+    "prisma-init": "prisma generate && prisma migrate deploy ",
     "start": "yarn prisma-init && node  ./dist/index.js",
     "start-inspect": "node --inspect=0.0.0.0:9229  ./dist/index.js",
-    "test": "yarn run before:tests && DATABASE_URL='postgresql://prisma:prisma@localhost:5433/tests?schema=public' jest --coverage --runInBand --transformIgnorePatterns 'node_modules/(?!(dm3-lib-\\w*)/)'",
+    "test": "yarn run before:tests && DATABASE_URL='postgresql://prisma:prisma@localhost:5433/tests?schema=public' yarn jest --coverage --runInBand --transformIgnorePatterns 'node_modules/(?!(dm3-lib-\\w*)/)'",
     "build": "yarn tsc && cp ./config.yml ./dist/config.yml | true",
+    "build:schema": "sh ./schemas.sh",
     "createDeliveryServiceProfile": "node --no-warnings ./cli.js",
     "before:tests": "docker-compose -f docker-compose.test.yml up -d && DATABASE_URL='postgresql://prisma:prisma@localhost:5433/tests?schema=public' yarn prisma-init"
   },
@@ -52,6 +54,7 @@
     "prettier": "^2.6.2",
     "superagent": "^8.0.3",
     "supertest": "^6.3.1",
+    "ts-json-schema-generator": "^0.98.0",
     "ts-node": "^10.9.1",
     "typescript": "^4.4.2"
   },

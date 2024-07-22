@@ -1,26 +1,30 @@
 import { GetMessages } from '../../storage/useStorage';
-import { MessageModel } from '../useMessage';
+import { MessageModel, MessageSource } from '../useMessage';
 
 export const handleMessagesFromStorage = async (
     setContactsLoading: Function,
-    getNumberOfMessages: (contactName: string) => Promise<number>,
     getMessagesFromStorage: GetMessages,
     contactName: string,
+    pageSize: number,
+    offSet: number,
 ) => {
     setContactsLoading((prev: string[]) => {
         return [...prev, contactName];
     });
-    const MAX_MESSAGES_PER_CHUNK = 100;
-    const numberOfmessages = await getNumberOfMessages(contactName);
+
     const storedMessages = await getMessagesFromStorage(
         contactName,
-        Math.floor(numberOfmessages / MAX_MESSAGES_PER_CHUNK),
+        pageSize,
+        offSet,
     );
+
     return storedMessages.map(
         (message) =>
             ({
                 ...message,
                 reactions: [],
+                //The message has been fetched from teh storage
+                source: MessageSource.Storage,
             } as MessageModel),
     );
 };

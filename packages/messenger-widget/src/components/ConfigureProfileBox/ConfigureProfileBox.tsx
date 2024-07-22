@@ -28,7 +28,7 @@ export default function ConfigureProfileBox() {
     return showConfigBox ? (
         <div
             data-testid="config-profile-box"
-            className={'config-box-main position-absolute width-fill background-container'.concat(
+            className={'config-box-main width-fill background-container'.concat(
                 ' ',
                 selectedContact
                     ? 'highlight-right-border'

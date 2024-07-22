@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { getOrCreateAccount } from './utils/getOrCreateAccount';
 import { getOrCreateConversation } from './utils/getOrCreateConversation';
-import { MessageRecord } from './utils/MessageRecord';
+import { MessageRecord } from './dto/MessageRecord';
 
 export const editMessageBatch =
     (db: PrismaClient) =>
@@ -10,7 +10,6 @@ export const editMessageBatch =
         encryptedContactName: string,
         editMessageBatchPayload: MessageRecord[],
     ) => {
-        console.log('editMessageBatchPayload', editMessageBatchPayload);
         const account = await getOrCreateAccount(db, ensName);
 
         await Promise.all(
