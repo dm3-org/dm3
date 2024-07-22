@@ -1,7 +1,7 @@
 {
   "name": "@dm3-org/dm3-messenger-widget",
   "license": "BSD-2-Clause",
-  "version": "1.4.3",
+  "version": "1.5.0",
   "main": "./lib/cjs/widget.js",
   "module": "./lib/esm/widget.js",
   "types": "./lib/esm/widget.d.ts",
