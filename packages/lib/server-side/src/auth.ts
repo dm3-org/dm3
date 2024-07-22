@@ -35,8 +35,9 @@ const createNewSessionTokenBodySchema = {
     additionalProperties: false,
 };
 
-//@ts-ignore
-export const Auth = (getAccount, serverSecret: string) => {
+type GetAccount = (ensName: string) => Promise<any>;
+
+export const Auth = (getAccount: GetAccount, serverSecret: string) => {
     const router = express.Router();
 
     //TODO remove
