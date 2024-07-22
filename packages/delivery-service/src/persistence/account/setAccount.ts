@@ -1,18 +1,25 @@
-import { Redis, RedisPrefix } from '../getDatabase';
 import { Session, schema } from '@dm3-org/dm3-lib-delivery';
-import { validateSchema, stringify } from '@dm3-org/dm3-lib-shared';
-import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
-import { getIdEnsName } from '../getIdEnsName';
+import { stringify, validateSchema } from '@dm3-org/dm3-lib-shared';
+import { ethers } from 'ethers';
+import { Redis, RedisPrefix } from '../getDatabase';
 
 export function setAccount(redis: Redis) {
-    return async (ensName: string, session: Session) => {
+    return async (address: string, session: Session) => {
         const isValid = validateSchema(schema.Session, session);
+        const isAddess = ethers.utils.isAddress(address);
 
         if (!isValid) {
+            console.debug('Invalid session: ', session);
             throw Error('Invalid session');
         }
+
+        if (!isAddess) {
+            console.debug('Invalid address: ', address);
+            throw Error('Invalid address');
+        }
+
         await redis.set(
-            RedisPrefix.Account + (await getIdEnsName(redis)(ensName)),
+            RedisPrefix.Account + ethers.utils.getAddress(address),
             stringify(session),
         );
     };
