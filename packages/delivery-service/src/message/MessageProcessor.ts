@@ -80,6 +80,14 @@ export class MessageProcessor {
         //i.E if alice.eth resolves to 0x123
         //and alice.gno resolves to 0x123 aswell, the ds has to accept both
         const address = await this.provider.resolveName(deliveryInformation.to);
+
+        if (!address) {
+            console.debug(
+                'unable to resolve address for ',
+                deliveryInformation.to,
+            );
+            throw Error('unable to resolve receiver address');
+        }
         console.log(address);
 
         const conversationId = getConversationId(
@@ -90,9 +98,7 @@ export class MessageProcessor {
         console.debug(conversationId, deliveryInformation);
 
         //Retrieves the session of the receiver
-        const receiverSession = await this.db.getAccount(
-            deliveryInformation.to,
-        );
+        const receiverSession = await this.db.getAccount(address);
         if (!receiverSession) {
             console.debug('unknown user ', deliveryInformation.to);
             throw Error('unknown session');

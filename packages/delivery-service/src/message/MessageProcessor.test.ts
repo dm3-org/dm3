@@ -24,6 +24,7 @@ import {
     mockUserProfile,
 } from '@dm3-org/dm3-lib-test-helper';
 import { IDatabase } from '../persistence/getDatabase';
+import { getAddress } from 'ethers/lib/utils';
 
 jest.mock('nodemailer');
 
@@ -72,9 +73,8 @@ describe('MessageProcessor', () => {
             publicEncryptionKey: '',
             deliveryServices: [''],
         };
-        const isSender = normalizeEnsName(ensName) === sender.account.ensName;
-        const isReceiver =
-            normalizeEnsName(ensName) === receiver.account.ensName;
+        const isSender = getAddress(ensName) === sender.address;
+        const isReceiver = getAddress(ensName) === receiver.address;
 
         const session = (
             account: string,
@@ -97,14 +97,14 @@ describe('MessageProcessor', () => {
 
         if (isSender) {
             return {
-                ...session(sender.account.ensName, '123', emptyProfile),
+                ...session(sender.address, '123', emptyProfile),
                 spamFilterRules: {},
             };
         }
 
         if (isReceiver) {
             return {
-                ...session(receiver.account.ensName, 'abc', {
+                ...session(getAddress(receiver.address), 'abc', {
                     ...emptyProfile,
                     publicEncryptionKey:
                         receiver.profileKeys.encryptionKeyPair.publicKey,
@@ -125,8 +125,11 @@ describe('MessageProcessor', () => {
         } as any as IDatabase;
 
         const web3Provider = {
-            resolveName: async () =>
-                '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+            resolveName: async (name: string) => {
+                if (name === 'alice.eth' || name === 'alice.gno') {
+                    return receiver.address;
+                }
+            },
         } as any;
 
         const mockWsManager: IWebSocketManager = {
@@ -170,8 +173,11 @@ describe('MessageProcessor', () => {
         } as any as IDatabase;
 
         const web3Provider = {
-            resolveName: async () =>
-                '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+            resolveName: async (name: string) => {
+                if (name === 'alice.eth' || name === 'alice.gno') {
+                    return receiver.address;
+                }
+            },
         } as any;
 
         const mockWsManager: IWebSocketManager = {
@@ -214,8 +220,11 @@ describe('MessageProcessor', () => {
         } as any as IDatabase;
 
         const web3Provider = {
-            resolveName: async () =>
-                '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+            resolveName: async (name: string) => {
+                if (name === 'rando.eth') {
+                    return rando.address;
+                }
+            },
         } as any;
 
         const mockWsManager: IWebSocketManager = {
@@ -267,8 +276,11 @@ describe('MessageProcessor', () => {
 
         const web3Provider = {
             getTransactionCount: async (_: string) => Promise.resolve(0),
-            resolveName: async () =>
-                '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+            resolveName: async (name: string) => {
+                if (name === 'alice.eth' || name === 'alice.gno') {
+                    return receiver.address;
+                }
+            },
         } as any;
 
         const deliveryServiceProperties: DeliveryServiceProperties = {
@@ -321,8 +333,11 @@ describe('MessageProcessor', () => {
 
         const web3Provider = {
             getBalance: async (_: string) => Promise.resolve(BigNumber.from(5)),
-            resolveName: async () =>
-                '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+            resolveName: async (name: string) => {
+                if (name === 'alice.eth' || name === 'alice.gno') {
+                    return receiver.address;
+                }
+            },
         } as any;
 
         const deliveryServiceProperties: DeliveryServiceProperties = {
@@ -381,8 +396,11 @@ describe('MessageProcessor', () => {
         const web3Provider = {
             _isProvider: true,
             call: () => Promise.resolve(BigNumber.from(0).toHexString()),
-            resolveName: async () =>
-                '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+            resolveName: async (name: string) => {
+                if (name === 'alice.eth' || name === 'alice.gno') {
+                    return receiver.address;
+                }
+            },
         } as unknown as ethers.providers.JsonRpcProvider;
 
         const mockWsManager: IWebSocketManager = {
@@ -466,8 +484,11 @@ describe('MessageProcessor', () => {
 
         const web3Provider = {
             getBalance: async (_: string) => Promise.resolve(BigNumber.from(5)),
-            resolveName: async () =>
-                '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+            resolveName: async (name: string) => {
+                if (name === 'alice.eth' || name === 'alice.gno') {
+                    return receiver.address;
+                }
+            },
         } as any;
 
         const mockWsManager: IWebSocketManager = {
@@ -524,8 +545,11 @@ describe('MessageProcessor', () => {
 
         const web3Provider = {
             getBalance: async (_: string) => Promise.resolve(BigNumber.from(5)),
-            resolveName: async () =>
-                '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+            resolveName: async (name: string) => {
+                if (name === 'alice.eth' || name === 'alice.gno') {
+                    return receiver.address;
+                }
+            },
         } as any;
 
         const deliveryServiceProperties: DeliveryServiceProperties = {
@@ -605,8 +629,11 @@ describe('MessageProcessor', () => {
 
         const web3Provider = {
             getBalance: async (_: string) => Promise.resolve(BigNumber.from(5)),
-            resolveName: async () =>
-                '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+            resolveName: async (name: string) => {
+                if (name === 'alice.eth' || name === 'alice.gno') {
+                    return receiver.address;
+                }
+            },
         } as any;
 
         const deliveryServiceProperties: DeliveryServiceProperties = {
@@ -694,8 +721,11 @@ describe('MessageProcessor', () => {
 
         const web3Provider = {
             getBalance: async (_: string) => Promise.resolve(BigNumber.from(5)),
-            resolveName: async () =>
-                '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+            resolveName: async (name: string) => {
+                if (name === 'alice.eth' || name === 'alice.gno') {
+                    return receiver.address;
+                }
+            },
         } as any;
 
         const deliveryServiceProperties: DeliveryServiceProperties = {
