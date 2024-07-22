@@ -26,9 +26,7 @@ export interface Acknowledgment {
 }
 
 export function getConversationId(ensNameA: string, ensNameB: string): string {
-    return [normalizeEnsName(ensNameA), normalizeEnsName(ensNameB)]
-        .sort()
-        .join();
+    return [normalizeEnsName(ensNameA), normalizeEnsName(ensNameB)].join();
 }
 // fetch new messages
 export async function getMessages(
