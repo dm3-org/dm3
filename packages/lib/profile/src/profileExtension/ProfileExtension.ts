@@ -5,6 +5,8 @@ export type MessageType =
     | 'EDIT'
     | 'REPLY'
     | 'REACTION'
+    | 'READ_OPEN'
+    | 'READ_RECEIVE'
     | 'READ_RECEIPT'
     | 'RESEND_REQUEST';
 

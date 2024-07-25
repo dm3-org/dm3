@@ -103,14 +103,25 @@ export function Contacts() {
         const _contact = normalizeEnsName(contactEnsName);
         const messages = getMessages(_contact);
 
+        // don't include the preview of acknowledgment msgs
         if (messages?.length > 0) {
-            return messages[0].envelop.message.message ?? '';
+            return messages[0].envelop.message.metadata.type !==
+                'READ_OPENED' &&
+                messages[0].envelop.message.metadata.type !== 'READ_RECEIVED' &&
+                messages[0].envelop.message.message
+                ? messages[0].envelop.message.message
+                : '';
         }
         const contact = contacts.find(
             (c) => c.contactDetails.account.ensName === _contact,
         );
         const previewMessage = contact?.message;
-        return previewMessage ?? '';
+        return previewMessage
+            ? previewMessage !== 'READ_OPENED' &&
+              previewMessage !== 'READ_RECEIVED'
+                ? previewMessage
+                : ''
+            : '';
     };
 
     const isContactSelected = (id: string) => {

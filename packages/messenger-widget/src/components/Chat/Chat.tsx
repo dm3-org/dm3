@@ -225,6 +225,9 @@ export function Chat() {
                                                 replyToMessageEnvelop={
                                                     storageEnvelopContainer.replyToMessageEnvelop
                                                 }
+                                                indicator={
+                                                    storageEnvelopContainer.indicator
+                                                }
                                             />
                                         </div>
                                     ),

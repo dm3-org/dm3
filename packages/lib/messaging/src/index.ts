@@ -11,6 +11,8 @@ export {
     createEditMessage,
     createReactionMessage,
     createReplyMessage,
+    createReadOpenMessage,
+    createReadReceiveMessage,
     createJsonRpcCallSubmitMessage,
     handleMessageOnDeliveryService,
     decryptEnvelop,

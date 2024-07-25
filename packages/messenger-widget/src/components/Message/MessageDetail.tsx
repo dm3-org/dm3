@@ -1,10 +1,45 @@
 import './Message.css';
 import { getMessageChangeText } from './bl';
-import tickIcon from '../../assets/images/tick.svg';
+import blueTickIcon from '../../assets/images/tick.svg';
+import whiteTickIcon from '../../assets/images/white-tick.svg';
 import { MessageProps } from '../../interfaces/props';
-import { MessageState } from '@dm3-org/dm3-lib-messaging';
+import { MessageIndicator } from '../../hooks/messages/useMessage';
 
 export function MessageDetail(props: MessageProps) {
+    const getMessageIndicatorView = (
+        indicator: MessageIndicator | undefined,
+    ) => {
+        if (!indicator || indicator === MessageIndicator.SENT) {
+            return (
+                <img
+                    className="indicator-tick-icon"
+                    src={whiteTickIcon}
+                    alt="read"
+                />
+            );
+        }
+
+        const indicatorIcon =
+            indicator === MessageIndicator.RECEIVED
+                ? whiteTickIcon
+                : blueTickIcon;
+
+        return (
+            <>
+                <img
+                    className="indicator-tick-icon"
+                    src={indicatorIcon}
+                    alt="read"
+                />
+                <img
+                    src={indicatorIcon}
+                    alt="read"
+                    className="second-tick indicator-tick-icon"
+                />
+            </>
+        );
+    };
+
     return (
         <div className="d-flex justify-content-end pt-1 ps-1 pe-1">
             {getMessageChangeText(props)}
@@ -13,20 +48,13 @@ export function MessageDetail(props: MessageProps) {
             {/* readed message tick indicator */}
             <span className="tick-icon readed-tick-icon">
                 {props.ownMessage ? (
-                    props.messageState === MessageState.Read ? (
-                        <>
-                            <img src={tickIcon} alt="read" />
-                            <img
-                                src={tickIcon}
-                                alt="read"
-                                className="second-tick"
-                            />
-                        </>
-                    ) : (
-                        <img src={tickIcon} alt="read" />
-                    )
+                    getMessageIndicatorView(props.indicator)
                 ) : (
-                    <img src={tickIcon} alt="read" />
+                    <img
+                        className="indicator-tick-icon"
+                        src={blueTickIcon}
+                        alt="read"
+                    />
                 )}
             </span>
         </div>
