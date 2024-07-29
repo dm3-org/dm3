@@ -11,6 +11,7 @@ import express from 'express';
 import { verify } from 'jsonwebtoken';
 import request from 'supertest';
 import { Auth } from './auth';
+import { IAccountDatabase } from './iSessionDatabase';
 
 const serverSecret = 'testSecret';
 
@@ -38,9 +39,13 @@ describe('Auth', () => {
     describe('getChallenge', () => {
         describe('schema', () => {
             it('Returns 200 and a jwt if schema is valid', async () => {
+                const db = {
+                    getAccount: getAccountMock,
+                } as IAccountDatabase;
+
                 const app = express();
                 app.use(bodyParser.json());
-                app.use(Auth(getAccountMock, serverSecret));
+                app.use(Auth(db, serverSecret));
 
                 const response = await request(app)
                     .get(
@@ -109,8 +114,12 @@ describe('Auth', () => {
         describe('schema', () => {
             it('Returns 400 if params is invalid', async () => {
                 const app = express();
+                const db = {
+                    getAccount: getAccountMock,
+                } as IAccountDatabase;
+
                 app.use(bodyParser.json());
-                app.use(Auth(getAccountMock, serverSecret));
+                app.use(Auth(db, serverSecret));
 
                 const mnemonic =
                     'announce room limb pattern dry unit scale effort smooth jazz weasel alcohol';
@@ -148,8 +157,12 @@ describe('Auth', () => {
             });
             it('Returns 400 if body is invalid', async () => {
                 const app = express();
+                const db = {
+                    getAccount: getAccountMock,
+                } as IAccountDatabase;
+
                 app.use(bodyParser.json());
-                app.use(Auth(getAccountMock, serverSecret));
+                app.use(Auth(db, serverSecret));
 
                 const mnemonic =
                     'announce room limb pattern dry unit scale effort smooth jazz weasel alcohol';
@@ -195,8 +208,12 @@ describe('Auth', () => {
                 // });
 
                 const app = express();
+                const db = {
+                    getAccount: getAccountMockLocal,
+                } as IAccountDatabase;
+
                 app.use(bodyParser.json());
-                app.use(Auth(getAccountMockLocal, serverSecret));
+                app.use(Auth(db, serverSecret));
 
                 // create the challenge jwt
                 const challengeJwt = await createChallenge(
