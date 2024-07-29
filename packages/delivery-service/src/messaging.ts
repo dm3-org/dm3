@@ -51,7 +51,7 @@ export function onConnection(
                 try {
                     const deliveryServiceProperties =
                         getDeliveryServiceProperties();
-                    global.logger.info({
+                    console.info({
                         method: 'WS INCOMING MESSAGE',
                     });
 
@@ -63,14 +63,14 @@ export function onConnection(
                     if (!isSchemaValid) {
                         const error = 'invalid schema';
 
-                        global.logger.warn({
+                        console.warn({
                             method: 'WS SUBMIT MESSAGE',
                             error,
                         });
                         return callback({ error });
                     }
 
-                    global.logger.info({
+                    console.info({
                         method: 'WS INCOMING MESSAGE',
                         keys: keys.encryptionKeyPair.publicKey,
                     });
@@ -86,10 +86,11 @@ export function onConnection(
                         },
                     );
                     await messageProcessor.processEnvelop(data.envelop);
+                    console.log('callback');
 
                     callback({ response: 'success' });
                 } catch (error: any) {
-                    global.logger.warn({
+                    console.warn({
                         method: 'WS SUBMIT MESSAGE',
                         error: (error as Error).toString(),
                     });
