@@ -1,3 +1,4 @@
+import { Session } from '@dm3-org/dm3-lib-delivery';
 import {
     Auth,
     Profile,
@@ -14,19 +15,20 @@ import { Axios } from 'axios';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import 'dotenv/config';
+import { ethers } from 'ethers';
 import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
+import webpush from 'web-push';
 import winston from 'winston';
 import { startCleanUpPendingMessagesJob } from './cleanup/cleanUpPendingMessages';
 import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
 import Delivery from './delivery';
 import { onConnection } from './messaging';
 import Notifications from './notifications';
-import { getDatabase } from './persistence/getDatabase';
+import { IDatabase, getDatabase } from './persistence/getDatabase';
 import RpcProxy from './rpc/rpc-proxy';
 import { WebSocketManager } from './ws/WebSocketManager';
-import webpush from 'web-push';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -34,6 +36,29 @@ app.use(express.urlencoded({ limit: '50mb' }));
 
 const server = http.createServer(app);
 
+const getDbWithAddressResolvedGetAccount = (
+    db: IDatabase,
+    web3Provider: ethers.providers.JsonRpcProvider,
+): IDatabase => {
+    const getAccountForEnsName = (
+        web3Provider: ethers.providers.JsonRpcProvider,
+        getAccount: (ensName: string) => Promise<Session | null>,
+    ) => {
+        return async (ensName: string) => {
+            const address = await web3Provider.resolveName(ensName);
+            if (!address) {
+                console.info('no address found for ens name: ', ensName);
+                return null;
+            }
+            return getAccount(address);
+        };
+    };
+
+    return {
+        ...db,
+        getAccount: getAccountForEnsName(web3Provider, db.getAccount),
+    };
+};
 //TODO remove
 app.use(cors());
 app.use(bodyParser.json());
@@ -50,8 +75,12 @@ global.logger = winston.createLogger({
 (async () => {
     // load environment
     const deliveryServiceProperties = getDeliveryServiceProperties();
-    const db = await getDatabase();
     const web3Provider = await getCachedWebProvider(process.env);
+
+    const db = getDbWithAddressResolvedGetAccount(
+        await getDatabase(),
+        web3Provider,
+    );
     const keys = readKeysFromEnv(process.env);
     const serverSecret = getServerSecret(process.env);
 
@@ -91,9 +120,13 @@ global.logger = winston.createLogger({
         return res.send('Hello DM3');
     });
 
-    app.use('/auth', Auth(db.getAccount, serverSecret));
+    //Auth
+    //socketAuth
+    //restAuth
+
+    app.use('/auth', Auth(db, serverSecret));
     app.use('/profile', Profile(db, web3Provider, serverSecret));
-    app.use('/delivery', Delivery(web3Provider, db, keys, serverSecret));
+    app.use('/delivery', Delivery(web3Provider, db, serverSecret));
     app.use(
         '/notifications',
         Notifications(

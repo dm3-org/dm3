@@ -1,9 +1,4 @@
-import {
-    IGlobalNotification,
-    IOtp,
-    Session,
-    spamFilter,
-} from '@dm3-org/dm3-lib-delivery';
+import { IGlobalNotification, IOtp, Session } from '@dm3-org/dm3-lib-delivery';
 import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
 import { IAccountDatabase } from '@dm3-org/dm3-lib-server-side';
 import {
@@ -98,10 +93,11 @@ export async function getDatabase(
 }
 
 export interface IDatabase extends IAccountDatabase {
-    setAccount: (ensName: string, session: Session) => Promise<void>;
-    getAccount: (ensName: string) => Promise<Session | null>;
+    setAccount: (address: string, session: Session) => Promise<void>;
+    getAccount: (address: string) => Promise<Session | null>;
+    //TODO use address
     getIncomingMessages: (
-        ensName: string,
+        address: string,
         limit: number,
     ) => Promise<EncryptionEnvelop[]>;
     getMessages: (
