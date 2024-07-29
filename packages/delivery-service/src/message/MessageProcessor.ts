@@ -9,14 +9,13 @@ import {
     getConversationId,
     NotificationBroker,
     NotificationType,
+    spamFilter,
 } from '@dm3-org/dm3-lib-delivery';
-import { spamFilter } from '@dm3-org/dm3-lib-delivery';
 import {
     DeliveryInformation,
     EncryptionEnvelop,
     getEnvelopSize,
 } from '@dm3-org/dm3-lib-messaging';
-import { logDebug } from '@dm3-org/dm3-lib-shared';
 import { IDatabase } from '../persistence/getDatabase';
 
 type onSubmitMessage = (socketId: string, envelop: EncryptionEnvelop) => void;
@@ -55,7 +54,6 @@ export class MessageProcessor {
      * 4. The message must pass every {@see SpamFilterRule} the receiver declared
      */
     public async processEnvelop(envelop: EncryptionEnvelop): Promise<void> {
-        logDebug('incomingMessage');
         //Checks the size of the incoming message
         if (
             this.messageIsTooLarge(
@@ -63,42 +61,54 @@ export class MessageProcessor {
                 this.deliveryServiceProperties.sizeLimit,
             )
         ) {
+            console.error('Message is too large');
             throw Error('Message is too large');
         }
+        console.debug('process incomingMessage');
 
         //Decrypts the encryptryInformation with the KeyPair of the deliveryService
-
         const deliveryInformation: DeliveryInformation =
             await decryptDeliveryInformation(
                 envelop,
                 this.deliveryServiceProfileKeys.encryptionKeyPair,
             );
-        console.debug('incomingMessage', deliveryInformation);
+        console.debug(
+            'incomingMessage delivery Information',
+            deliveryInformation,
+        );
 
         //the delivery service has to accept any message to the receiver regardelss of the place they have choosen to host their profile.
         //That means no matter what name the receiver has chosen to use, the delivery service has to resolve it to the correct address
         //i.E if alice.eth resolves to 0x123
         //and alice.gno resolves to 0x123 aswell, the ds has to accept both
-        const address = await this.provider.resolveName(deliveryInformation.to);
+        const receiverAddress = await this.provider.resolveName(
+            deliveryInformation.to,
+        );
 
-        if (!address) {
+        if (!receiverAddress) {
             console.debug(
                 'unable to resolve address for ',
                 deliveryInformation.to,
             );
             throw Error('unable to resolve receiver address');
         }
-        console.log(address);
+
+        console.debug(
+            `resolved address for ${deliveryInformation.to} to ${receiverAddress}`,
+        );
 
         const conversationId = getConversationId(
-            //TODO look into dbIdEnsName
-            await this.db.getIdEnsName(deliveryInformation.from),
-            await this.db.getIdEnsName(deliveryInformation.to),
+            //We use the receivers address as the first part of the conversationId
+            receiverAddress,
+            //We use the senders ens name as the second part of the conversationId.
+            //We do not use the address because the sender might have not set an resolver or the addr record might not be set.
+            //Its up to the client to resolve the ens name to the address
+            deliveryInformation.from,
         );
         console.debug(conversationId, deliveryInformation);
 
         //Retrieves the session of the receiver
-        const receiverSession = await this.db.getAccount(address);
+        const receiverSession = await this.db.getAccount(receiverAddress);
         if (!receiverSession) {
             console.debug('unknown user ', deliveryInformation.to);
             throw Error('unknown session');
@@ -113,7 +123,7 @@ export class MessageProcessor {
             )
         ) {
             console.debug(
-                `incomingMessage fro ${deliveryInformation.to} is spam`,
+                `incomingMessage from ${deliveryInformation.to} is spam`,
             );
             throw Error('Message does not match spam criteria');
         }
