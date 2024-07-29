@@ -1,6 +1,5 @@
 import {
     Auth,
-    Profile,
     errorHandler,
     getCachedWebProvider,
     getServerSecret,
@@ -16,6 +15,7 @@ import http from 'http';
 import path from 'path';
 import { getDatabase } from './persistence/getDatabase';
 import Storage from './storage';
+import Profile from './profile/profile';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
