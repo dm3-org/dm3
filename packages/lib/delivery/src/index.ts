@@ -6,7 +6,6 @@ export {
 export { submitUserProfile, getUserProfile } from './UserProfile';
 export {
     addPostmark,
-    getMessages,
     decryptDeliveryInformation,
     handleIncomingMessage,
 } from './Messages';

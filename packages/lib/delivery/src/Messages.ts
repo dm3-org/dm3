@@ -28,43 +28,6 @@ export interface Acknowledgment {
 export function getConversationId(ensNameA: string, ensNameB: string): string {
     return [normalizeEnsName(ensNameA), normalizeEnsName(ensNameB)].join();
 }
-// fetch new messages
-export async function getMessages(
-    loadMessages: (
-        conversationId: string,
-        offset: number,
-        size: number,
-    ) => Promise<EncryptionEnvelop[]>,
-    encryptionKeyPair: KeyPair,
-    ensName: string,
-    contactEnsName: string,
-) {
-    const account = normalizeEnsName(ensName);
-
-    const contact = normalizeEnsName(contactEnsName);
-
-    const conversationId = getConversationId(contact, account);
-
-    const receivedMessages: EncryptionEnvelop[] = await loadMessages(
-        conversationId,
-        0,
-        50,
-    );
-
-    const envelopContainers = await Promise.all(
-        receivedMessages.map(async (envelop) => ({
-            to: normalizeEnsName(
-                JSON.parse(JSON.stringify(envelop.metadata.deliveryInformation))
-                    .to,
-            ),
-            envelop,
-        })),
-    );
-
-    return envelopContainers
-        .filter((envelopContainer) => envelopContainer.to === account)
-        .map((envelopContainer) => envelopContainer.envelop);
-}
 
 export async function decryptDeliveryInformation(
     encryptedEnvelop: EncryptionEnvelop,
