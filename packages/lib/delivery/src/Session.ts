@@ -45,12 +45,17 @@ export async function checkToken(
         return false;
     }
 
+    console.debug('checkToken - ensName', ensName);
+    console.debug('checkToken - session', session);
+
     // check jwt for validity
     try {
         // will throw if signature is invalid or exp is in the past
         const jwtPayload = verify(token, serverSecret, {
             algorithms: ['HS256'],
         });
+
+        console.debug('checkToken - jwtPayload', jwtPayload);
 
         // check if payload is well formed
         if (

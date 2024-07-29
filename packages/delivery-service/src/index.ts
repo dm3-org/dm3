@@ -46,6 +46,11 @@ const getDbWithAddressResolvedGetAccount = (
     ) => {
         return async (ensName: string) => {
             const address = await web3Provider.resolveName(ensName);
+            console.debug(
+                'getDbWithAddressResolvedGetAccount resolved address for ens name: ',
+                ensName,
+                address,
+            );
             if (!address) {
                 console.info('no address found for ens name: ', ensName);
                 return null;
