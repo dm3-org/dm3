@@ -10,6 +10,7 @@ export function setAccount(redis: Redis) {
         if (!isValid) {
             throw Error('Invalid session');
         }
+        console.debug('set account ', ensName, session);
         await redis.set(
             RedisPrefix.Account + (await getIdEnsName(redis)(ensName)),
             stringify(session),

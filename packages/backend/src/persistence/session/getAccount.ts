@@ -9,6 +9,8 @@ export function getAccount(redis: Redis) {
             RedisPrefix.Account + (await getIdEnsName(redis)(ensName)),
         );
 
+        console.debug('get account ', ensName, session);
+
         return session
             ? (JSON.parse(session) as Session & {
                   spamFilterRules: spamFilter.SpamFilterRules;

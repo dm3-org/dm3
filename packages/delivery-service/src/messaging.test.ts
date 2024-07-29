@@ -1,4 +1,5 @@
 import { Session } from '@dm3-org/dm3-lib-delivery';
+import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
 import { UserProfile } from '@dm3-org/dm3-lib-profile';
 import { IWebSocketManager, ethersHelper } from '@dm3-org/dm3-lib-shared';
 import {
@@ -8,11 +9,9 @@ import {
     getMockDeliveryServiceProfile,
     mockUserProfile,
 } from '@dm3-org/dm3-lib-test-helper';
-import { Socket } from 'socket.io';
-import { testData } from '../../../test-data/encrypted-envelops.test';
-import { onConnection } from './messaging';
 import { ethers } from 'ethers';
-import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
+import { Socket } from 'socket.io';
+import { onConnection } from './messaging';
 
 const serverSecret = 'secret';
 const mockWsManager: IWebSocketManager = {

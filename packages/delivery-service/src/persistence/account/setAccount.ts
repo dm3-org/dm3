@@ -18,6 +18,8 @@ export function setAccount(redis: Redis) {
             throw Error('Invalid address');
         }
 
+        console.debug('set account ', address, session);
+
         await redis.set(
             RedisPrefix.Account + ethers.utils.getAddress(address),
             stringify(session),

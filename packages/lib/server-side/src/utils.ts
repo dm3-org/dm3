@@ -102,7 +102,7 @@ export function logError(
     res: Response,
     next: NextFunction,
 ) {
-    winston.loggers.get('default').error({
+    console.error({
         method: req.method,
         url: req.url,
         error: error.toString(),
