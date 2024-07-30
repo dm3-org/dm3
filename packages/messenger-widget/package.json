@@ -1,7 +1,7 @@
 {
   "name": "@dm3-org/dm3-messenger-widget",
   "license": "BSD-2-Clause",
-  "version": "1.4.3",
+  "version": "1.5.0",
   "main": "./lib/cjs/widget.js",
   "module": "./lib/esm/widget.js",
   "types": "./lib/esm/widget.d.ts",
@@ -70,7 +70,7 @@
     "build:esm": "tsc",
     "build:cjs": "tsc --module commonjs --outDir lib/cjs",
     "build": "yarn clean && yarn version:output && yarn build:esm && yarn build:cjs && bash build-script.sh",
-    "version:output": "echo 'export const version = \"'$npm_package_version'\";' > ./src/version.ts",
+    "version:output": "echo \"export const version = '$npm_package_version';\" > ./src/version.ts",
     "start:example": "react-app-rewired start",
     "lint": "eslint '*/**/*.{js,ts,tsx}' --fix",
     "format": "prettier --write '*/**/*.{js,ts,tsx,json}'",

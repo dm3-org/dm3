@@ -1,4 +1,4 @@
-import { IPersistance } from '../persistance/IPersistance';
+import { IPersistance } from '../persistence/IPersistance';
 import { ICache } from './ICache';
 
 export type TTLCacheItem<T> = {
@@ -15,11 +15,11 @@ export class TTLCache<T> implements ICache<T> {
     constructor(
         capacity: number,
         ttl: number,
-        persistance: IPersistance<TTLCacheItem<T>>,
+        persistence: IPersistance<TTLCacheItem<T>>,
     ) {
         this.capacity = capacity;
         this.ttl = ttl;
-        this.persitance = persistance;
+        this.persitance = persistence;
     }
 
     get(key: string): T | undefined {
