@@ -103,6 +103,7 @@ export default (
         //@ts-ignore
         async (req: express.Request, res, next) => {
             try {
+                console.debug('get incoming messages for ', req.params.ensName);
                 //TODO use address
                 const incomingMessages = await db.getIncomingMessages(
                     req.params.ensName,
