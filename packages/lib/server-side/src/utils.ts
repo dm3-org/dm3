@@ -73,7 +73,7 @@ export function socketAuth(
                 throw Error('Could not get session');
             }
 
-            await db.setAccount(ensName, {
+            await db.setAccount(session.account, {
                 ...session,
                 socketId: socket.id,
             });
