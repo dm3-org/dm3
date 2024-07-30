@@ -17,6 +17,7 @@ export abstract class ServerSideConnector extends JwtInterceptor {
     private readonly addressSubdomain: string;
     private readonly address: string;
     private readonly profileKeys: ProfileKeys;
+    private readonly signedUserProfile: SignedUserProfile;
 
     constructor(
         baseUrl: string,
@@ -24,6 +25,7 @@ export abstract class ServerSideConnector extends JwtInterceptor {
         addrEnsSubdomain: string,
         address: string,
         profileKeys: ProfileKeys,
+        signedUserProfile: SignedUserProfile,
         //Websocket is disabled per default as not every connector needs a WS connection
         enableWebsocket: boolean = false,
     ) {
@@ -38,6 +40,7 @@ export abstract class ServerSideConnector extends JwtInterceptor {
         this.addressSubdomain = addrEnsSubdomain;
         this.address = address;
         this.profileKeys = profileKeys;
+        this.signedUserProfile = signedUserProfile;
     }
 
     public async login(signedUserProfile: SignedUserProfile) {
@@ -100,10 +103,20 @@ export abstract class ServerSideConnector extends JwtInterceptor {
         );
 
         //Todo move to lib
-        const { data: newToken } = await axios.post(url, {
+        const {
+            data: newToken,
+            status,
+            data: error,
+        } = await axios.post(url, {
             signature,
             challenge,
         });
+
+        if (status === 400 && error === 'Signature invalid') {
+            const token = await this.submitUserProfile(this.signedUserProfile);
+            this.setAuthToken(token);
+            return token;
+        }
 
         return newToken;
     }
