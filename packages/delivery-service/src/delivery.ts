@@ -76,7 +76,7 @@ export default (
                 );
 
                 //Better 1000 than the previous fifty. This is a temporary solution until we implement pagination
-                const messages = db.getMessages(conversationId, 0, 1000);
+                const messages = await db.getMessages(conversationId, 0, 1000);
                 res.json(messages);
             } catch (e) {
                 next(e);
