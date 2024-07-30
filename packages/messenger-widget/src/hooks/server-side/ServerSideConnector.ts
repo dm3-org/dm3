@@ -107,17 +107,16 @@ export abstract class ServerSideConnector extends JwtInterceptor {
             );
 
             //Todo move to lib
-            const {
-                data: newToken,
-                status,
-                data: error,
-            } = await axios.post(url, {
+            const { data: newToken } = await axios.post(url, {
                 signature,
                 challenge,
             });
 
             return newToken;
         } catch (err) {
+            // It handles the case when client provides new nonce value.
+            // The old nonce profile throws error of "Invalid Signature", so old profile
+            // is overiden by the new profile with new nonce provided by the client
             if (err.response.data.error === 'Signature invalid') {
                 const token = await this.submitUserProfile(
                     this.signedUserProfile,
