@@ -163,6 +163,7 @@ export const useConversation = (config: DM3Configuration) => {
         return (
             incommingMessages
                 .map((pendingMessage: EncryptionEnvelop) => {
+                    //TODO might be necessary to resolve alias
                     const contactEnsName = (
                         pendingMessage.metadata
                             .deliveryInformation as DeliveryInformation

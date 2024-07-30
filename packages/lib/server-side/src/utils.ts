@@ -72,7 +72,9 @@ export function socketAuth(
             if (!session) {
                 throw Error('Could not get session');
             }
-
+            //we use session.account here as a key for setAccount here.
+            //We can do this because the address is used as account when the Session has been created.
+            //That saves a address lookup via ENS
             await db.setAccount(session.account, {
                 ...session,
                 socketId: socket.id,
