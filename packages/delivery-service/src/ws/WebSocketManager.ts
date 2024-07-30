@@ -39,11 +39,12 @@ export class WebSocketManager implements IWebSocketManager {
 
     /**
      * Checks if a user is connected.
-     * @param {string} ensName - The ENS name of the user.
+     * @param {string} address - The address of the user.
      * @returns {boolean} - Returns true if the user is connected with at least one socket, false otherwise.
      */
-    public async isConnected(ensName: string) {
-        const connections = this.connections.get(ensName);
+    public async isConnected(address: string) {
+        const _address = ethers.utils.getAddress(address);
+        const connections = this.connections.get(_address);
         return !!(connections && connections.length > 0);
     }
     /**
@@ -74,14 +75,17 @@ export class WebSocketManager implements IWebSocketManager {
                 return;
             }
             //Get the old connections and add the new one
-            const oldConnections = this.connections.get(ensName) || [];
-            this.connections.set(ensName, [...oldConnections, connection]);
+            const oldConnections = this.connections.get(session.account) || [];
+            this.connections.set(session.account, [
+                ...oldConnections,
+                connection,
+            ]);
             //Send the authorized event
             connection.emit(AUTHORIZED);
-            console.log('connection established for ', ensName);
+            console.log('connection established for ', session.account);
             //When the socket disconnects we want them no longer in our connections List
             connection.on('disconnect', () => {
-                console.log('connection closed for ', ensName);
+                console.log('connection closed for ', session.account);
                 this.removeConnection(connection);
             });
         } catch (e) {
@@ -96,17 +100,29 @@ export class WebSocketManager implements IWebSocketManager {
      * @private
      * @param {Socket} connection - The socket connection instance.
      */
-    private removeConnection(connection: Socket) {
+    private async removeConnection(connection: Socket) {
         const ensName = normalizeEnsName(
             connection.handshake.auth.account.ensName,
         );
-        const connections = this.connections.get(ensName);
+
+        //the resolved address for the name
+        const address = await this.web3Provider.resolveName(ensName);
+        if (!address) {
+            return;
+        }
+        //the connections the address has created previously
+        const connections = this.connections.get(address);
+
+        //if there are no known connections we return
         if (!connections) {
             return;
         }
+        //we find the connection that has disconnected and remove it from the list
         const newConnections = connections.filter(
             (c) => c.id !== connection.id,
         );
-        this.connections.set(ensName, newConnections);
+
+        //we assign the list conaining all others connections an address might have to the list without the disconnected connection
+        this.connections.set(address, newConnections);
     }
 }

@@ -155,7 +155,7 @@ export class MessageProcessor {
         }
 
         //If there is currently a webSocket connection open to the receiver, the message will be directly send.
-        if (await this.webSocketManager.isConnected(deliveryInformation.to)) {
+        if (await this.webSocketManager.isConnected(receiverAddress)) {
             //Client is already connect to the delivery service and the message can be dispatched
             //TODO MOVE send method to the WebSocketManager
             this.onSubmitMessage(
