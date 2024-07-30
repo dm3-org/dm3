@@ -59,7 +59,7 @@ describe('UserProfile', () => {
             expect(setAccount).not.toBeCalled();
         });
 
-        it('rejects a userProfile that already exists', async () => {
+        it('override a userProfile that already exists but with other nonce', async () => {
             const setAccount = () => Promise.resolve();
             const getAccount = async (address: string) => {
                 const session = async (
@@ -85,15 +85,24 @@ describe('UserProfile', () => {
 
             const singedUserProfile = await signProfile(emptyProfile);
 
+            await submitUserProfile(
+                { resolveName: () => SENDER_ADDRESS } as any,
+                getAccount,
+                setAccount,
+                SENDER_NAME,
+                singedUserProfile,
+                'my-secret',
+            );
+
             await expect(async () => {
                 await submitUserProfile(
                     getAccount,
                     setAccount,
                     SENDER_ADDRESS,
                     singedUserProfile,
-                    'my-secret',
+                    'my-new-secret',
                 );
-            }).rejects.toEqual(Error('Profile exists already'));
+            }).resolves;
         });
 
         it('stores a newly created user profile', async () => {

@@ -73,6 +73,7 @@ describe('Server Side Connector', () => {
                 '.addr.dm3.eth',
                 userAddress,
                 profileKeys,
+                signedUserProfile,
             );
             const dsResult = await connector.login(signedUserProfile);
             expect(dsResult.deliveryServiceToken).toBe('token');
@@ -97,6 +98,7 @@ describe('Server Side Connector', () => {
                 '.addr.dm3.eth',
                 userAddress,
                 profileKeys,
+                signedUserProfile,
             );
             const newDsResult = await newConnector.login(signedUserProfile);
             expect(newDsResult.deliveryServiceToken).toBe('token2');
@@ -142,6 +144,7 @@ describe('Server Side Connector', () => {
                 '.addr.dm3.eth',
                 userAddress,
                 profileKeys,
+                signedUserProfile,
             );
             const newDsResult = await newConnector.login(signedUserProfile);
             expect(newDsResult.deliveryServiceToken).toBe('new-token');
@@ -154,12 +157,23 @@ describe('Server Side Connector', () => {
             axiosMock = new MockAdapter(axios);
             axiosMock.onGet('http://ds1.api/test').reply(500, {});
 
+            const signMessage = async (message: string) =>
+                Promise.resolve(message + ' signed');
+
+            //We create another connector to test relogin
+            const signedUserProfile = await createNewSignedUserProfile(
+                profileKeys,
+                userAddress,
+                signMessage,
+            );
+
             const connector = new ServerSideConnectorStub(
                 'http://ds1.api',
                 'http://resolver.api',
                 '.addr.dm3.eth',
                 userAddress,
                 profileKeys,
+                signedUserProfile,
             );
             const testRes = await connector.testError();
             expect(testRes).toBe(true);
@@ -193,6 +207,7 @@ describe('Server Side Connector', () => {
                 '.addr.dm3.eth',
                 userAddress,
                 profileKeys,
+                signedUserProfile,
             );
             await connector.login(signedUserProfile);
             const testRes = await connector.testHeader();
@@ -237,6 +252,7 @@ describe('Server Side Connector', () => {
                 '.addr.dm3.eth',
                 userAddress,
                 profileKeys,
+                signedUserProfile,
             );
             await connector.login(signedUserProfile);
             const testRes = await connector.testReAuth();

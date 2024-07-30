@@ -7,6 +7,7 @@ import {
 import axios from 'axios';
 import { claimAddress } from '../../adapters/offchainResolverApi';
 import { JwtInterceptor } from './JwtInterceptor';
+import { AxiosError, AxiosResponse } from 'axios';
 
 //Interface to support different kinds of signers
 export type SignMessageFn = (message: string) => Promise<string>;
@@ -17,6 +18,7 @@ export abstract class ServerSideConnector extends JwtInterceptor {
     private readonly addressSubdomain: string;
     private readonly address: string;
     private readonly profileKeys: ProfileKeys;
+    private readonly signedUserProfile: SignedUserProfile;
 
     constructor(
         baseUrl: string,
@@ -24,6 +26,7 @@ export abstract class ServerSideConnector extends JwtInterceptor {
         addrEnsSubdomain: string,
         address: string,
         profileKeys: ProfileKeys,
+        signedUserProfile: SignedUserProfile,
         //Websocket is disabled per default as not every connector needs a WS connection
         enableWebsocket: boolean = false,
     ) {
@@ -38,6 +41,7 @@ export abstract class ServerSideConnector extends JwtInterceptor {
         this.addressSubdomain = addrEnsSubdomain;
         this.address = address;
         this.profileKeys = profileKeys;
+        this.signedUserProfile = signedUserProfile;
     }
 
     public async login(signedUserProfile: SignedUserProfile) {
@@ -89,23 +93,38 @@ export abstract class ServerSideConnector extends JwtInterceptor {
     }
 
     private async reAuth() {
-        //TODO check if we need alias subdomain
-        const url = `${this.baseUrl}/auth/${normalizeEnsName(this.ensName)}`;
+        try {
+            //TODO check if we need alias subdomain
+            const url = `${this.baseUrl}/auth/${normalizeEnsName(
+                this.ensName,
+            )}`;
 
-        const { data: challenge } = await axios.get(url);
+            const { data: challenge } = await axios.get(url);
 
-        const signature = await sign(
-            this.profileKeys.signingKeyPair.privateKey,
-            challenge,
-        );
+            const signature = await sign(
+                this.profileKeys.signingKeyPair.privateKey,
+                challenge,
+            );
 
-        //Todo move to lib
-        const { data: newToken } = await axios.post(url, {
-            signature,
-            challenge,
-        });
+            //Todo move to lib
+            const { data: newToken } = await axios.post(url, {
+                signature,
+                challenge,
+            });
 
-        return newToken;
+            return newToken;
+        } catch (err) {
+            // It handles the case when client provides new nonce value.
+            // The old nonce profile throws error of "Invalid Signature", so old profile
+            // is overiden by the new profile with new nonce provided by the client
+            if (err.response.data.error === 'Signature invalid') {
+                const token = await this.submitUserProfile(
+                    this.signedUserProfile,
+                );
+                this.setAuthToken(token);
+                return token;
+            }
+        }
     }
 
     private async profileExistsOnDeliveryService() {
