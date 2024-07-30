@@ -23,10 +23,7 @@ export async function submitUserProfile(
         logDebug('submitUserProfile - Signature invalid');
         throw Error('Signature invalid.');
     }
-    if (await getAccount(account)) {
-        logDebug('submitUserProfile - Profile exists already');
-        throw Error('Profile exists already');
-    }
+
     const session: Session = {
         account,
         signedUserProfile,

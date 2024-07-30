@@ -30,6 +30,11 @@ export const useBackend = (): IBackendConnector & {
                 console.log('profile is not ready');
                 return;
             }
+            const signedUserProfile = {
+                profile: account?.profile!,
+                signature: account?.profileSignature!,
+            };
+
             //We only need to initialize the backend connector once si
             const beConnector = new BackendConnector(
                 dm3Configuration.backendUrl,
@@ -37,12 +42,9 @@ export const useBackend = (): IBackendConnector & {
                 dm3Configuration.addressEnsSubdomain,
                 ethAddress!,
                 profileKeys!,
+                signedUserProfile,
             );
 
-            const signedUserProfile = {
-                profile: account?.profile!,
-                signature: account?.profileSignature!,
-            };
             await beConnector.login(signedUserProfile);
             setbeConnector(beConnector);
             setIsInitialized(true);

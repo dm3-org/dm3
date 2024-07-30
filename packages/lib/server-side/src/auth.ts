@@ -96,8 +96,13 @@ export const Auth = (getAccount, serverSecret: string) => {
 
             res.json(jwt);
         } catch (e) {
-            next(e);
             console.error('unable to create new session token ', e);
+            return res.status(400).json({
+                error:
+                    e instanceof Error
+                        ? e.message
+                        : 'Failed to create new session token',
+            });
         }
     });
 

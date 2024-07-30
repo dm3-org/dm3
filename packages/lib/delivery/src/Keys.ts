@@ -74,11 +74,6 @@ export async function createNewSessionToken(
 ): Promise<string> {
     const session = await getAccount(ensName);
 
-    console.log('Signature is : ', signature);
-    console.log('Challenge is : ', challenge);
-    console.log('ENS name is : ', ensName);
-    console.log('Account session is :::::::::::::::: ', session);
-
     if (!session) {
         throw Error('Session not found');
     }
@@ -88,11 +83,6 @@ export async function createNewSessionToken(
     const challengePayload = verify(challenge, serverSecret, {
         algorithms: ['HS256'],
     });
-
-    console.log(
-        'Account challengePayload is :::::::::::::::: ',
-        challengePayload,
-    );
 
     // check if the payload of the challenge-jwt has the proper schema
     if (
