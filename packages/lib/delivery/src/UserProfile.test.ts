@@ -86,10 +86,9 @@ describe('UserProfile', () => {
             const singedUserProfile = await signProfile(emptyProfile);
 
             await submitUserProfile(
-                { resolveName: () => SENDER_ADDRESS } as any,
                 getAccount,
                 setAccount,
-                SENDER_NAME,
+                SENDER_ADDRESS,
                 singedUserProfile,
                 'my-secret',
             );
