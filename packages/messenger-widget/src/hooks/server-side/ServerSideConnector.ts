@@ -7,6 +7,7 @@ import {
 import axios from 'axios';
 import { claimAddress } from '../../adapters/offchainResolverApi';
 import { JwtInterceptor } from './JwtInterceptor';
+import { AxiosError, AxiosResponse } from 'axios';
 
 //Interface to support different kinds of signers
 export type SignMessageFn = (message: string) => Promise<string>;
@@ -92,33 +93,39 @@ export abstract class ServerSideConnector extends JwtInterceptor {
     }
 
     private async reAuth() {
-        //TODO check if we need alias subdomain
-        const url = `${this.baseUrl}/auth/${normalizeEnsName(this.ensName)}`;
+        try {
+            //TODO check if we need alias subdomain
+            const url = `${this.baseUrl}/auth/${normalizeEnsName(
+                this.ensName,
+            )}`;
 
-        const { data: challenge } = await axios.get(url);
+            const { data: challenge } = await axios.get(url);
 
-        const signature = await sign(
-            this.profileKeys.signingKeyPair.privateKey,
-            challenge,
-        );
+            const signature = await sign(
+                this.profileKeys.signingKeyPair.privateKey,
+                challenge,
+            );
 
-        //Todo move to lib
-        const {
-            data: newToken,
-            status,
-            data: error,
-        } = await axios.post(url, {
-            signature,
-            challenge,
-        });
+            //Todo move to lib
+            const {
+                data: newToken,
+                status,
+                data: error,
+            } = await axios.post(url, {
+                signature,
+                challenge,
+            });
 
-        if (status === 400 && error === 'Signature invalid') {
-            const token = await this.submitUserProfile(this.signedUserProfile);
-            this.setAuthToken(token);
-            return token;
+            return newToken;
+        } catch (err) {
+            if (err.response.data.error === 'Signature invalid') {
+                const token = await this.submitUserProfile(
+                    this.signedUserProfile,
+                );
+                this.setAuthToken(token);
+                return token;
+            }
         }
-
-        return newToken;
     }
 
     private async profileExistsOnDeliveryService() {
