@@ -47,10 +47,6 @@ export default (
         '/messages/:ensName/contact/:contactEnsName',
         async (req: express.Request, res, next) => {
             try {
-                //normalize the contact name
-                const contactEnsName = await normalizeEnsName(
-                    req.params.contactEnsName,
-                );
                 //retive the address for the contact name since it is used as a key in the db
                 const receiverAddress = await web3Provider.resolveName(
                     req.params.ensName,
@@ -68,6 +64,11 @@ export default (
                             req.params.ensName,
                     });
                 }
+
+                //normalize the contact name
+                const contactEnsName = await normalizeEnsName(
+                    req.params.contactEnsName,
+                );
 
                 //The new layout resolves conversations using a conversation id [addr(reiceiver),ensName(sender)]
                 const conversationId = getConversationId(
@@ -133,8 +134,22 @@ export default (
             }
 
             try {
-                const ensName = await db.getIdEnsName(req.params.ensName);
-                console.log('lets go');
+                const receiverAddress = await web3Provider.resolveName(
+                    req.params.ensName,
+                );
+
+                //If the address is not found we return a 404. This should normally not happen since the receiver always is known to the delivery service
+                if (!receiverAddress) {
+                    console.error(
+                        'receiver address not found for name ',
+                        req.params.ensName,
+                    );
+                    return res.status(404).send({
+                        error:
+                            'receiver address not found for name ' +
+                            req.params.ensName,
+                    });
+                }
 
                 await Promise.all(
                     req.body.acknowledgments.map(
@@ -143,7 +158,7 @@ export default (
                                 ack.contactAddress,
                             );
                             const conversationId = getConversationId(
-                                ensName,
+                                receiverAddress,
                                 contactEnsName,
                             );
 
