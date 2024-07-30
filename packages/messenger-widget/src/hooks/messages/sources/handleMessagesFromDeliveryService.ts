@@ -30,40 +30,53 @@ export const handleMessagesFromDeliveryService = async (
 
     const incommingMessages: MessageModel[] = await Promise.all(
         encryptedIncommingMessages.map(
-            async (envelop: EncryptionEnvelop): Promise<MessageModel> => {
-                const decryptedEnvelop: Envelop = {
-                    message: JSON.parse(
-                        await decryptAsymmetric(
-                            profileKeys?.encryptionKeyPair!,
-                            JSON.parse(envelop.message),
+            async (
+                envelop: EncryptionEnvelop,
+            ): Promise<MessageModel | null> => {
+                try {
+                    const decryptedEnvelop: Envelop = {
+                        message: JSON.parse(
+                            await decryptAsymmetric(
+                                profileKeys?.encryptionKeyPair!,
+                                JSON.parse(envelop.message),
+                            ),
                         ),
-                    ),
-                    postmark: JSON.parse(
-                        await decryptAsymmetric(
-                            profileKeys?.encryptionKeyPair!,
-                            JSON.parse(envelop.postmark!),
+                        postmark: JSON.parse(
+                            await decryptAsymmetric(
+                                profileKeys?.encryptionKeyPair!,
+                                JSON.parse(envelop.postmark!),
+                            ),
                         ),
-                    ),
-                    metadata: envelop.metadata,
-                };
-                return {
-                    envelop: decryptedEnvelop,
-                    //Messages from the delivery service are already send by the sender
-                    messageState: MessageState.Send,
-                    reactions: [],
-                    //The source of the message is the delivery service
-                    source: MessageSource.DeliveryService,
-                };
+                        metadata: envelop.metadata,
+                    };
+                    return {
+                        envelop: decryptedEnvelop,
+                        //Messages from the delivery service are already send by the sender
+                        messageState: MessageState.Send,
+                        reactions: [],
+                        //The source of the message is the delivery service
+                        source: MessageSource.DeliveryService,
+                    };
+                } catch (e) {
+                    console.warn('unable to decrypt message ', e);
+                    //We return null if the message could not be decrypted.
+                    //This way we can filter out the message later an not acknowledge it, to keep it on the DS.
+                    //Another client might be able to decrypt it.
+                    return null;
+                }
             },
         ),
     );
 
-    const messagesSortedASC = incommingMessages.sort((a, b) => {
-        return (
-            a.envelop.postmark?.incommingTimestamp! -
-            b.envelop.postmark?.incommingTimestamp!
-        );
-    });
+    const messagesSortedASC = incommingMessages
+        //Filter out messages that could not be decrypted to only process and acknowledge the ones that could be decrypted
+        .filter((message) => message !== null)
+        .sort((a, b) => {
+            return (
+                a.envelop.postmark?.incommingTimestamp! -
+                b.envelop.postmark?.incommingTimestamp!
+            );
+        });
     //If the DS has received messages from that contact we store them, and add the contact to conversation list aswell
     if (messagesSortedASC.length > 0) {
         //If the contact is not already in the conversation list then add it

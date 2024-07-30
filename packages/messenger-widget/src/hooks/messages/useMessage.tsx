@@ -273,7 +273,10 @@ export const useMessage = () => {
                             encryptAsymmetric(publicKey, msg),
                         {
                             from: account!,
-                            to: recipient!.contactDetails.account,
+                            to: {
+                                ...recipient!.contactDetails.account,
+                                ensName: recipient.name,
+                            },
                             deliverServiceProfile,
                             keys: profileKeys!,
                         },
