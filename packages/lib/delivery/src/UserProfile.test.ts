@@ -49,10 +49,9 @@ describe('UserProfile', () => {
 
             await expect(async () => {
                 await submitUserProfile(
-                    { resolveName: () => RANDO_ADDRESS } as any,
                     getAccount,
                     setAccount,
-                    RANDO_NAME,
+                    RANDO_ADDRESS,
                     singedUserProfile,
                     'my-secret',
                 );
@@ -81,26 +80,24 @@ describe('UserProfile', () => {
                     };
                 };
 
-                return session(SENDER_NAME, '123', emptyProfile);
+                return session(SENDER_ADDRESS, '123', emptyProfile);
             };
 
             const singedUserProfile = await signProfile(emptyProfile);
 
             await submitUserProfile(
-                { resolveName: () => SENDER_ADDRESS } as any,
                 getAccount,
                 setAccount,
-                SENDER_NAME,
+                SENDER_ADDRESS,
                 singedUserProfile,
                 'my-secret',
             );
 
             await expect(async () => {
                 await submitUserProfile(
-                    { resolveName: () => SENDER_ADDRESS } as any,
                     getAccount,
                     setAccount,
-                    SENDER_NAME,
+                    SENDER_ADDRESS,
                     singedUserProfile,
                     'my-new-secret',
                 );
@@ -114,10 +111,9 @@ describe('UserProfile', () => {
             const singedUserProfile = await signProfile(emptyProfile);
 
             await submitUserProfile(
-                { resolveName: () => SENDER_ADDRESS } as any,
                 getAccount,
                 setAccount,
-                SENDER_NAME,
+                SENDER_ADDRESS,
                 singedUserProfile,
                 'my-secret',
             );

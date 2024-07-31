@@ -1,9 +1,4 @@
-import {
-    IGlobalNotification,
-    IOtp,
-    Session,
-    spamFilter,
-} from '@dm3-org/dm3-lib-delivery';
+import { IGlobalNotification, IOtp, Session } from '@dm3-org/dm3-lib-delivery';
 import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
 import { IAccountDatabase } from '@dm3-org/dm3-lib-server-side';
 import {
@@ -47,11 +42,11 @@ export async function getRedisClient() {
     );
 
     client.on('error', (err) => {
-        global.logger.error('Redis error: ' + (err as Error).message);
+        console.error('Redis error: ' + (err as Error).message);
     });
 
-    client.on('reconnecting', () => global.logger.info('Redis reconnection'));
-    client.on('ready', () => global.logger.info('Redis ready'));
+    client.on('reconnecting', () => console.info('Redis reconnection'));
+    client.on('ready', () => console.info('Redis ready'));
 
     await client.connect();
 
@@ -98,15 +93,11 @@ export async function getDatabase(
 }
 
 export interface IDatabase extends IAccountDatabase {
-    setAccount: (ensName: string, session: Session) => Promise<void>;
-    getAccount: (ensName: string) => Promise<
-        | (Session & {
-              spamFilterRules: spamFilter.SpamFilterRules;
-          })
-        | null
-    >;
+    setAccount: (address: string, session: Session) => Promise<void>;
+    getAccount: (address: string) => Promise<Session | null>;
+    //TODO use address
     getIncomingMessages: (
-        ensName: string,
+        address: string,
         limit: number,
     ) => Promise<EncryptionEnvelop[]>;
     getMessages: (

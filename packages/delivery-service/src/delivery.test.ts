@@ -66,9 +66,7 @@ describe('Delivery', () => {
             };
             const app = express();
             app.use(bodyParser.json());
-            app.use(
-                delivery(web3Provider as any, db as any, keysA, serverSecret),
-            );
+            app.use(delivery(web3Provider as any, db as any, serverSecret));
 
             const { status } = await request(app)
                 .get('/messages/alice.eth/contact/bob.eth')
@@ -106,9 +104,7 @@ describe('Delivery', () => {
             };
             const app = express();
             app.use(bodyParser.json());
-            app.use(
-                delivery(web3Provider as any, db as any, keysA, serverSecret),
-            );
+            app.use(delivery(web3Provider as any, db as any, serverSecret));
 
             const { status } = await request(app)
                 .post(
@@ -154,9 +150,7 @@ describe('Delivery', () => {
 
             const app = express();
             app.use(bodyParser.json());
-            app.use(
-                delivery(web3Provider as any, db as any, keysA, serverSecret),
-            );
+            app.use(delivery(web3Provider as any, db as any, serverSecret));
 
             const { status } = await request(app)
                 .post(

@@ -3,6 +3,14 @@ import { Server as SocketIoServer } from 'socket.io';
 import { createServer, Server as HttpServerType } from 'http';
 import { AUTHORIZED, UNAUTHORIZED, WebSocketManager } from './WebSocketManager';
 import { generateAuthJWT } from '@dm3-org/dm3-lib-delivery';
+import {
+    getMockDeliveryServiceProfile,
+    MockDeliveryServiceProfile,
+    MockedUserProfile,
+    mockUserProfile,
+} from '@dm3-org/dm3-lib-test-helper';
+import { ethers } from 'ethers';
+import account from '../persistence/account';
 
 const serverSecret = 'verySecretAndImportantServerSecret';
 describe('WebSocketManager', () => {
@@ -11,6 +19,13 @@ describe('WebSocketManager', () => {
     let client2;
     let httpServer;
     let socketIoServer;
+
+    let sender: MockedUserProfile;
+    let receiver: MockedUserProfile;
+    let receiverOnGno: MockedUserProfile;
+    let rando: MockedUserProfile;
+
+    let ds: MockDeliveryServiceProfile;
 
     beforeEach(async () => {
         httpServer = await mockHttpServer(4060);
@@ -22,6 +37,31 @@ describe('WebSocketManager', () => {
                 optionsSuccessStatus: 204,
             },
         });
+
+        //The receiver might use the same address for different networks. Hence we keep the wallet separate
+
+        const receiverWallet = ethers.Wallet.createRandom();
+        sender = await mockUserProfile(
+            ethers.Wallet.createRandom(),
+            'bob.eth',
+            ['http://localhost:3000'],
+        );
+        receiver = await mockUserProfile(receiverWallet, 'alice.eth', [
+            'http://localhost:3000',
+        ]);
+        receiverOnGno = await mockUserProfile(receiverWallet, 'alice.gno', [
+            'http://localhost:3000',
+        ]);
+        rando = await mockUserProfile(
+            ethers.Wallet.createRandom(),
+            'rando.eth',
+            ['http://localhost:3000'],
+        );
+
+        ds = await getMockDeliveryServiceProfile(
+            ethers.Wallet.createRandom(),
+            'http://localhost:3000',
+        );
     });
 
     afterEach(() => {
@@ -134,12 +174,13 @@ describe('WebSocketManager', () => {
     describe('isConnected', () => {
         it('returns true if name has one session', async () => {
             const mockedWeb3Provider = {
-                resolveName: (_: string) => Promise.resolve('0x123'),
+                resolveName: (_: string) => Promise.resolve(receiver.address),
             } as any;
 
             const mockedDatabase = {
                 getAccount: () =>
                     Promise.resolve({
+                        account: receiver.address,
                         token: 'old token that is not used anymore',
                         createdAt: new Date().getTime(),
                     }),
@@ -155,9 +196,12 @@ describe('WebSocketManager', () => {
             client0 = await Client('http://localhost:4060', {
                 auth: {
                     account: {
-                        ensName: 'bob.eth',
+                        ensName: receiver.account.ensName,
                     },
-                    token: generateAuthJWT('bob.eth', serverSecret),
+                    token: generateAuthJWT(
+                        receiver.account.ensName,
+                        serverSecret,
+                    ),
                 },
             });
 
@@ -173,17 +217,18 @@ describe('WebSocketManager', () => {
             ]);
 
             expect(socket0IsConnected).toBe(true);
-            const isConnected = await wsManager.isConnected('bob.eth');
+            const isConnected = await wsManager.isConnected(receiver.address);
             expect(isConnected).toBe(true);
         });
         it('returns true if name has at least one session', async () => {
             const mockedWeb3Provider = {
-                resolveName: (_: string) => Promise.resolve('0x123'),
+                resolveName: (_: string) => Promise.resolve(receiver.address),
             } as any;
 
             const mockedDatabase = {
                 getAccount: () =>
                     Promise.resolve({
+                        account: receiver.address,
                         token: 'old token that is not used anymore',
                         createdAt: new Date().getTime(),
                     }),
@@ -199,17 +244,23 @@ describe('WebSocketManager', () => {
             client0 = await Client('http://localhost:4060', {
                 auth: {
                     account: {
-                        ensName: 'bob.eth',
+                        ensName: receiver.account.ensName,
                     },
-                    token: generateAuthJWT('bob.eth', serverSecret),
+                    token: generateAuthJWT(
+                        receiver.account.ensName,
+                        serverSecret,
+                    ),
                 },
             });
             client1 = await Client('http://localhost:4060', {
                 auth: {
                     account: {
-                        ensName: 'bob.eth',
+                        ensName: receiver.account.ensName,
                     },
-                    token: generateAuthJWT('bob.eth', serverSecret),
+                    token: generateAuthJWT(
+                        receiver.account.ensName,
+                        serverSecret,
+                    ),
                 },
             });
 
@@ -234,22 +285,23 @@ describe('WebSocketManager', () => {
 
             expect(socket0IsConnected).toBe(true);
             expect(socket1IsConnected).toBe(true);
-            let isConnected = await wsManager.isConnected('bob.eth');
+            let isConnected = await wsManager.isConnected(receiver.address);
             expect(isConnected).toBe(true);
 
             client0.close();
             await wait(500);
-            isConnected = await wsManager.isConnected('bob.eth');
+            isConnected = await wsManager.isConnected(receiver.address);
             expect(isConnected).toBe(true);
         });
         it('returns false if name is unknown', async () => {
             const mockedWeb3Provider = {
-                resolveName: (_: string) => Promise.resolve('0x123'),
+                resolveName: (_: string) => Promise.resolve(receiver.address),
             } as any;
 
             const mockedDatabase = {
                 getAccount: () =>
                     Promise.resolve({
+                        account: receiver.address,
                         token: 'old token that is not used anymore',
                         createdAt: new Date().getTime(),
                     }),
@@ -265,9 +317,12 @@ describe('WebSocketManager', () => {
             client0 = await Client('http://localhost:4060', {
                 auth: {
                     account: {
-                        ensName: 'bob.eth',
+                        ensName: receiver.account.ensName,
                     },
-                    token: generateAuthJWT('bob.eth', serverSecret),
+                    token: generateAuthJWT(
+                        receiver.account.ensName,
+                        serverSecret,
+                    ),
                 },
             });
 
@@ -283,20 +338,42 @@ describe('WebSocketManager', () => {
             ]);
 
             expect(socket0IsConnected).toBe(true);
-            const isConnected = await wsManager.isConnected('alice.eth');
+            const isConnected = await wsManager.isConnected(rando.address);
             expect(isConnected).toBe(false);
         });
         it('keeps track of different independent sessions', async () => {
             const mockedWeb3Provider = {
-                resolveName: (_: string) => Promise.resolve('0x123'),
+                resolveName: (_: string) => {
+                    if (_ === receiver.account.ensName) {
+                        return Promise.resolve(receiver.address);
+                    }
+                    if (_ === sender.account.ensName) {
+                        return Promise.resolve(sender.address);
+                    }
+                    if (_ === rando.account.ensName) {
+                        return Promise.resolve(rando.address);
+                    }
+                },
             } as any;
 
             const mockedDatabase = {
-                getAccount: () =>
-                    Promise.resolve({
-                        token: 'old token that is not used anymore',
-                        createdAt: new Date().getTime(),
-                    }),
+                getAccount: (name: string) => {
+                    if (name === receiver.account.ensName) {
+                        return Promise.resolve({
+                            account: receiver.address,
+                        });
+                    }
+                    if (name === sender.account.ensName) {
+                        return Promise.resolve({
+                            account: sender.address,
+                        });
+                    }
+                    if (name === rando.account.ensName) {
+                        return Promise.resolve({
+                            account: rando.address,
+                        });
+                    }
+                },
             } as any;
 
             const wsManager = new WebSocketManager(
@@ -309,27 +386,33 @@ describe('WebSocketManager', () => {
             client0 = await Client('http://localhost:4060', {
                 auth: {
                     account: {
-                        ensName: 'bob.eth',
+                        ensName: receiver.account.ensName,
                     },
-                    token: generateAuthJWT('bob.eth', serverSecret),
+                    token: generateAuthJWT(
+                        receiver.account.ensName,
+                        serverSecret,
+                    ),
                 },
             });
 
             client1 = await Client('http://localhost:4060', {
                 auth: {
                     account: {
-                        ensName: 'alice.eth',
+                        ensName: sender.account.ensName,
                     },
-                    token: generateAuthJWT('alice.eth', serverSecret),
+                    token: generateAuthJWT(
+                        sender.account.ensName,
+                        serverSecret,
+                    ),
                 },
             });
 
             client2 = await Client('http://localhost:4060', {
                 auth: {
                     account: {
-                        ensName: 'vitalik.eth',
+                        ensName: rando.account.ensName,
                     },
-                    token: generateAuthJWT('vitalik.eth', serverSecret),
+                    token: generateAuthJWT(rando.account.ensName, serverSecret),
                 },
             });
 
@@ -365,24 +448,25 @@ describe('WebSocketManager', () => {
             expect(socket1IsConnected).toBe(true);
             expect(socket2IsConnected).toBe(true);
 
-            expect(await wsManager.isConnected('bob.eth')).toBe(true);
-            expect(await wsManager.isConnected('alice.eth')).toBe(true);
-            expect(await wsManager.isConnected('vitalik.eth')).toBe(true);
+            expect(await wsManager.isConnected(receiver.address)).toBe(true);
+            expect(await wsManager.isConnected(sender.address)).toBe(true);
+            expect(await wsManager.isConnected(rando.address)).toBe(true);
 
             client1.close();
             await wait(500);
-            expect(await wsManager.isConnected('bob.eth')).toBe(true);
-            expect(await wsManager.isConnected('alice.eth')).toBe(false);
-            expect(await wsManager.isConnected('vitalik.eth')).toBe(true);
+            expect(await wsManager.isConnected(receiver.address)).toBe(true);
+            expect(await wsManager.isConnected(sender.address)).toBe(false);
+            expect(await wsManager.isConnected(rando.address)).toBe(true);
         });
         it('returns false after the user has closed all its connections', async () => {
             const mockedWeb3Provider = {
-                resolveName: (_: string) => Promise.resolve('0x123'),
+                resolveName: (_: string) => Promise.resolve(receiver.address),
             } as any;
 
             const mockedDatabase = {
                 getAccount: () =>
                     Promise.resolve({
+                        account: receiver.address,
                         token: 'old token that is not used anymore',
                         createdAt: new Date().getTime(),
                     }),
@@ -398,9 +482,12 @@ describe('WebSocketManager', () => {
             client0 = await Client('http://localhost:4060', {
                 auth: {
                     account: {
-                        ensName: 'bob.eth',
+                        ensName: receiver.account.ensName,
                     },
-                    token: generateAuthJWT('bob.eth', serverSecret),
+                    token: generateAuthJWT(
+                        receiver.account.ensName,
+                        serverSecret,
+                    ),
                 },
             });
 
@@ -416,12 +503,12 @@ describe('WebSocketManager', () => {
             ]);
 
             expect(socket0IsConnected).toBe(true);
-            let isConnected = await wsManager.isConnected('bob.eth');
+            let isConnected = await wsManager.isConnected(receiver.address);
             expect(isConnected).toBe(true);
 
             client0.close();
             await wait(500);
-            isConnected = await wsManager.isConnected('bob.eth');
+            isConnected = await wsManager.isConnected(receiver.address);
             expect(isConnected).toBe(false);
         });
     });

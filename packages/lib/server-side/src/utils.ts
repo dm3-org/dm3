@@ -23,7 +23,7 @@ export async function auth(
     const normalizedEnsName = normalizeEnsName(ensName);
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
-
+    //TODO resolve addr for ens name
     if (
         token &&
         (await checkToken(
@@ -72,8 +72,10 @@ export function socketAuth(
             if (!session) {
                 throw Error('Could not get session');
             }
-
-            await db.setAccount(ensName, {
+            //we use session.account here as a key for setAccount here.
+            //We can do this because the address is used as account when the Session has been created.
+            //That saves a address lookup via ENS
+            await db.setAccount(session.account, {
                 ...session,
                 socketId: socket.id,
             });
@@ -102,7 +104,7 @@ export function logError(
     res: Response,
     next: NextFunction,
 ) {
-    winston.loggers.get('default').error({
+    console.error({
         method: req.method,
         url: req.url,
         error: error.toString(),

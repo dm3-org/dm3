@@ -1,9 +1,10 @@
-import { getUserProfile, submitUserProfile } from '@dm3-org/dm3-lib-delivery';
 import { normalizeEnsName, schema } from '@dm3-org/dm3-lib-profile';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import express from 'express';
-import { IDatabase } from './persistence/getDatabase';
+import { IDatabase } from '../persistence/getDatabase';
+import { getUserProfile } from './getUserProfile';
+import { submitUserProfile } from './submitUserProfile';
 
 export default (
     db: IDatabase,
@@ -27,11 +28,6 @@ export default (
         }
     });
 
-    /**
-     * Creates a new profile for the given ensName
-     * @param ensName ens id of the account
-     * @param signedUserProfile signed user profile
-     */
     router.post('/:ensName', async (req: express.Request, res, next) => {
         try {
             const schemaIsValid = validateSchema(

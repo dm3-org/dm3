@@ -13,6 +13,7 @@ import {
 } from '@dm3-org/dm3-lib-profile';
 import { stringify } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
+import { getAddress } from 'ethers/lib/utils';
 
 export type MockedUserProfile = {
     address: string;
@@ -52,7 +53,7 @@ export const mockUserProfile = async (
 
     return {
         wallet,
-        address: wallet.address,
+        address: getAddress(wallet.address),
         privateKey: wallet.privateKey,
         account: {
             ensName,

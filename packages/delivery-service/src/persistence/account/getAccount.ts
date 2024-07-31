@@ -1,17 +1,18 @@
+import { Session } from '@dm3-org/dm3-lib-delivery';
+import { ethers } from 'ethers';
 import { Redis, RedisPrefix } from '../getDatabase';
-import { Session, spamFilter } from '@dm3-org/dm3-lib-delivery';
-import { getIdEnsName } from '../getIdEnsName';
 
 export function getAccount(redis: Redis) {
-    return async (ensName: string) => {
-        let session = await redis.get(
-            RedisPrefix.Account + (await getIdEnsName(redis)(ensName)),
+    return async (address: string) => {
+        const session = await redis.get(
+            RedisPrefix.Account + ethers.utils.getAddress(address),
         );
 
-        return session
-            ? (JSON.parse(session) as Session & {
-                  spamFilterRules: spamFilter.SpamFilterRules;
-              })
-            : null;
+        if (!session) {
+            console.debug('there is no account for this address: ', address);
+            return null;
+        }
+
+        return JSON.parse(session) as Session;
     };
 }
