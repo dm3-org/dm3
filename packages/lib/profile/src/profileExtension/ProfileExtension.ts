@@ -5,9 +5,8 @@ export type MessageType =
     | 'EDIT'
     | 'REPLY'
     | 'REACTION'
-    | 'READ_OPEN'
-    | 'READ_RECEIVE'
-    | 'READ_RECEIPT'
+    | 'READ_OPENED'
+    | 'READ_RECEIVED'
     | 'RESEND_REQUEST';
 
 export interface ProfileExtension {

@@ -46,7 +46,6 @@ export type MessageType =
     | 'REACTION'
     | 'READ_OPENED'
     | 'READ_RECEIVED'
-    | 'READ_RECEIPT'
     | 'RESEND_REQUEST';
 
 export interface Postmark {
