@@ -50,11 +50,7 @@ export function MessageDetail(props: MessageProps) {
                 {props.ownMessage ? (
                     getMessageIndicatorView(props.indicator)
                 ) : (
-                    <img
-                        className="indicator-tick-icon"
-                        src={blueTickIcon}
-                        alt="read"
-                    />
+                    <></>
                 )}
             </span>
         </div>
