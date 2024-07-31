@@ -44,7 +44,8 @@ export type MessageType =
     | 'EDIT'
     | 'REPLY'
     | 'REACTION'
-    | 'READ_RECEIPT'
+    | 'READ_OPENED'
+    | 'READ_RECEIVED'
     | 'RESEND_REQUEST';
 
 export interface Postmark {
@@ -248,6 +249,58 @@ export async function createReactionMessage(
         message,
         privateKey,
         'REACTION',
+        [],
+        referenceMessageHash,
+    );
+}
+
+/**
+ * creats a read opened message and signs it
+ * @param to sender ENS name
+ * @param from receiver ENS name
+ * @param message the message content
+ * @param privateKey sender signing key
+ * @param referenceMessageHash reference to previous message
+ */
+export async function createReadOpenMessage(
+    to: string,
+    from: string,
+    message: string,
+    privateKey: string,
+    referenceMessageHash: string,
+): Promise<Message> {
+    return internalCreateMessage(
+        to,
+        from,
+        message,
+        privateKey,
+        'READ_OPENED',
+        [],
+        referenceMessageHash,
+    );
+}
+
+/**
+ * creates a read received message and signs it
+ * @param to sender ENS name
+ * @param from receiver ENS name
+ * @param message the message content
+ * @param privateKey sender signing key
+ * @param referenceMessageHash reference to previous message
+ */
+export async function createReadReceiveMessage(
+    to: string,
+    from: string,
+    message: string,
+    privateKey: string,
+    referenceMessageHash: string,
+): Promise<Message> {
+    return internalCreateMessage(
+        to,
+        from,
+        message,
+        privateKey,
+        'READ_RECEIVED',
         [],
         referenceMessageHash,
     );

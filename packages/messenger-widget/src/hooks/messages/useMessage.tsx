@@ -5,8 +5,9 @@ import {
     Message,
     MessageState,
     buildEnvelop,
+    createReadOpenMessage,
 } from '@dm3-org/dm3-lib-messaging';
-import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
+import { Account, normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { sha256, stringify } from '@dm3-org/dm3-lib-shared';
 import { StorageEnvelopContainer as StorageEnvelopContainerNew } from '@dm3-org/dm3-lib-storage';
 import { useCallback, useContext, useEffect, useState } from 'react';
@@ -25,6 +26,12 @@ import { handleMessagesFromWebSocket } from './sources/handleMessagesFromWebSock
 
 const DEFAULT_MESSAGE_PAGESIZE = 100;
 
+export enum MessageIndicator {
+    SENT = 'SENT',
+    RECEIVED = 'RECEIVED',
+    READED = 'READED',
+}
+
 //Message source to identify where a message comes from. This is important to handle pagination of storage messages properly
 export enum MessageSource {
     //Messages added by the client via addMessage
@@ -41,6 +48,7 @@ export type MessageModel = StorageEnvelopContainerNew & {
     reactions: Envelop[];
     replyToMessageEnvelop?: Envelop;
     source: MessageSource;
+    indicator?: MessageIndicator;
 };
 
 export type MessageStorage = {
@@ -102,6 +110,7 @@ export const useMessage = () => {
     useEffect(() => {
         onNewMessage((encryptedEnvelop: EncryptionEnvelop) => {
             handleMessagesFromWebSocket(
+                account as Account,
                 addConversation,
                 setMessages,
                 storeMessage,
@@ -110,6 +119,7 @@ export const useMessage = () => {
                 encryptedEnvelop,
                 resolveTLDtoAlias,
                 updateConversationList,
+                addMessage,
             );
         });
 
@@ -120,39 +130,72 @@ export const useMessage = () => {
 
     //Mark messages as read when the selected contact changes
     useEffect(() => {
-        const _contact = selectedContact?.contactDetails.account.ensName;
-        if (!_contact) {
-            return;
-        }
+        const markMsgsAsRead = async () => {
+            const _contact = selectedContact?.contactDetails.account.ensName;
+            if (!_contact) {
+                return;
+            }
 
-        const contact = normalizeEnsName(_contact);
+            const contact = normalizeEnsName(_contact);
 
-        const unreadMessages = (messages[contact] ?? []).filter(
-            (message) =>
-                message.messageState !== MessageState.Read &&
-                message.envelop.message.metadata.from !== account?.ensName,
-        );
+            const unreadMessages = (messages[contact] ?? []).filter(
+                (message) =>
+                    message.messageState !== MessageState.Read &&
+                    message.envelop.message.metadata.from !== account?.ensName,
+            );
 
-        setMessages((prev) => {
-            //Check no new messages are added here
-            return {
-                ...prev,
-                [contact]: [
-                    ...(prev[contact] ?? []).map((message) => ({
-                        ...message,
-                        messageState: MessageState.Read,
-                    })),
-                ],
-            };
-        });
+            setMessages((prev) => {
+                //Check no new messages are added here
+                return {
+                    ...prev,
+                    [contact]: [
+                        ...(prev[contact] ?? []).map((message) => ({
+                            ...message,
+                            messageState: MessageState.Read,
+                        })),
+                    ],
+                };
+            });
 
-        editMessageBatchAsync(
-            contact,
-            unreadMessages.map((message) => ({
-                ...message,
-                messageState: MessageState.Read,
-            })),
-        );
+            const ackToSend = unreadMessages.filter(
+                (data) =>
+                    data.envelop.message.metadata.type !== 'READ_RECEIVED' &&
+                    data.envelop.message.metadata.type !== 'READ_OPENED',
+            );
+
+            // send READ_OPENED acknowledgment to sender for all new messages received
+            const readedMsgs = await Promise.all(
+                ackToSend.map(async (message: MessageModel) => {
+                    return await createReadOpenMessage(
+                        message.envelop.message.metadata.from,
+                        account!.ensName,
+                        'READ_OPENED',
+                        profileKeys?.signingKeyPair.privateKey!,
+                        message.envelop.metadata
+                            ?.encryptedMessageHash as string,
+                    );
+                }),
+            );
+
+            // add messages
+            await Promise.all(
+                readedMsgs.map(async (msgs, index) => {
+                    await addMessage(
+                        ackToSend[index].envelop.message.metadata.from,
+                        msgs,
+                    );
+                }),
+            );
+
+            editMessageBatchAsync(
+                contact,
+                unreadMessages.map((message) => ({
+                    ...message,
+                    messageState: MessageState.Read,
+                })),
+            );
+        };
+        markMsgsAsRead();
     }, [selectedContact]);
 
     //View function that returns wether a contact is loading
@@ -184,6 +227,8 @@ export const useMessage = () => {
             return messages[contactName].filter(
                 (message) =>
                     message.messageState !== MessageState.Read &&
+                    message.envelop.message.metadata.type !== 'READ_OPENED' &&
+                    message.envelop.message.metadata.type !== 'READ_RECEIVED' &&
                     message.envelop.message.metadata.from !== account?.ensName,
             ).length;
         },
@@ -353,6 +398,7 @@ export const useMessage = () => {
                 0,
             ),
             handleMessagesFromDeliveryService(
+                selectedContact,
                 account!,
                 profileKeys!,
                 addConversation,
@@ -361,6 +407,7 @@ export const useMessage = () => {
                 fetchNewMessages,
                 syncAcknowledgment,
                 updateConversationList,
+                addMessage,
             ),
         ]);
         const flatten = initialMessages.reduce(

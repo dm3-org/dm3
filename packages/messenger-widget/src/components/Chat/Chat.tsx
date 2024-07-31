@@ -192,38 +192,34 @@ export function Chat() {
                         >
                             {messages.length > 0 &&
                                 messages.map(
-                                    (
-                                        storageEnvelopContainer: MessageModel,
-                                        index,
-                                    ) => (
+                                    (messageModel: MessageModel, index) => (
                                         <div key={index} className="mt-2">
                                             <Message
                                                 message={
-                                                    storageEnvelopContainer
-                                                        .envelop.message
+                                                    messageModel.envelop.message
                                                         .message ?? ''
                                                 }
                                                 time={
-                                                    storageEnvelopContainer.envelop.message.metadata?.timestamp.toString() ??
+                                                    messageModel.envelop.message.metadata?.timestamp.toString() ??
                                                     '0'
                                                 }
                                                 messageState={
-                                                    storageEnvelopContainer.messageState
+                                                    messageModel.messageState
                                                 }
                                                 ownMessage={
-                                                    storageEnvelopContainer
-                                                        .envelop.message
+                                                    messageModel.envelop.message
                                                         .metadata?.from ===
                                                     account!.ensName
                                                 }
-                                                envelop={
-                                                    storageEnvelopContainer.envelop
-                                                }
+                                                envelop={messageModel.envelop}
                                                 reactions={
-                                                    storageEnvelopContainer.reactions
+                                                    messageModel.reactions
                                                 }
                                                 replyToMessageEnvelop={
-                                                    storageEnvelopContainer.replyToMessageEnvelop
+                                                    messageModel.replyToMessageEnvelop
+                                                }
+                                                indicator={
+                                                    messageModel.indicator
                                                 }
                                             />
                                         </div>

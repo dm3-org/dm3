@@ -1,5 +1,7 @@
 import { decryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
 import {
+    createReadOpenMessage,
+    createReadReceiveMessage,
     EncryptionEnvelop,
     Envelop,
     MessageState,
@@ -8,8 +10,10 @@ import { MessageModel, MessageSource } from '../useMessage';
 import { Account, ProfileKeys } from '@dm3-org/dm3-lib-profile';
 import { AddConversation, StoreMessageBatch } from '../../storage/useStorage';
 import { Acknowledgment } from '@dm3-org/dm3-lib-delivery';
+import { ContactPreview } from '../../../interfaces/utils';
 
 export const handleMessagesFromDeliveryService = async (
+    selectedContact: ContactPreview | undefined,
     account: Account,
     profileKeys: ProfileKeys,
     addConversation: AddConversation,
@@ -21,6 +25,7 @@ export const handleMessagesFromDeliveryService = async (
         acknoledgments: Acknowledgment[],
     ) => void,
     updateConversationList: (conversation: string, updatedAt: number) => void,
+    addMessage: Function,
 ) => {
     //Fetch the messages from the delivery service
     const encryptedIncommingMessages = await fetchNewMessages(
@@ -97,5 +102,70 @@ export const handleMessagesFromDeliveryService = async (
     }));
 
     await syncAcknowledgment(account.ensName, acks);
+
+    const ackToSend = messagesSortedASC.filter(
+        (data) =>
+            data.envelop.message.metadata.type !== 'READ_RECEIVED' &&
+            data.envelop.message.metadata.type !== 'READ_OPENED',
+    );
+
+    // if contact is selected send READ_OPENED acknowledgment to sender for all new messages received
+    if (
+        ackToSend.length &&
+        selectedContact &&
+        selectedContact.contactDetails.account.ensName ===
+            ackToSend[0].envelop.message.metadata.from
+    ) {
+        // send READ_OPENED acknowledgment to sender's for all messages
+        const openedMsgs = await Promise.all(
+            ackToSend.map(async (message: MessageModel) => {
+                return await createReadOpenMessage(
+                    message.envelop.message.metadata.from,
+                    account!.ensName,
+                    'READ_OPENED',
+                    profileKeys?.signingKeyPair.privateKey!,
+                    message.envelop.metadata?.encryptedMessageHash as string,
+                );
+            }),
+        );
+
+        // add message
+        await Promise.all(
+            openedMsgs.map(async (msg, index) => {
+                await addMessage(
+                    ackToSend[index].envelop.message.metadata.from,
+                    msg,
+                );
+            }),
+        );
+
+        return messagesSortedASC;
+    }
+
+    if (ackToSend.length) {
+        // send READ_RECEIVED acknowledgment to sender's for all new messages received
+        const readedMsgs = await Promise.all(
+            ackToSend.map(async (message: MessageModel) => {
+                return await createReadReceiveMessage(
+                    message.envelop.message.metadata.from,
+                    account!.ensName,
+                    'READ_RECEIVED',
+                    profileKeys?.signingKeyPair.privateKey!,
+                    message.envelop.metadata?.encryptedMessageHash as string,
+                );
+            }),
+        );
+
+        // add message
+        await Promise.all(
+            readedMsgs.map(async (msg, index) => {
+                await addMessage(
+                    ackToSend[index].envelop.message.metadata.from,
+                    msg,
+                );
+            }),
+        );
+    }
+
     return messagesSortedASC;
 };

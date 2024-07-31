@@ -685,8 +685,14 @@ describe('useMessage hook test cases', () => {
                     result.current.messages['alice.eth'].length > 0,
             );
 
+            // Filter out the acknowledgment messages
+            const sentMsgs = result.current.messages['alice.eth'].filter(
+                (data) =>
+                    data.envelop.message.metadata.type !== 'READ_RECEIVED',
+            );
+
             expect(result.current.contactIsLoading('alice.eth')).toBe(false);
-            expect(result.current.messages['alice.eth'].length).toBe(3);
+            expect(sentMsgs.length).toBe(3);
         });
         it('should only ackknowledge messages the client was able to decrypt ', async () => {
             const messageFactory = MockMessageFactory(sender, receiver, ds);
@@ -1009,9 +1015,16 @@ describe('useMessage hook test cases', () => {
                     result.current.messages['alice.eth'].length > 0,
             );
 
+            // Filter out the acknowledgment messages
+            const sentMsgs = result.current.messages['alice.eth'].filter(
+                (data) =>
+                    data.envelop.message.metadata.type !== 'READ_RECEIVED',
+            );
+
             expect(result.current.contactIsLoading('alice.eth')).toBe(false);
+
             //Initial message number would be storage(100) = Ds (13) == 113
-            expect(result.current.messages['alice.eth'].length).toBe(113);
+            expect(sentMsgs.length).toBe(113);
 
             await act(async () => result.current.loadMoreMessages('alice.eth'));
 
@@ -1022,11 +1035,17 @@ describe('useMessage hook test cases', () => {
                     result.current.messages['alice.eth'].length > 133,
             );
 
+            // Filter out the acknowledgment messages
+            const moreSentMsgs = result.current.messages['alice.eth'].filter(
+                (data) =>
+                    data.envelop.message.metadata.type !== 'READ_RECEIVED',
+            );
+
             expect(result.current.contactIsLoading('alice.eth')).toBe(false);
-            expect(result.current.messages['alice.eth'].length).toBe(213);
+            expect(moreSentMsgs.length).toBe(213);
             //991 = 99 message 100(since pageSize starts from 0) = 1 offset
             expect(
-                result.current.messages['alice.eth'][212].envelop.message
+                result.current.messages['alice.eth'][225].envelop.message
                     .message,
             ).toBe('hello dm3 991');
         });

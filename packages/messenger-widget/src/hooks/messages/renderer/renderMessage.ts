@@ -3,6 +3,8 @@ import { renderDelete } from './messageTypes/renderDelete';
 import { renderDuplicates } from './messageTypes/renderDuplicates';
 import { renderEdit } from './messageTypes/renderEdit';
 import { renderReactions } from './messageTypes/renderReactions';
+import { renderReadOpened } from './messageTypes/renderReadOpened';
+import { renderReadReceived } from './messageTypes/renderReadReceived';
 import { renderReply } from './messageTypes/renderReply';
 
 /**
@@ -12,7 +14,9 @@ import { renderReply } from './messageTypes/renderReply';
  * Putting them to the right place in the conversation.
  */
 export const renderMessage = (messages: MessageModel[]) => {
-    const withDeletes = renderDelete(messages);
+    const withReadReceived = renderReadReceived(messages);
+    const withReadOpened = renderReadOpened(withReadReceived);
+    const withDeletes = renderDelete(withReadOpened);
     const withReactions = renderReactions(withDeletes);
     const withReply = renderReply(withReactions);
 
