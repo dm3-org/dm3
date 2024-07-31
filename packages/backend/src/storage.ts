@@ -196,16 +196,20 @@ export default (
     );
 
     router.post('/new/:ensName/addConversation', async (req, res, next) => {
-        const { encryptedContactName } = req.body;
+        const { encryptedContactName, encryptedContactTLDName } = req.body;
         if (!encryptedContactName) {
             res.status(400).send('invalid schema');
             return;
         }
+
+        //Param encryptedContactTLDName is optional, hence the default value is an empty string
+        const _encryptedContactTLDName = encryptedContactTLDName || '';
         try {
             const ensName = normalizeEnsName(req.params.ensName);
             const success = await db.addConversation(
                 ensName,
                 encryptedContactName,
+                _encryptedContactTLDName,
             );
             if (success) {
                 return res.send();

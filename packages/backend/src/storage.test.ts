@@ -150,6 +150,32 @@ describe('Storage', () => {
             expect(body[0].contact).toEqual(aliceId);
             expect(body.length).toBe(1);
         });
+        it('can add conversation with encryptedContactTLDName', async () => {
+            const aliceId = 'alice.eth';
+
+            const { status } = await request(app)
+                .post(`/new/bob.eth/addConversation`)
+                .set({
+                    authorization: 'Bearer ' + token,
+                })
+                .send({
+                    encryptedContactName: aliceId,
+                    encryptedContactTLDName: '123',
+                });
+            expect(status).toBe(200);
+
+            const { body } = await request(app)
+                .get(`/new/bob.eth/getConversations`)
+                .set({
+                    authorization: 'Bearer ' + token,
+                })
+                .send();
+
+            expect(status).toBe(200);
+            expect(body[0].contact).toEqual(aliceId);
+            expect(body[0].encryptedContactTLDName).toEqual('123');
+            expect(body.length).toBe(1);
+        });
         it('handle duplicates add conversation', async () => {
             const aliceId = 'alice.eth';
             const ronId = 'ron.eth';

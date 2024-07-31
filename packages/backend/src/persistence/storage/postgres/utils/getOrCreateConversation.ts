@@ -4,7 +4,7 @@ export const getOrCreateConversation = async (
     db: PrismaClient,
     accountId: string,
     encryptedContactName: string,
-    encryptedContactTLDName: string,
+    encryptedContactTLDName: string = '',
 ) => {
     //Check if conversation already exists
     const conversation = await db.conversation.findFirst({
