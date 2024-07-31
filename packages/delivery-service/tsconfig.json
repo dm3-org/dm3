@@ -16,6 +16,6 @@
         "outDir": "dist",
         "sourceMap": true
     },
-    "include": ["src", "../lib/delivery/src/spam-filter"],
+    "include": ["src",],
     "exclude": ["src/**/*.test.ts"]
 }

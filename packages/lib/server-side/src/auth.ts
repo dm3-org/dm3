@@ -40,7 +40,6 @@ const createNewSessionTokenBodySchema = {
 
 export const Auth = (db: IAccountDatabase, serverSecret: string) => {
     const router = express.Router();
-    console.debug('Auth DB ', db);
 
     //TODO remove
     router.use(cors());

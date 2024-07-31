@@ -5,7 +5,7 @@ import { nonceFilterFactory } from './filter/nonceFilter/NonceFilter';
 import { SpamFilter, SpamFilterFactory } from './filter/SpamFilter';
 import { tokenBalanceFilterFactory } from './filter/tokenBalanceFilter/TokenBalanceFilter';
 import { SpamFilterRules } from './SpamFilterRules';
-import { Session } from '@dm3-org/dm3-lib-delivery/src/Session';
+import { Session } from '@dm3-org/dm3-lib-delivery';
 
 export type { SpamFilterRules };
 

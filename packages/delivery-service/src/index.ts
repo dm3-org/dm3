@@ -36,6 +36,10 @@ app.use(express.urlencoded({ limit: '50mb' }));
 
 const server = http.createServer(app);
 
+//On the delivery-service side the address functions as an identifier for the account.
+// The reason for that is that the DS should accept all messages directet to the address. Regardless of its ENS name.
+// To use as much shared code as possible from lib/server-side the address is resolved to the account before each database call.
+//using this wrapper around the IDatabase
 const getDbWithAddressResolvedGetAccount = (
     db: IDatabase,
     web3Provider: ethers.providers.JsonRpcProvider,

@@ -146,13 +146,8 @@ export class MessageProcessor {
                 ),
             ),
         };
-
-        if (process.env.DISABLE_MSG_BUFFER !== 'true') {
-            console.debug('storeNewMessage', conversationId);
-            await this.db.createMessage(conversationId, envelopWithPostmark);
-        } else {
-            console.debug('skip storeNewMessage', conversationId);
-        }
+        console.debug('storeNewMessage', conversationId);
+        await this.db.createMessage(conversationId, envelopWithPostmark);
 
         //If there is currently a webSocket connection open to the receiver, the message will be directly send.
         if (await this.webSocketManager.isConnected(receiverAddress)) {

@@ -108,6 +108,7 @@ export class WebSocketManager implements IWebSocketManager {
         //the resolved address for the name
         const address = await this.web3Provider.resolveName(ensName);
         if (!address) {
+            console.debug('WS manager,could not resolve address for ', ensName);
             return;
         }
         //the connections the address has created previously
