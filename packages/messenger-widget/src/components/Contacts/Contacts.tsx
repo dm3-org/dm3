@@ -105,9 +105,7 @@ export function Contacts() {
 
         // don't include the preview of acknowledgment msgs
         if (messages?.length > 0) {
-            return messages[0].envelop.message.metadata.type !==
-                'READ_OPENED' &&
-                messages[0].envelop.message.metadata.type !== 'READ_RECEIVED' &&
+            return messages[0].envelop.message.metadata.type === 'NEW' &&
                 messages[0].envelop.message.message
                 ? messages[0].envelop.message.message
                 : '';
