@@ -7,7 +7,7 @@ export interface StorageAPI {
         pageSize: number,
         offset: number,
     ) => Promise<StorageEnvelopContainer[]>;
-    getHaltedMessages: () => Promise<HaltedStorageEnvelopContainer[]>;
+    getHaltedMessages: () => Promise<any[]>;
     clearHaltedMessages: (
         messageId: string,
         aliasName: string,
@@ -37,12 +37,6 @@ export interface StorageAPI {
 export interface StorageEnvelopContainer {
     messageState: MessageState;
     envelop: Envelop;
-}
-
-export interface HaltedStorageEnvelopContainer {
-    messageState: MessageState;
-    envelop: Envelop;
-    messageId: string;
 }
 
 export interface Conversation {

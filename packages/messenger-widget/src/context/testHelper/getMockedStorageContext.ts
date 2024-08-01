@@ -3,7 +3,6 @@ import {
     Conversation,
 } from '@dm3-org/dm3-lib-storage';
 import { StorageContextType } from '../StorageContext';
-import { HaltedStorageEnvelopContainer } from '@dm3-org/dm3-lib-storage/src/new/types';
 
 //Provide a mocked storage context
 //Override the default values with the provided values
@@ -57,9 +56,7 @@ export const getMockedStorageContext = (
         ): Promise<StorageEnvelopContainer[]> {
             throw new Error('Function not implemented.');
         },
-        getHaltedMessages: function (): Promise<
-            HaltedStorageEnvelopContainer[]
-        > {
+        getHaltedMessages: function (): Promise<any[]> {
             throw new Error('Function not implemented.');
         },
         clearHaltedMessages: function (
