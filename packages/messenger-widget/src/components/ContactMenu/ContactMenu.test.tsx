@@ -7,6 +7,7 @@ describe('ContactMenu test cases', () => {
     const props: IContactMenu = {
         contactDetails: {
             name: 'test',
+            contactTldNames: [],
             message: 'test',
             image: 'image',
             contactDetails: {

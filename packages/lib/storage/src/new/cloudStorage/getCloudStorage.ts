@@ -8,13 +8,23 @@ export const getCloudStorage = (
     ensName: string,
     encryption: Encryption,
 ): StorageAPI => {
-    const _addConversation = async (contactEnsName: string) => {
+    const _addConversation = async (
+        contactEnsName: string,
+        contactTldNames: string[],
+    ) => {
         const encryptedContactName = await encryption.encryptSync(
             contactEnsName,
         );
+
+        const encryptedContactTLDName = await encryption.encryptSync(
+            JSON.stringify(contactTldNames),
+        );
+
+        console.log('add contact ', contactEnsName, contactTldNames);
         return await backendConnector.addConversation(
             ensName,
             encryptedContactName,
+            encryptedContactTLDName,
         );
     };
 
@@ -29,14 +39,23 @@ export const getCloudStorage = (
             conversations.map(
                 async ({
                     contact,
+                    encryptedContactTLDName,
                     previewMessage,
                     updatedAt,
                 }: {
                     contact: string;
+                    encryptedContactTLDName: string;
                     previewMessage: string | null;
                     updatedAt: Date;
                 }) => ({
                     contactEnsName: await encryption.decryptSync(contact),
+                    contactTldNames: encryptedContactTLDName
+                        ? JSON.parse(
+                              await encryption.decryptSync(
+                                  encryptedContactTLDName,
+                              ),
+                          )
+                        : [],
                     isHidden: false,
                     messageCounter: 0,
                     previewMessage: previewMessage

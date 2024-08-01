@@ -9,10 +9,12 @@ export class BackendConnector
     public async addConversation(
         ensName: string,
         encryptedContactName: string,
+        encryptedContactTLDName: string,
     ) {
         const url = `/storage/new/${normalizeEnsName(ensName)}/addConversation`;
         await this.getAuthenticatedAxiosClient().post(url, {
             encryptedContactName,
+            encryptedContactTLDName,
         });
     }
     public async getConversations(

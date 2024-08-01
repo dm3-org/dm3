@@ -4,7 +4,11 @@ import { MessageRecord } from '@dm3-org/dm3-lib-storage';
 
 export type BackendContextType = {
     isInitialized: boolean;
-    addConversation: (ensName: string, encryptedContactName: string) => void;
+    addConversation: (
+        ensName: string,
+        encryptedContactName: string,
+        encryptedContactTLDName: string,
+    ) => void;
     getConversations: (
         ensName: string,
         size: number,
@@ -12,6 +16,7 @@ export type BackendContextType = {
     ) => Promise<
         {
             contact: string;
+            encryptedContactTLDName: string;
             previewMessage: string;
             updatedAt: Date;
         }[]

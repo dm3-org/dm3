@@ -103,6 +103,7 @@ describe('useMessage hook test cases', () => {
                     undefined,
                     false,
                     0,
+                    [],
                 ),
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
@@ -165,6 +166,7 @@ describe('useMessage hook test cases', () => {
                     undefined,
                     false,
                     0,
+                    [],
                 ),
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
@@ -227,6 +229,7 @@ describe('useMessage hook test cases', () => {
                     undefined,
                     false,
                     0,
+                    [],
                 ),
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
@@ -299,10 +302,12 @@ describe('useMessage hook test cases', () => {
                     undefined,
                     false,
                     0,
+                    [],
                 ),
                 contacts: [
                     {
                         name: '',
+                        contactTldNames: [],
                         message: '',
                         image: 'human.svg',
                         contactDetails: {
@@ -406,10 +411,12 @@ describe('useMessage hook test cases', () => {
                     undefined,
                     false,
                     0,
+                    [],
                 ),
                 contacts: [
                     {
                         name: '',
+                        contactTldNames: [],
                         message: '',
                         image: 'human.svg',
                         contactDetails: {
@@ -547,8 +554,11 @@ describe('useMessage hook test cases', () => {
                     undefined,
                     false,
                     0,
+                    [],
                 ),
-                contacts: [getEmptyContact('alice.eth', undefined, false, 0)],
+                contacts: [
+                    getEmptyContact('alice.eth', undefined, false, 0, []),
+                ],
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
                 onNewMessage: (cb: Function) => {
@@ -629,8 +639,11 @@ describe('useMessage hook test cases', () => {
                     undefined,
                     false,
                     0,
+                    [],
                 ),
-                contacts: [getEmptyContact('alice.eth', undefined, false, 0)],
+                contacts: [
+                    getEmptyContact('alice.eth', undefined, false, 0, []),
+                ],
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
                 onNewMessage: (cb: Function) => {
@@ -728,8 +741,11 @@ describe('useMessage hook test cases', () => {
                     undefined,
                     false,
                     0,
+                    [],
                 ),
-                contacts: [getEmptyContact('alice.eth', undefined, false, 0)],
+                contacts: [
+                    getEmptyContact('alice.eth', undefined, false, 0, []),
+                ],
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
                 onNewMessage: (cb: Function) => {
@@ -859,8 +875,11 @@ describe('useMessage hook test cases', () => {
                     undefined,
                     false,
                     0,
+                    [],
                 ),
-                contacts: [getEmptyContact('alice.eth', undefined, false, 0)],
+                contacts: [
+                    getEmptyContact('alice.eth', undefined, false, 0, []),
+                ],
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
                 onNewMessage: (cb: Function) => {
@@ -954,8 +973,11 @@ describe('useMessage hook test cases', () => {
                     undefined,
                     false,
                     0,
+                    [],
                 ),
-                contacts: [getEmptyContact('alice.eth', undefined, false, 0)],
+                contacts: [
+                    getEmptyContact('alice.eth', undefined, false, 0, []),
+                ],
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
                 onNewMessage: (cb: Function) => {

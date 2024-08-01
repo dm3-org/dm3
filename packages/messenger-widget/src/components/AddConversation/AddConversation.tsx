@@ -31,7 +31,7 @@ export default function AddConversation() {
         setAddConversation,
     } = useContext(ModalContext);
 
-    const [name, setName] = useState<string>('');
+    const [tldName, setName] = useState<string>('');
     const [showError, setShowError] = useState<boolean>(false);
     const [errorMsg, setErrorMsg] = useState<string>('');
     const [inputClass, setInputClass] = useState<string>(INPUT_FIELD_CLASS);
@@ -39,28 +39,30 @@ export default function AddConversation() {
     // handles new contact submission
     const submit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setName(name.trim());
-        if (name.length) {
+        setName(tldName.trim());
+        if (tldName.length) {
             // start loader
             setLoaderContent('Adding contact...');
             startLoader();
 
             const ensNameIsInvalid =
                 ethAddress &&
-                name.split('.')[0] &&
-                ethAddress.toLowerCase() === name.split('.')[0].toLowerCase();
+                tldName.split('.')[0] &&
+                ethAddress.toLowerCase() ===
+                    tldName.split('.')[0].toLowerCase();
 
             if (ensNameIsInvalid) {
                 setErrorMsg('Please enter valid ENS name');
                 setShowError(true);
                 return;
             }
-            //Checks wether the name entered, is an tld name. If yes, the TLD is substituded with the alias name
-            const aliasName = await resolveTLDtoAlias(name);
+
+            //TODO resolve TLD name
+            const newContact = await addConversation(tldName);
 
             const addConversationData = {
                 active: true,
-                ensName: aliasName,
+                ensName: newContact?.contactDetails.account.ensName,
                 processed: false,
             };
 
@@ -72,8 +74,6 @@ export default function AddConversation() {
 
             // set right view to chat
             setSelectedRightView(RightViewSelected.Chat);
-
-            const newContact = await addConversation(aliasName);
             if (!newContact) {
                 //Maybe show a message that its not possible to add the users address as a contact
                 setShowAddConversationModal(false);
@@ -171,7 +171,7 @@ export default function AddConversation() {
                                     )}
                                     type="text"
                                     placeholder="Enter the name or address of the contact"
-                                    value={name}
+                                    value={tldName}
                                     onChange={(
                                         e: React.ChangeEvent<HTMLInputElement>,
                                     ) => handleNameChange(e)}
@@ -188,10 +188,12 @@ export default function AddConversation() {
                         </div>
                         <div>
                             <button
-                                disabled={!name || !name.length || showError}
+                                disabled={
+                                    !tldName || !tldName.length || showError
+                                }
                                 className={'add-btn font-weight-400 font-size-12 border-radius-4 line-height-24'.concat(
                                     ' ',
-                                    !name || !name.length || showError
+                                    !tldName || !tldName.length || showError
                                         ? 'modal-btn-disabled'
                                         : 'modal-btn-active',
                                 )}

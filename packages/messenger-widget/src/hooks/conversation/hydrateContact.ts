@@ -48,6 +48,7 @@ const _fetchContactPreview = async (
     return {
         //display name, if alias is not defined the addr ens name will be used
         name: await resolveAliasToTLD(contact.account.ensName),
+        contactTldNames: conversation.contactTldNames,
         message: conversation.previewMessage?.envelop.message.message,
         image: await getAvatarProfilePic(
             provider,
@@ -67,6 +68,7 @@ const _fetchAccount = async (
 ): Promise<Account> => {
     //At first we've to normalize the ENS names
     const normalizedContractName = normalizeEnsName(contact);
+    //TODO check if conversation has alias attached. If so use them first to retrive profile
 
     //Then we've to fetch the UserProfile
     try {

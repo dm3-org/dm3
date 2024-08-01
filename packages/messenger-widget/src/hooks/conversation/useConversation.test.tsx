@@ -352,6 +352,7 @@ describe('useConversation hook test cases', () => {
                             return {
                                 //Use offset here to create a distinct contactEnsName
                                 contactEnsName: 'contact ' + i + offset,
+                                contactTldNames: [],
                                 isHidden: false,
                                 previewMessage: undefined,
                                 updatedAt: 0,
@@ -422,6 +423,7 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: 'max.eth',
+                            contactTldNames: [],
                             previewMessage: undefined,
                             isHidden: false,
                             updatedAt: 0,
@@ -488,12 +490,14 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: 'max.eth',
+                            contactTldNames: [],
                             isHidden: false,
                             previewMessage: undefined,
                             updatedAt: 0,
                         },
                         {
                             contactEnsName: 'bob.eth',
+                            contactTldNames: [],
                             previewMessage: {
                                 envelop: {
                                     message: {
@@ -580,6 +584,7 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: 'max.eth',
+                            contactTldNames: [],
                             isHidden: false,
                             previewMessage: undefined,
                             updatedAt: 0,
@@ -665,12 +670,14 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: 'max.eth',
+                            contactTldNames: [],
                             isHidden: false,
                             previewMessage: undefined,
                             updatedAt: 0,
                         },
                         {
                             contactEnsName: 'mydefaultcontract.eth',
+                            contactTldNames: [],
                             isHidden: false,
                             previewMessage: undefined,
                             updatedAt: 0,
@@ -756,18 +763,21 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: 'ron.eth',
+                            contactTldNames: [],
                             isHidden: true,
                             previewMessage: undefined,
                             updatedAt: 0,
                         },
                         {
                             contactEnsName: 'max.eth',
+                            contactTldNames: [],
                             isHidden: false,
                             previewMessage: undefined,
                             updatedAt: 0,
                         },
                         {
                             contactEnsName: 'mydefaultcontract.eth',
+                            contactTldNames: [],
                             isHidden: false,
                             previewMessage: undefined,
                             updatedAt: 0,
@@ -856,6 +866,7 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: 'max.eth',
+                            contactTldNames: [],
                             isHidden: false,
                             previewMessage: undefined,
                             updatedAt: 0,
@@ -981,6 +992,7 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: sender.account.ensName,
+                            contactTldNames: [],
                             isHidden: false,
                             previewMessage: undefined,
                             updatedAt: 0,
@@ -1093,6 +1105,7 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: sender.account.ensName,
+                            contactTldNames: [],
                             isHidden: false,
                             previewMessage: undefined,
                             updatedAt: 0,
@@ -1187,12 +1200,14 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: 'max.eth',
+                            contactTldNames: [],
                             previewMessage: undefined,
                             isHidden: false,
                             updatedAt: new Date().getTime(),
                         },
                         {
                             contactEnsName: 'horo.eth',
+                            contactTldNames: [],
                             previewMessage: undefined,
                             isHidden: false,
                             updatedAt: new Date().getTime() + 2000,
@@ -1260,12 +1275,14 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: 'max.eth',
+                            contactTldNames: [],
                             previewMessage: undefined,
                             isHidden: false,
                             updatedAt: 0,
                         },
                         {
                             contactEnsName: 'horo.eth',
+                            contactTldNames: [],
                             previewMessage: undefined,
                             isHidden: false,
                             updatedAt: 0,
@@ -1342,6 +1359,7 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: 'max.eth',
+                            contactTldNames: [],
                             previewMessage: undefined,
                             isHidden: false,
                             updatedAt: 0,
