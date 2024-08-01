@@ -83,11 +83,14 @@ export const getCloudStorage = (
                     message.encryptedEnvelopContainer,
                 );
 
-                return JSON.parse(decryptedEnvelopContainer);
+                return {
+                    ...JSON.parse(decryptedEnvelopContainer),
+                    messageId: message.messageId,
+                };
             }),
         );
 
-        return decryptedMessages as StorageEnvelopContainer[];
+        return decryptedMessages;
     };
 
     const clearHaltedMessages = async (

@@ -31,6 +31,15 @@ export const useHaltDelivery = () => {
         // Fetch all messages the user has halted. Then check if they can be delivered now.
         const handleHaltedMessages = async () => {
             const haltedMessages = await getHaltedMessages();
+
+            const msgMap = new Map<string, string>();
+
+            // Map to store messageIds so that it can be used to clear the messages,
+            // once the messages are sent to receiver's delivery service
+            haltedMessages.map((h) => {
+                msgMap.set(h.envelop.message.signature, h.messageId);
+            });
+
             //Get all recipients of the halted messages
             const recipients = Array.from(
                 new Set(
@@ -39,6 +48,7 @@ export const useHaltDelivery = () => {
                     ),
                 ),
             );
+
             //Resolve the  tldNames to their aliases
             const resolvedAliases = await Promise.all(
                 recipients.map(async (ensName) => ({
@@ -145,8 +155,13 @@ export const useHaltDelivery = () => {
 
             await submitEnvelopsToReceiversDs(dispatchableEnvelops);
 
+            // delete the halted messages with messageId
             dispatchableEnvelops.map((envelop) => {
-                clearHaltedMessages(envelop.haltedEnvelopId, envelop.aliasName);
+                // fetch the messageId from message signature
+                if (envelop.envelop.metadata?.signature) {
+                    const msgId = msgMap.get(envelop.envelop.message.signature);
+                    clearHaltedMessages(msgId as string, envelop.aliasName);
+                }
             });
         };
 
