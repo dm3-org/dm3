@@ -32,14 +32,6 @@ export const useHaltDelivery = () => {
         const handleHaltedMessages = async () => {
             const haltedMessages = await getHaltedMessages();
 
-            const msgMap = new Map<string, string>();
-
-            // Map to store messageIds so that it can be used to clear the messages,
-            // once the messages are sent to receiver's delivery service
-            haltedMessages.map((h) => {
-                msgMap.set(h.envelop.message.signature, h.messageId);
-            });
-
             //Get all recipients of the halted messages
             const recipients = Array.from(
                 new Set(
@@ -134,9 +126,7 @@ export const useHaltDelivery = () => {
                                             );
                                         return {
                                             //To clear the envelop that has been used to store the halted message
-                                            haltedEnvelopId:
-                                                message.envelop.metadata
-                                                    ?.encryptedMessageHash!,
+                                            haltedEnvelopId: message.messageId,
                                             ...dispatchableEnvelop,
                                             //we keep the alias name for the receiver. In case it differes from the ensName
                                             aliasName:
@@ -155,13 +145,9 @@ export const useHaltDelivery = () => {
 
             await submitEnvelopsToReceiversDs(dispatchableEnvelops);
 
-            // delete the halted messages with messageId
+            // clear the halted messages as those are sent
             dispatchableEnvelops.map((envelop) => {
-                // fetch the messageId from message signature
-                if (envelop.envelop.metadata?.signature) {
-                    const msgId = msgMap.get(envelop.envelop.message.signature);
-                    clearHaltedMessages(msgId as string, envelop.aliasName);
-                }
+                clearHaltedMessages(envelop.haltedEnvelopId, envelop.aliasName);
             });
         };
 
