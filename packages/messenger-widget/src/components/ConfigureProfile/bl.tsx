@@ -131,10 +131,10 @@ export const fetchExistingDM3Name = async (
                 mainnetProvider,
                 addrEnsSubdomain,
                 userEnsSubdomain,
+                resolverBackendUrl,
             );
             const dm3Name = await dm3NameService.resolveAliasToTLD(
                 account.ensName,
-                resolverBackendUrl,
             );
             // Not a DM3 name -> 0xa966.beta-addr.dm3.eth
             // Its DM3 name -> bob.beta-user.dm3.eth
