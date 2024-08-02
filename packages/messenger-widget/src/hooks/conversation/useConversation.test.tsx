@@ -26,7 +26,7 @@ import {
     StorageContext,
     StorageContextType,
 } from '../../context/StorageContext';
-import { TLDContext } from '../../context/TLDContext';
+import { TLDContext, TLDContextProvider } from '../../context/TLDContext';
 import { getMockedAuthContext } from '../../context/testHelper/getMockedAuthContext';
 import { getMockedDeliveryServiceContext } from '../../context/testHelper/getMockedDeliveryServiceContext';
 import {
@@ -110,16 +110,24 @@ describe('useConversation hook test cases', () => {
                     isInitialized: true,
                 });
 
+            const tldContext = getMockedTldContext({
+                resolveTLDtoAlias: async (alias: string) => {
+                    return CONTACT_NAME;
+                },
+            });
+
             const wrapper = ({ children }: { children: any }) => (
                 <>
                     <AuthContext.Provider value={authContext}>
-                        <StorageContext.Provider value={storageContext}>
-                            <DeliveryServiceContext.Provider
-                                value={deliveryServiceContext}
-                            >
-                                {children}
-                            </DeliveryServiceContext.Provider>
-                        </StorageContext.Provider>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <DeliveryServiceContext.Provider
+                                    value={deliveryServiceContext}
+                                >
+                                    {children}
+                                </DeliveryServiceContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
                     </AuthContext.Provider>
                 </>
             );
@@ -172,16 +180,24 @@ describe('useConversation hook test cases', () => {
                     isInitialized: true,
                 });
 
+            const tldContext = getMockedTldContext({
+                resolveTLDtoAlias: async (alias: string) => {
+                    return CONTACT_NAME;
+                },
+            });
+
             const wrapper = ({ children }: { children: any }) => (
                 <>
                     <AuthContext.Provider value={authContext}>
-                        <StorageContext.Provider value={storageContext}>
-                            <DeliveryServiceContext.Provider
-                                value={deliveryServiceContext}
-                            >
-                                {children}
-                            </DeliveryServiceContext.Provider>
-                        </StorageContext.Provider>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <DeliveryServiceContext.Provider
+                                    value={deliveryServiceContext}
+                                >
+                                    {children}
+                                </DeliveryServiceContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
                     </AuthContext.Provider>
                 </>
             );
@@ -239,16 +255,24 @@ describe('useConversation hook test cases', () => {
                     isInitialized: true,
                 });
 
+            const tldContext = getMockedTldContext({
+                resolveTLDtoAlias: async (alias: string) => {
+                    return CONTACT_NAME;
+                },
+            });
+
             const wrapper = ({ children }: { children: any }) => (
                 <>
                     <AuthContext.Provider value={authContext}>
-                        <StorageContext.Provider value={storageContext}>
-                            <DeliveryServiceContext.Provider
-                                value={deliveryServiceContext}
-                            >
-                                {children}
-                            </DeliveryServiceContext.Provider>
-                        </StorageContext.Provider>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <DeliveryServiceContext.Provider
+                                    value={deliveryServiceContext}
+                                >
+                                    {children}
+                                </DeliveryServiceContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
                     </AuthContext.Provider>
                 </>
             );
@@ -298,16 +322,24 @@ describe('useConversation hook test cases', () => {
                     isInitialized: true,
                 });
 
+            const tldContext = getMockedTldContext({
+                resolveTLDtoAlias: async (alias: string) => {
+                    return CONTACT_NAME;
+                },
+            });
+
             const wrapper = ({ children }: { children: any }) => (
                 <>
                     <AuthContext.Provider value={authContext}>
-                        <StorageContext.Provider value={storageContext}>
-                            <DeliveryServiceContext.Provider
-                                value={deliveryServiceContext}
-                            >
-                                {children}
-                            </DeliveryServiceContext.Provider>
-                        </StorageContext.Provider>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <DeliveryServiceContext.Provider
+                                    value={deliveryServiceContext}
+                                >
+                                    {children}
+                                </DeliveryServiceContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
                     </AuthContext.Provider>
                 </>
             );
@@ -887,16 +919,24 @@ describe('useConversation hook test cases', () => {
                     isInitialized: true,
                 });
 
+            const tldContext = getMockedTldContext({
+                resolveTLDtoAlias: async (alias: string) => {
+                    return alias;
+                },
+            });
+
             const wrapper = ({ children }: { children: any }) => (
                 <>
                     <AuthContext.Provider value={authContext}>
-                        <StorageContext.Provider value={storageContext}>
-                            <DeliveryServiceContext.Provider
-                                value={deliveryServiceContext}
-                            >
-                                {children}
-                            </DeliveryServiceContext.Provider>
-                        </StorageContext.Provider>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <DeliveryServiceContext.Provider
+                                    value={deliveryServiceContext}
+                                >
+                                    {children}
+                                </DeliveryServiceContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
                     </AuthContext.Provider>
                 </>
             );
@@ -951,16 +991,36 @@ describe('useConversation hook test cases', () => {
                     isInitialized: true,
                 });
 
+            const tldContext = getMockedTldContext({
+                resolveTLDtoAlias: async (alias: string) => {
+                    if (alias === 'bob.eth') {
+                        return 'bob.eth';
+                    }
+                    if (alias === 'liza.eth') {
+                        return 'liza.eth';
+                    }
+                    if (alias === 'heroku.eth') {
+                        return 'heroku.eth';
+                    }
+                    if (alias === 'samar.eth') {
+                        return 'samar.eth';
+                    }
+                    return alias;
+                },
+            });
+
             const wrapper = ({ children }: { children: any }) => (
                 <>
                     <AuthContext.Provider value={authContext}>
-                        <StorageContext.Provider value={storageContext}>
-                            <DeliveryServiceContext.Provider
-                                value={deliveryServiceContext}
-                            >
-                                {children}
-                            </DeliveryServiceContext.Provider>
-                        </StorageContext.Provider>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <DeliveryServiceContext.Provider
+                                    value={deliveryServiceContext}
+                                >
+                                    {children}
+                                </DeliveryServiceContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
                     </AuthContext.Provider>
                 </>
             );
@@ -1380,16 +1440,24 @@ describe('useConversation hook test cases', () => {
                     isInitialized: true,
                 });
 
+            const tldContext = getMockedTldContext({
+                resolveTLDtoAlias: async (alias: string) => {
+                    return 'bob.eth';
+                },
+            });
+
             const wrapper = ({ children }: { children: any }) => (
                 <>
                     <AuthContext.Provider value={authContext}>
-                        <StorageContext.Provider value={storageContext}>
-                            <DeliveryServiceContext.Provider
-                                value={deliveryServiceContext}
-                            >
-                                {children}
-                            </DeliveryServiceContext.Provider>
-                        </StorageContext.Provider>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <DeliveryServiceContext.Provider
+                                    value={deliveryServiceContext}
+                                >
+                                    {children}
+                                </DeliveryServiceContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
                     </AuthContext.Provider>
                 </>
             );

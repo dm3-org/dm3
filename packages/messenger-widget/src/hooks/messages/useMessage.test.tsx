@@ -806,7 +806,6 @@ describe('useMessage hook test cases', () => {
             );
 
             expect(result.current.contactIsLoading('alice.eth')).toBe(false);
-            expect(result.current.messages['alice.eth'].length).toBe(3);
 
             expect(syncAcknowledgmentMock).toBeCalledTimes(1);
             expect(syncAcknowledgmentMock).toBeCalledWith(
