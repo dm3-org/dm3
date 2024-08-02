@@ -6,7 +6,7 @@ export const addConversation =
     async (
         ensName: string,
         contactName: string,
-        encryptedContactTLDName: string,
+        encryptedProfileLocation: string,
     ) => {
         try {
             const account = await getOrCreateAccount(db, ensName);
@@ -14,7 +14,7 @@ export const addConversation =
                 db,
                 account.id,
                 contactName,
-                encryptedContactTLDName,
+                encryptedProfileLocation,
             );
             return true;
         } catch (e) {

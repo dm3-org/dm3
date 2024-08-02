@@ -57,12 +57,12 @@ export const useBackend = (): IBackendConnector & {
         addConversation: (
             ensName: string,
             encryptedContactName: string,
-            encryptedContactTLDName: string,
+            encryptedProfileLocation: string,
         ) => {
             beConnector?.addConversation(
                 ensName,
                 encryptedContactName,
-                encryptedContactTLDName,
+                encryptedProfileLocation,
             );
         },
         getConversations: async (

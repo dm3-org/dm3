@@ -307,7 +307,7 @@ describe('useMessage hook test cases', () => {
                 contacts: [
                     {
                         name: '',
-                        contactTldNames: [],
+                        contactProfileLocation: [],
                         message: '',
                         image: 'human.svg',
                         contactDetails: {
@@ -416,7 +416,7 @@ describe('useMessage hook test cases', () => {
                 contacts: [
                     {
                         name: '',
-                        contactTldNames: [],
+                        contactProfileLocation: [],
                         message: '',
                         image: 'human.svg',
                         contactDetails: {

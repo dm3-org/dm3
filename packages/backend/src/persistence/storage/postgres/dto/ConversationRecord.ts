@@ -6,5 +6,5 @@ export type ConversationRecord = {
     //The time the conversation was last updated
     updatedAt: Date;
     //This field can be used by the client to store information about the contacts TLD name
-    encryptedContactTLDName: string;
+    encryptedProfileLocation: string;
 };

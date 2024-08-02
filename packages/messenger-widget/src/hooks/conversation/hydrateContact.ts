@@ -48,7 +48,7 @@ const _fetchContactPreview = async (
     return {
         //display name, if alias is not defined the addr ens name will be used
         name: await resolveAliasToTLD(contact.account.ensName),
-        contactTldNames: conversation.contactTldNames,
+        contactProfileLocation: conversation.contactProfileLocation,
         message: conversation.previewMessage?.envelop.message.message,
         image: await getAvatarProfilePic(
             provider,

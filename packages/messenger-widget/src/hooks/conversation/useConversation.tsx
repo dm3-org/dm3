@@ -135,7 +135,7 @@ export const useConversation = (config: DM3Configuration) => {
                 //I there are no conversations yet we add the default contact
                 const defaultConversation: Conversation = {
                     contactEnsName: normalizeEnsName(aliasName!),
-                    contactTldNames: [defaultContactTldName],
+                    contactProfileLocation: [defaultContactTldName],
                     previewMessage: undefined,
                     isHidden: false,
                     updatedAt: new Date().getTime(),
@@ -194,7 +194,7 @@ export const useConversation = (config: DM3Configuration) => {
         const aliasName = await resolveTLDtoAlias(contactTldName);
         const newConversation: Conversation = {
             contactEnsName: aliasName,
-            contactTldNames: [contactTldName], //(ID)
+            contactProfileLocation: [contactTldName], //(ID)
             isHidden: false,
             previewMessage: undefined,
             updatedAt: new Date().getTime(),
@@ -233,7 +233,7 @@ export const useConversation = (config: DM3Configuration) => {
     const hydrateExistingContactAsync = async (contact: ContactPreview) => {
         const conversation: Conversation = {
             contactEnsName: contact.contactDetails.account.ensName,
-            contactTldNames: contact.contactTldNames,
+            contactProfileLocation: contact.contactProfileLocation,
             previewMessage: undefined,
             isHidden: contact.isHidden,
             updatedAt: contact.updatedAt,
@@ -343,7 +343,7 @@ export const useConversation = (config: DM3Configuration) => {
             previewMessage,
             conversation.isHidden,
             conversation.updatedAt,
-            conversation.contactTldNames,
+            conversation.contactProfileLocation,
         );
         //Set the new contact to the list
         _setContactsSafe([newContact]);

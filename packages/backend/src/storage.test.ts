@@ -150,7 +150,7 @@ describe('Storage', () => {
             expect(body[0].contact).toEqual(aliceId);
             expect(body.length).toBe(1);
         });
-        it('can add conversation with encryptedContactTLDName', async () => {
+        it('can add conversation with encryptedProfileLocation', async () => {
             const aliceId = 'alice.eth';
 
             const { status } = await request(app)
@@ -160,7 +160,7 @@ describe('Storage', () => {
                 })
                 .send({
                     encryptedContactName: aliceId,
-                    encryptedContactTLDName: '123',
+                    encryptedProfileLocation: '123',
                 });
             expect(status).toBe(200);
 
@@ -173,7 +173,7 @@ describe('Storage', () => {
 
             expect(status).toBe(200);
             expect(body[0].contact).toEqual(aliceId);
-            expect(body[0].encryptedContactTLDName).toEqual('123');
+            expect(body[0].encryptedProfileLocation).toEqual('123');
             expect(body.length).toBe(1);
         });
         it('handle duplicates add conversation', async () => {

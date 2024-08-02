@@ -4,7 +4,7 @@ export const getOrCreateConversation = async (
     db: PrismaClient,
     accountId: string,
     encryptedContactName: string,
-    encryptedContactTLDName: string = '',
+    encryptedProfileLocation: string = '',
 ) => {
     //Check if conversation already exists
     const conversation = await db.conversation.findFirst({
@@ -21,7 +21,7 @@ export const getOrCreateConversation = async (
     return await db.conversation.create({
         data: {
             accountId,
-            encryptedContactTLDName,
+            encryptedProfileLocation,
             encryptedContactName,
             //Internal field to order conversations properly
             //Will set whenever a conversation is created or a message is added

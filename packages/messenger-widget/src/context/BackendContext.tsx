@@ -7,7 +7,7 @@ export type BackendContextType = {
     addConversation: (
         ensName: string,
         encryptedContactName: string,
-        encryptedContactTLDName: string,
+        encryptedProfileLocation: string,
     ) => void;
     getConversations: (
         ensName: string,
@@ -16,7 +16,7 @@ export type BackendContextType = {
     ) => Promise<
         {
             contact: string;
-            encryptedContactTLDName: string;
+            encryptedProfileLocation: string;
             previewMessage: string;
             updatedAt: Date;
         }[]

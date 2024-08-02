@@ -10,21 +10,21 @@ export const getCloudStorage = (
 ): StorageAPI => {
     const _addConversation = async (
         contactEnsName: string,
-        contactTldNames: string[],
+        contactProfileLocation: string[],
     ) => {
         const encryptedContactName = await encryption.encryptSync(
             contactEnsName,
         );
 
-        const encryptedContactTLDName = await encryption.encryptSync(
-            JSON.stringify(contactTldNames),
+        const encryptedProfileLocation = await encryption.encryptSync(
+            JSON.stringify(contactProfileLocation),
         );
 
-        console.log('add contact ', contactEnsName, contactTldNames);
+        console.log('add contact ', contactEnsName, contactProfileLocation);
         return await backendConnector.addConversation(
             ensName,
             encryptedContactName,
-            encryptedContactTLDName,
+            encryptedProfileLocation,
         );
     };
 
@@ -39,20 +39,20 @@ export const getCloudStorage = (
             conversations.map(
                 async ({
                     contact,
-                    encryptedContactTLDName,
+                    encryptedProfileLocation,
                     previewMessage,
                     updatedAt,
                 }: {
                     contact: string;
-                    encryptedContactTLDName: string;
+                    encryptedProfileLocation: string;
                     previewMessage: string | null;
                     updatedAt: Date;
                 }) => ({
                     contactEnsName: await encryption.decryptSync(contact),
-                    contactTldNames: encryptedContactTLDName
+                    contactProfileLocation: encryptedProfileLocation
                         ? JSON.parse(
                               await encryption.decryptSync(
-                                  encryptedContactTLDName,
+                                  encryptedProfileLocation,
                               ),
                           )
                         : [],
