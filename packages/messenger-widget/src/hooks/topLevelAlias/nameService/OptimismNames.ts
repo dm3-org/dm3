@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { ITLDResolver } from './TLDResolver';
+import { ITLDResolver } from './ITLDResolver';
 
 const TOP_LEVEL_DOMAIN = '.op.dm3.eth';
 const EVM_FETCHER_CONTRACT_ADDRESS =

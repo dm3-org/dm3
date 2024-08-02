@@ -1,4 +1,4 @@
-import { ITLDResolver } from './TLDResolver';
+import { ITLDResolver } from './ITLDResolver';
 import { ethers } from 'ethers';
 
 function getIdForAddress(address: string, addrEnsSubdomain: string) {
