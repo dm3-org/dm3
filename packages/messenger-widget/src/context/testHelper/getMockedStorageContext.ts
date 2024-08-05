@@ -1,6 +1,7 @@
 import {
     StorageEnvelopContainer,
     Conversation,
+    HaltedStorageEnvelopContainer,
 } from '@dm3-org/dm3-lib-storage';
 import { StorageContextType } from '../StorageContext';
 
@@ -56,7 +57,9 @@ export const getMockedStorageContext = (
         ): Promise<StorageEnvelopContainer[]> {
             throw new Error('Function not implemented.');
         },
-        getHaltedMessages: function (): Promise<any[]> {
+        getHaltedMessages: function (): Promise<
+            HaltedStorageEnvelopContainer[]
+        > {
             throw new Error('Function not implemented.');
         },
         clearHaltedMessages: function (
