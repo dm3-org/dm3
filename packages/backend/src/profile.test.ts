@@ -13,6 +13,7 @@ import request from 'supertest';
 import { IBackendDatabase } from './persistence/getDatabase';
 import profile from './profile';
 import storage from './storage';
+import { mockUserProfile } from '@dm3-org/dm3-lib-test-helper';
 
 // todo: create a web3 provider mock that returns a resolver and that thren returns a text when the respective functions
 // are called
@@ -55,15 +56,41 @@ describe('Profile', () => {
 
             const db = await createDbMock();
 
+            // const expectedUserProfile: UserProfile = {
+            //     publicSigningKey:
+            //         '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
+            //     publicEncryptionKey:
+            //         'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
+            //     deliveryServices: [],
+            // };
+
+            const user = await mockUserProfile(
+                ethers.Wallet.createRandom(),
+                'alice.eth',
+                ['ds1.eth', 'ds2.eth'],
+            );
+            const expectedUserProfile = user.signedUserProfile;
+            const userAddress = user.wallet.address;
+
+            const mockGetEnsResolver = (_: string) =>
+                Promise.resolve({
+                    getText: (_: string) =>
+                        Promise.resolve(
+                            'data:application/json,' +
+                                stringify(expectedUserProfile),
+                        ),
+                });
+
             const _web3Provider = {
-                resolveName: async () =>
-                    '0x95222290DD7278Aa3Ddd389Cc1E1d165CC4BAfe5',
-            };
+                getResolver: mockGetEnsResolver,
+                resolveName: async () => userAddress,
+            } as unknown as ethers.providers.StaticJsonRpcProvider;
+
             // I don't know why this function is needed in this test.
             // Remove it after storage migration.
             db.getUserStorage = () => {};
-            app.use(storage(db, _web3Provider as any, serverSecret));
-            setUpApp(app, db, web3ProviderMock);
+            app.use(storage(db, _web3Provider, serverSecret));
+            setUpApp(app, db, _web3Provider);
 
             const response = await request(app)
                 .get('/alice.eth')
