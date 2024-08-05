@@ -13,10 +13,6 @@ describe('Set Account', () => {
         db = await getDatabase(prismaClient);
     });
 
-    afterEach(async () => {
-        // todo: flush or anything else to clear the database?
-    });
-
     it('Creates a new Account ', async () => {
         const profile: UserProfile = {
             publicEncryptionKey: '',
