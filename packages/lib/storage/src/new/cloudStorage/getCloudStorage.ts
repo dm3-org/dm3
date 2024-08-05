@@ -1,6 +1,11 @@
 import { IBackendConnector } from '@dm3-org/dm3-lib-shared';
 import { MessageRecord } from '../chunkStorage/ChunkStorageTypes';
-import { Encryption, StorageAPI, StorageEnvelopContainer } from '../types';
+import {
+    Encryption,
+    HaltedStorageEnvelopContainer,
+    StorageAPI,
+    StorageEnvelopContainer,
+} from '../types';
 //getCloudStorages is the interface to the cloud storage.
 //It encrypts and decrypts the data before sending/reciving it to/from the cloud storage of the DM3 backend
 export const getCloudStorage = (
@@ -83,11 +88,14 @@ export const getCloudStorage = (
                     message.encryptedEnvelopContainer,
                 );
 
-                return JSON.parse(decryptedEnvelopContainer);
+                return {
+                    ...JSON.parse(decryptedEnvelopContainer),
+                    messageId: message.messageId,
+                } as HaltedStorageEnvelopContainer;
             }),
         );
 
-        return decryptedMessages as StorageEnvelopContainer[];
+        return decryptedMessages;
     };
 
     const clearHaltedMessages = async (
