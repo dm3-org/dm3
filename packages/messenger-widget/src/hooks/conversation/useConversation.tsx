@@ -163,6 +163,7 @@ export const useConversation = (config: DM3Configuration) => {
         return (
             incommingMessages
                 .map((pendingMessage: EncryptionEnvelop) => {
+                    //TODO might be necessary to resolve alias
                     const contactEnsName = (
                         pendingMessage.metadata
                             .deliveryInformation as DeliveryInformation
@@ -270,17 +271,19 @@ export const useConversation = (config: DM3Configuration) => {
         conversation: string,
         updatedAt: number,
     ) => {
-        const newContactList = contacts.map((contact) => {
-            if (contact.contactDetails.account.ensName === conversation) {
-                return {
-                    ...contact,
-                    updatedAt: updatedAt,
-                };
-            }
-            return contact;
+        setContacts((prev) => {
+            const newContactList = prev.map((contact) => {
+                if (contact.contactDetails.account.ensName === conversation) {
+                    return {
+                        ...contact,
+                        updatedAt: updatedAt,
+                    };
+                }
+                return contact;
+            });
+            // Sort's the contact list in DESC order based on updatedAt property
+            return newContactList.sort((a, b) => b.updatedAt - a.updatedAt);
         });
-        // Sort's the contact list in DESC order based on updatedAt property
-        setContacts(newContactList.sort((a, b) => b.updatedAt - a.updatedAt));
     };
 
     const _toggleHideContact = (_ensName: string, isHidden: boolean) => {

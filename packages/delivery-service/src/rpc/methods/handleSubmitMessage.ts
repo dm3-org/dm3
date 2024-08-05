@@ -1,16 +1,17 @@
-import {
-    incomingMessage,
-    DeliveryServiceProperties,
-} from '@dm3-org/dm3-lib-delivery';
+import { DeliveryServiceProperties } from '@dm3-org/dm3-lib-delivery';
 import { EncryptionEnvelop, schema } from '@dm3-org/dm3-lib-messaging';
-import { validateSchema, logError } from '@dm3-org/dm3-lib-shared';
+import { DeliveryServiceProfileKeys } from '@dm3-org/dm3-lib-profile';
+import {
+    IWebSocketManager,
+    logError,
+    validateSchema,
+} from '@dm3-org/dm3-lib-shared';
 import 'dotenv/config';
+import { ethers } from 'ethers';
 import express from 'express';
 import { Server } from 'socket.io';
+import { MessageProcessor } from '../../message/MessageProcessor';
 import { IDatabase } from '../../persistence/getDatabase';
-import { ethers } from 'ethers';
-import { DeliveryServiceProfileKeys } from '@dm3-org/dm3-lib-profile';
-import { IWebSocketManager } from '@dm3-org/dm3-lib-shared';
 
 export async function handleSubmitMessage(
     req: express.Request,
@@ -56,34 +57,22 @@ export async function handleSubmitMessage(
         return res.status(400).send({ error });
     }
 
+    const messageProcessor = new MessageProcessor(
+        db,
+        web3Provider,
+        webSocketManager,
+        deliveryServiceProperties,
+        keys,
+        (socketId: string, envelop: EncryptionEnvelop) => {
+            io.sockets.to(socketId).emit('message', envelop);
+        },
+    );
+
     try {
-        await incomingMessage(
-            envelop,
-            keys.signingKeyPair,
-            keys.encryptionKeyPair,
-            deliveryServiceProperties.sizeLimit,
-            deliveryServiceProperties.notificationChannel,
-            db.getAccount,
-            db.createMessage,
-            (socketId: string, envelop: EncryptionEnvelop) => {
-                io.sockets.to(socketId).emit('message', envelop);
-            },
-            web3Provider,
-            db.getIdEnsName,
-            db.getUsersNotificationChannels,
-            webSocketManager,
-        );
+        await messageProcessor.processEnvelop(envelop);
         res.send(200);
     } catch (error) {
-        global.logger.warn({
-            method: 'RPC SUBMIT MESSAGE',
-            error: JSON.stringify(error),
-        });
-        logError({
-            text: '[handleSubmitMessage]',
-            error,
-        });
-        console.log('handle submit message error');
+        console.error('handle submit message error');
         console.error(error);
 
         return res.status(400).send();

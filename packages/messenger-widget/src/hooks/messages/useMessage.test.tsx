@@ -27,6 +27,7 @@ import { getMockedTldContext } from '../../context/testHelper/getMockedTldContex
 import { getEmptyContact } from '../../interfaces/utils';
 import { DM3Configuration } from '../../widget';
 import { useMessage } from './useMessage';
+import { stringify } from '@dm3-org/dm3-lib-shared';
 
 describe('useMessage hook test cases', () => {
     const CONTACT_NAME = 'user.dm3.eth';
@@ -494,6 +495,8 @@ describe('useMessage hook test cases', () => {
     describe('initialize message', () => {
         let sender: MockedUserProfile;
         let receiver: MockedUserProfile;
+        let rando: MockedUserProfile;
+
         let ds: any;
 
         beforeEach(async () => {
@@ -506,6 +509,11 @@ describe('useMessage hook test cases', () => {
                 ethers.Wallet.createRandom(),
                 'bob.eth',
                 ['https://example.com'],
+            );
+            rando = await mockUserProfile(
+                ethers.Wallet.createRandom(),
+                'rando.eth',
+                ['ds1.eth'],
             );
             ds = await getMockDeliveryServiceProfile(
                 ethers.Wallet.createRandom(),
@@ -678,8 +686,131 @@ describe('useMessage hook test cases', () => {
                     result.current.messages['alice.eth'].length > 0,
             );
 
+            // Filter out the acknowledgment messages
+            const sentMsgs = result.current.messages['alice.eth'].filter(
+                (data) =>
+                    data.envelop.message.metadata.type !== 'READ_RECEIVED',
+            );
+
             expect(result.current.contactIsLoading('alice.eth')).toBe(false);
-            expect(result.current.messages['alice.eth'].length).toBe(3);
+            expect(sentMsgs.length).toBe(3);
+        });
+        it('should only ackknowledge messages the client was able to decrypt ', async () => {
+            const messageFactory = MockMessageFactory(sender, receiver, ds);
+            const message1 = await messageFactory.createEncryptedEnvelop(
+                'hello dm3',
+            );
+            const message2 = await messageFactory.createEncryptedEnvelop(
+                'hello world',
+            );
+            const message3 = await messageFactory.createEncryptedEnvelop(
+                'hello bob',
+            );
+            //use this to create a message that the client can't decrypt
+            const foreignMessageFactory = MockMessageFactory(sender, rando, ds);
+
+            const foreignMessage =
+                await foreignMessageFactory.createEncryptedEnvelop(
+                    'this message is not encryptable',
+                );
+
+            const syncAcknowledgmentMock = jest.fn();
+
+            const storageContext = getMockedStorageContext({
+                editMessageBatchAsync: jest.fn(),
+                storeMessageBatch: jest.fn(),
+                storeMessage: jest.fn(),
+                getMessages: jest.fn().mockResolvedValue([]),
+                getNumberOfMessages: jest.fn().mockResolvedValue(0),
+            });
+            const conversationContext = getMockedConversationContext({
+                selectedContact: getEmptyContact(
+                    'max.eth',
+                    undefined,
+                    false,
+                    0,
+                ),
+                contacts: [getEmptyContact('alice.eth', undefined, false, 0)],
+            });
+            const deliveryServiceContext = getMockedDeliveryServiceContext({
+                onNewMessage: (cb: Function) => {
+                    console.log('on new message');
+                },
+                fetchNewMessages: jest
+                    .fn()
+                    .mockResolvedValue([
+                        message1,
+                        foreignMessage,
+                        message2,
+                        message3,
+                    ]),
+                syncAcknowledgment: syncAcknowledgmentMock,
+                removeOnNewMessageListener: jest.fn(),
+            });
+            const authContext = getMockedAuthContext({
+                profileKeys: receiver.profileKeys,
+                account: {
+                    ensName: 'bob.eth',
+                    profile: {
+                        deliveryServices: ['ds.eth'],
+                        publicEncryptionKey: '',
+                        publicSigningKey: '',
+                    },
+                },
+            });
+            const tldContext = getMockedTldContext({});
+
+            const wrapper = ({ children }: { children: any }) => (
+                <>
+                    <AuthContext.Provider value={authContext}>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <ConversationContext.Provider
+                                    value={conversationContext}
+                                >
+                                    <DeliveryServiceContext.Provider
+                                        value={deliveryServiceContext}
+                                    >
+                                        {children}
+                                    </DeliveryServiceContext.Provider>
+                                </ConversationContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
+                    </AuthContext.Provider>
+                </>
+            );
+
+            const { result } = renderHook(() => useMessage(), {
+                wrapper,
+            });
+            //Wait until bobs messages have been initialized
+            await waitFor(
+                () =>
+                    result.current.contactIsLoading('alice.eth') === false &&
+                    result.current.messages['alice.eth'].length > 0,
+            );
+
+            console.log(stringify(result.current.messages['alice.eth']));
+            expect(result.current.contactIsLoading('alice.eth')).toBe(false);
+
+            expect(syncAcknowledgmentMock).toBeCalledTimes(1);
+            expect(syncAcknowledgmentMock).toBeCalledWith(
+                receiver.account.ensName,
+                [
+                    {
+                        contactAddress: sender.account.ensName,
+                        messageHash: message1.metadata.encryptedMessageHash,
+                    },
+                    {
+                        contactAddress: sender.account.ensName,
+                        messageHash: message2.metadata.encryptedMessageHash,
+                    },
+                    {
+                        contactAddress: sender.account.ensName,
+                        messageHash: message3.metadata.encryptedMessageHash,
+                    },
+                ],
+            );
         });
     });
     describe('message pagination', () => {
@@ -885,9 +1016,16 @@ describe('useMessage hook test cases', () => {
                     result.current.messages['alice.eth'].length > 0,
             );
 
+            // Filter out the acknowledgment messages
+            const sentMsgs = result.current.messages['alice.eth'].filter(
+                (data) =>
+                    data.envelop.message.metadata.type !== 'READ_RECEIVED',
+            );
+
             expect(result.current.contactIsLoading('alice.eth')).toBe(false);
+
             //Initial message number would be storage(100) = Ds (13) == 113
-            expect(result.current.messages['alice.eth'].length).toBe(113);
+            expect(sentMsgs.length).toBe(113);
 
             await act(async () => result.current.loadMoreMessages('alice.eth'));
 
@@ -898,11 +1036,17 @@ describe('useMessage hook test cases', () => {
                     result.current.messages['alice.eth'].length > 133,
             );
 
+            // Filter out the acknowledgment messages
+            const moreSentMsgs = result.current.messages['alice.eth'].filter(
+                (data) =>
+                    data.envelop.message.metadata.type !== 'READ_RECEIVED',
+            );
+
             expect(result.current.contactIsLoading('alice.eth')).toBe(false);
-            expect(result.current.messages['alice.eth'].length).toBe(213);
+            expect(moreSentMsgs.length).toBe(213);
             //991 = 99 message 100(since pageSize starts from 0) = 1 offset
             expect(
-                result.current.messages['alice.eth'][212].envelop.message
+                result.current.messages['alice.eth'][225].envelop.message
                     .message,
             ).toBe('hello dm3 991');
         });

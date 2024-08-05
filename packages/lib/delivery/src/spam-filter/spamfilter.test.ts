@@ -3,9 +3,8 @@ import { ethers } from 'ethers';
 import { isSpam } from '.';
 import { testData } from '../../../../../test-data/encrypted-envelops.test';
 
-import { Session } from '../Session';
-
 import { SpamFilterRules } from './SpamFilterRules';
+import { Session } from '@dm3-org/dm3-lib-delivery';
 
 const keysA = {
     encryptionKeyPair: {

@@ -42,6 +42,12 @@ export const useDeliveryService = () => {
             }
             console.log('start getting ds');
             const deliveryServices = account?.profile?.deliveryServices ?? [];
+
+            const signedUserProfile = {
+                profile: account?.profile!,
+                signature: account?.profileSignature!,
+            };
+
             //Fetch DS profile for each DS
 
             const connectors = deliveryServices
@@ -68,6 +74,7 @@ export const useDeliveryService = () => {
                         dm3Configuration.addressEnsSubdomain,
                         ethAddress!,
                         profileKeys!,
+                        signedUserProfile,
                         true,
                     );
                 });
@@ -79,10 +86,6 @@ export const useDeliveryService = () => {
                 (p): p is DeliveryServiceConnector => p !== undefined,
             );
 
-            const signedUserProfile = {
-                profile: account?.profile!,
-                signature: account?.profileSignature!,
-            };
             //Sign in connectors
             await Promise.all(
                 onlyValidConnectors.map((c) => c.login(signedUserProfile)),

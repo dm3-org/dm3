@@ -39,6 +39,11 @@ export function createMessage(redis: Redis) {
         const encryptedDeliverInformation = envelop.metadata
             .deliveryInformation as DeliveryInformation;
 
+        console.debug(
+            'store incoming conversation for',
+            encryptedDeliverInformation.to,
+        );
+
         await redis.zAdd(
             RedisPrefix.IncomingConversations + encryptedDeliverInformation.to,
             {

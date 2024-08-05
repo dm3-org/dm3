@@ -1,4 +1,5 @@
 import {
+    Session,
     createChallenge,
     createNewSessionToken,
 } from '@dm3-org/dm3-lib-delivery';
@@ -6,6 +7,8 @@ import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import cors from 'cors';
 import express from 'express';
+import { ethers } from 'ethers';
+import { IAccountDatabase } from './iSessionDatabase';
 
 const getChallengeSchema = {
     type: 'object',
@@ -35,8 +38,7 @@ const createNewSessionTokenBodySchema = {
     additionalProperties: false,
 };
 
-//@ts-ignore
-export const Auth = (getAccount, serverSecret: string) => {
+export const Auth = (db: IAccountDatabase, serverSecret: string) => {
     const router = express.Router();
 
     //TODO remove
@@ -56,7 +58,7 @@ export const Auth = (getAccount, serverSecret: string) => {
             }
 
             const challenge = await createChallenge(
-                getAccount,
+                db.getAccount,
                 idEnsName,
                 serverSecret,
             );
@@ -87,7 +89,7 @@ export const Auth = (getAccount, serverSecret: string) => {
             }
 
             const jwt = await createNewSessionToken(
-                getAccount,
+                db.getAccount,
                 req.body.signature,
                 req.body.challenge,
                 idEnsName,
@@ -96,8 +98,13 @@ export const Auth = (getAccount, serverSecret: string) => {
 
             res.json(jwt);
         } catch (e) {
-            next(e);
             console.error('unable to create new session token ', e);
+            return res.status(400).json({
+                error:
+                    e instanceof Error
+                        ? e.message
+                        : 'Failed to create new session token',
+            });
         }
     });
 

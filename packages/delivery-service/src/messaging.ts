@@ -1,10 +1,10 @@
-import { incomingMessage } from '@dm3-org/dm3-lib-delivery';
 import { EncryptionEnvelop, schema } from '@dm3-org/dm3-lib-messaging';
 import { DeliveryServiceProfileKeys } from '@dm3-org/dm3-lib-profile';
 import { IWebSocketManager, validateSchema } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import { Server, Socket } from 'socket.io';
 import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
+import { MessageProcessor } from './message/MessageProcessor';
 import { IDatabase } from './persistence/getDatabase';
 
 export function onConnection(
@@ -51,7 +51,7 @@ export function onConnection(
                 try {
                     const deliveryServiceProperties =
                         getDeliveryServiceProperties();
-                    global.logger.info({
+                    console.info({
                         method: 'WS INCOMING MESSAGE',
                     });
 
@@ -63,37 +63,34 @@ export function onConnection(
                     if (!isSchemaValid) {
                         const error = 'invalid schema';
 
-                        global.logger.warn({
+                        console.warn({
                             method: 'WS SUBMIT MESSAGE',
                             error,
                         });
                         return callback({ error });
                     }
 
-                    global.logger.info({
+                    console.info({
                         method: 'WS INCOMING MESSAGE',
                         keys: keys.encryptionKeyPair.publicKey,
                     });
 
-                    await incomingMessage(
-                        data.envelop,
-                        keys.signingKeyPair,
-                        keys.encryptionKeyPair,
-                        deliveryServiceProperties.sizeLimit,
-                        deliveryServiceProperties.notificationChannel,
-                        db.getAccount,
-                        db.createMessage,
+                    const messageProcessor = new MessageProcessor(
+                        db,
+                        web3Provider,
+                        webSocketManager,
+                        deliveryServiceProperties,
+                        keys,
                         (socketId: string, envelop: EncryptionEnvelop) => {
                             io.sockets.to(socketId).emit('message', envelop);
                         },
-                        web3Provider,
-                        db.getIdEnsName,
-                        db.getUsersNotificationChannels,
-                        webSocketManager,
-                    ),
-                        callback({ response: 'success' });
+                    );
+                    await messageProcessor.processEnvelop(data.envelop);
+                    console.log('callback');
+
+                    callback({ response: 'success' });
                 } catch (error: any) {
-                    global.logger.warn({
+                    console.warn({
                         method: 'WS SUBMIT MESSAGE',
                         error: (error as Error).toString(),
                     });
