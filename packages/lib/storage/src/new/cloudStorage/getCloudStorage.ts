@@ -1,4 +1,4 @@
-import { IBackendConnector } from '@dm3-org/dm3-lib-shared';
+import { IBackendConnector, stringify } from '@dm3-org/dm3-lib-shared';
 import { MessageRecord } from '../chunkStorage/ChunkStorageTypes';
 import { Encryption, StorageAPI, StorageEnvelopContainer } from '../types';
 //getCloudStorages is the interface to the cloud storage.
@@ -17,7 +17,7 @@ export const getCloudStorage = (
         );
 
         const encryptedProfileLocation = await encryption.encryptSync(
-            JSON.stringify(contactProfileLocation),
+            stringify(contactProfileLocation),
         );
 
         console.log('add contact ', contactEnsName, contactProfileLocation);
@@ -130,7 +130,7 @@ export const getCloudStorage = (
             contactEnsName,
         );
         const encryptedEnvelopContainer = await encryption.encryptAsync(
-            JSON.stringify(envelop),
+            stringify(envelop),
         );
 
         //The client defines the createdAt timestamp for the message so it can be used to sort the messages
@@ -161,7 +161,7 @@ export const getCloudStorage = (
                 async (storageEnvelopContainer: StorageEnvelopContainer) => {
                     const encryptedEnvelopContainer =
                         await encryption.encryptAsync(
-                            JSON.stringify(storageEnvelopContainer),
+                            stringify(storageEnvelopContainer),
                         );
                     //The client defines the createdAt timestamp for the message so it can be used to sort the messages
                     const createdAt = Date.now();
@@ -201,7 +201,7 @@ export const getCloudStorage = (
                 async (storageEnvelopContainer: StorageEnvelopContainer) => {
                     const encryptedEnvelopContainer =
                         await encryption.encryptAsync(
-                            JSON.stringify(storageEnvelopContainer),
+                            stringify(storageEnvelopContainer),
                         );
                     return {
                         encryptedEnvelopContainer,
