@@ -45,7 +45,6 @@ export async function checkToken(
     }
 
     console.debug('checkToken - ensName', ensName);
-    console.debug('checkToken - session', session);
 
     // check jwt for validity
     try {

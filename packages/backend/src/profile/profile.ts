@@ -9,7 +9,7 @@ import {
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import express from 'express';
-import { IBackendDatabase } from './persistence/getDatabase';
+import { IBackendDatabase } from '../persistence/getDatabase';
 
 export default (
     db: IBackendDatabase,
