@@ -6,6 +6,7 @@ import tickIcon from '../../assets/images/white-tick.svg';
 import { AuthContext } from '../../context/AuthContext';
 import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 import {
+    BUTTON_CLASS,
     dm3NamingServices,
     fetchComponent,
     fetchDM3NameComponent,
@@ -15,6 +16,7 @@ import {
 } from './bl';
 import { ConfigureProfileContext } from './context/ConfigureProfileContext';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { ModalContext } from '../../context/ModalContext';
 
 export function NormalView() {
     const connectedChainId = useChainId();
@@ -22,6 +24,8 @@ export function NormalView() {
     const mainnetProvider = useMainnetProvider();
 
     const { account, ethAddress } = useContext(AuthContext);
+
+    const { configureProfileModal, setConfigureProfileModal } = useContext(ModalContext);
 
     const {
         setEnsName,
@@ -34,15 +38,15 @@ export function NormalView() {
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
     // handles ENS name and address
-    useEffect(() => {
-        getEnsName(
-            mainnetProvider,
-            ethAddress!,
-            account!,
-            (name: string) => setEnsName(name),
-            dm3Configuration.addressEnsSubdomain,
-        );
-    }, [ethAddress]);
+    // useEffect(() => {
+    //     getEnsName(
+    //         mainnetProvider,
+    //         ethAddress!,
+    //         account!,
+    //         (name: string) => setEnsName(name),
+    //         dm3Configuration.addressEnsSubdomain,
+    //     );
+    // }, [ethAddress]);
 
     useEffect(() => {
         if (connectedChainId) {
@@ -53,29 +57,56 @@ export function NormalView() {
     return (
         <div className="mt-2">
             {/* Wallet Address */}
-            <div className="d-flex pt-2 ps-4">
-                <div className="configuration-items-align">
+            <div className="d-flex pt-4 ps-4">
+                {/* <div className="configuration-items-align">
                     {ethAddress && <img src={tickIcon} />}
-                </div>
+                </div> */}
 
-                <div className="profile-config-container">
+                <div className="profile-config-container ps-2">
                     <div className="d-flex">
                         <p
                             className="m-0 
                     font-size-14 font-weight-500 line-height-24 title-content"
                         >
                             Wallet Address
+                            <span className='address-tooltip'>
+                                i
+                                <span className="address-tooltip-text">
+                                    You can use your wallet address as a username.
+                                    A virtual profile is created and stored at a dm3 service.
+                                    There are no transaction costs for creation and administration.
+                                    <br />
+                                    <span className='font-weight-800'> You can receive messages sent to your wallet address.</span>
+                                </span>
+                            </span>
                         </p>
                         <p
-                            className="m-0 ms-2
+                            className="dm3-address m-0 ms-5
                     font-size-14 font-weight-500 line-height-24 grey-text"
                         >
                             {ethAddress &&
                                 ethAddress +
-                                    dm3Configuration.addressEnsSubdomain}
+                                dm3Configuration.addressEnsSubdomain}
                         </p>
                     </div>
-                    <div className="address-details">
+
+                    {/* Add profile button */}
+                    <div className='mt-4'>
+                        <button
+                            className={BUTTON_CLASS.concat(
+                                configureProfileModal.isAddProfileButtonActive ?
+                                    ' add-prof-btn-active' : ' add-prof-btn-disabled')}
+                            disabled={!configureProfileModal.isAddProfileButtonActive}
+                            onClick={() => {
+                                setConfigureProfileModal({
+                                    isAddProfileButtonActive: !configureProfileModal.isAddProfileButtonActive
+                                })
+                            }}
+                        >
+                            Add Profile
+                        </button>
+                    </div>
+                    {/* <div className="address-details">
                         <div className="small-text font-weight-300 grey-text">
                             You can use your wallet address as a username. A
                             virtual profile is created and stored at a dm3
@@ -86,12 +117,33 @@ export function NormalView() {
                             You can receive messages sent to your wallet
                             address.
                         </div>
-                    </div>
+                    </div> */}
+                </div>
+            </div>
+
+            <div className='mt-4 ms-4 me-4 dm3-prof-select-container'>
+                <div className='dm3-prof-select-type'>
+                    Add new dm3 profile  - select type
+                </div>
+                <div className='p-4'>
+                    <input type="radio" name="profile_name" value="dm-name" defaultChecked />
+                    <label className='name-option'>Claim a dm3 Name (dm3 cloud, Optimism, ...)</label>
+                    <br />
+                    <input type="radio" name="profile_name" value="own-name" />
+                    <label className='name-option mt-3'>use your own Name (ENS, GENOME, ...)</label>
+                </div>
+                <div className='d-flex justify-content-end me-3 mb-3'>
+                    <button
+                        className={BUTTON_CLASS.concat(' add-prof-btn-active')}
+                        onClick={() => { }}
+                    >
+                        Next
+                    </button>
                 </div>
             </div>
 
             {/* DM3 Name */}
-            <div className="mt-4 d-flex ps-4 align-items-baseline">
+            {/* <div className="mt-4 d-flex ps-4 align-items-baseline">
                 <div className="configuration-items-align"></div>
                 <div>
                     <select
@@ -111,15 +163,15 @@ export function NormalView() {
                             })}
                     </select>
                 </div>
-            </div>
+            </div> */}
 
-            {fetchDM3NameComponent(
+            {/* {fetchDM3NameComponent(
                 dm3NameServiceSelected,
                 dm3Configuration.chainId,
-            )}
+            )} */}
 
             {/* ENS Name */}
-            <div className="mt-4 d-flex ps-4 align-items-baseline">
+            {/* <div className="mt-4 d-flex ps-4 align-items-baseline">
                 <div className="configuration-items-align"></div>
                 <div>
                     <select
@@ -141,7 +193,7 @@ export function NormalView() {
                 </div>
             </div>
 
-            {fetchComponent(namingServiceSelected, dm3Configuration.chainId)}
+            {fetchComponent(namingServiceSelected, dm3Configuration.chainId)} */}
         </div>
     );
 }

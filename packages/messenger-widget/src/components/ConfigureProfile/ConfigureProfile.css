@@ -52,7 +52,7 @@
 }
 
 .configure-btn {
-    padding: 8px 16px 8px 16px;
+    padding: 5px 30px 5px 30px;
     box-shadow: 0px 0px 44px 0px var(--button-shadow);
     width: fit-content;
 }
@@ -79,6 +79,76 @@ select:focus-visible {
 
 input::placeholder {
     font-size: 11px;
+}
+
+.dm3-address {
+    word-break: break-word;
+}
+
+.address-tooltip{
+    background: var(--normal-btn-hover);
+    color: var(--text-primary-color);
+    margin-left: 0.6rem;
+    padding: 2px 7px 2px 7px;
+    border-radius: 13px;
+    font-size: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    position: relative;
+}
+
+.address-tooltip-text{
+    visibility: hidden;
+    position: absolute;
+    z-index: 1;
+    width: 300px;
+    border-radius: 6px;
+    padding: 6px 6px 6px 6px;
+    margin: 22px 9px 10px 0px;
+    background-color: var(--text-secondary-color);
+    font-size: 0.7rem;
+    font-weight: 100;
+    line-height: 1rem;
+    cursor: text;
+}
+
+.address-tooltip:hover .address-tooltip-text {
+    visibility: visible;
+}
+
+.add-prof-btn-disabled {
+    background: var(--normal-btn-inactive);
+    color: var(--disabled-btn-text);
+    border: none;
+}
+
+.add-prof-btn-active {
+    background-color: var(--normal-btn-hover);
+    border: var(--normal-btn-border);
+    color: var(--text-primary-color);
+}
+
+.dm3-prof-select-container{
+    border: 1px solid #FFFFFF; /* TODO : Replace hardcode color with dynamic color */
+    border-radius: 5px;
+}
+
+.dm3-prof-select-type{
+    background: #D9D9D9; /* TODO : Replace hardcode color with dynamic color */
+    color: black;
+    font-weight: 500;
+    font-size: 14px;
+    padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+    line-height: 24px;
+    border-radius: 5px;
+}
+
+.name-option{
+    color: #FFFFFF;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 24px;
+    margin-left: 0.5rem;
 }
 
 /* =================== Mobile Responsive CSS =================== */
@@ -114,7 +184,7 @@ input::placeholder {
     }
 
     .configure-btn {
-        padding: 6px 14px 4px 14px;
+        padding: 4px 14px 4px 14px;
     }
 
     .dm3-name-content {
@@ -134,5 +204,14 @@ input::placeholder {
 
     .name-service-selector{
         font-size: 12px;
+    }
+
+    .dm3-address {
+        word-break: break-word;
+        font-size: 13px !important;
+    }
+
+    .address-tooltip-text{
+        margin: 22px 0px 10px -118px !important;
     }
 }

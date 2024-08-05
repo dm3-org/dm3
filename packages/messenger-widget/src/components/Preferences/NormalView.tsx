@@ -11,6 +11,7 @@ export function NormalView() {
         setShowPreferencesModal,
         showProfileConfigurationModal,
         setShowProfileConfigurationModal,
+        resetConfigureProfileModal
     } = useContext(ModalContext);
 
     const [optionChoosen, setOptionChoosen] = useState<any>(null);
@@ -24,6 +25,13 @@ export function NormalView() {
             setOptionChoosen(preferencesItems[1]);
         }
     }, []);
+
+    // reset states of configure profile modal if any other component is loaded
+    useEffect(() => {
+        if (optionChoosen && optionChoosen.name !== "dm3 Profile") {
+            resetConfigureProfileModal();
+        }
+    }, [optionChoosen]);
 
     return (
         <div>
@@ -63,7 +71,7 @@ export function NormalView() {
                                                 ' ',
                                                 optionChoosen &&
                                                     optionChoosen.name ===
-                                                        item.name
+                                                    item.name
                                                     ? 'normal-btn-hover'
                                                     : '',
                                             )}
@@ -100,6 +108,7 @@ export function NormalView() {
                                         src={closeIcon}
                                         alt="close"
                                         onClick={() => {
+                                            resetConfigureProfileModal();
                                             setShowPreferencesModal(false);
                                             closeConfigurationModal(
                                                 setShowProfileConfigurationModal,

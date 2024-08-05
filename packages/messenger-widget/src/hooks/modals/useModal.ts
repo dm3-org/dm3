@@ -8,6 +8,10 @@ export interface IOpenEmojiPopup {
     data: MessageProps | undefined;
 }
 
+export interface IConfigureProfileModal {
+    isAddProfileButtonActive: boolean;
+}
+
 export const useModal = () => {
     const [loaderContent, setLoaderContent] = useState<string>('');
 
@@ -40,6 +44,15 @@ export const useModal = () => {
 
     const [showAboutModal, setShowAboutModal] = useState<boolean>(false);
 
+    const [configureProfileModal, setConfigureProfileModal] = useState<IConfigureProfileModal>({
+        isAddProfileButtonActive: true
+    });
+
+    const resetConfigureProfileModal = () => {
+        setConfigureProfileModal({
+            isAddProfileButtonActive: true
+        });
+    }
     const resetModalStates = () => {
         setLoaderContent('');
         setContactToHide(undefined);
@@ -54,6 +67,9 @@ export const useModal = () => {
         setShowPreferencesModal(false);
         setShowAboutModal(false);
         setShowAddConversationModal(false);
+        setConfigureProfileModal({
+            isAddProfileButtonActive: true
+        })
     };
 
     return {
@@ -76,5 +92,8 @@ export const useModal = () => {
         showAddConversationModal,
         setShowAddConversationModal,
         resetModalStates,
+        configureProfileModal, 
+        setConfigureProfileModal,
+        resetConfigureProfileModal
     };
 };
