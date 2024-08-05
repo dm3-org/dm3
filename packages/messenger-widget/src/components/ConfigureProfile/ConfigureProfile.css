@@ -144,12 +144,65 @@ input::placeholder {
 }
 
 .name-option{
-    color: #FFFFFF;
+    color: #FFFFFF; /* TODO : Replace hardcode color with dynamic color */
     font-weight: 500;
     font-size: 14px;
     line-height: 24px;
     margin-left: 0.5rem;
+    display: flex;
+    align-items: center;
 }
+
+/* Customized CSS for radio button */
+.radio {
+    input[type="radio"] {
+      opacity: 0;
+      + .radio-label {
+        &:before {
+          content: '';
+          background: #1F2029; /* TODO : Replace hardcode color with dynamic color */
+          border-radius: 100%;
+          border: 1px solid #FFFFFF; /* TODO : Replace hardcode color with dynamic color */
+          display: inline-block;
+          width: 1.4em;
+          height: 1.4em;
+          position: relative;
+          top: -0.2em;
+          margin-right: 1em; 
+          vertical-align: top;
+          cursor: pointer;
+          text-align: center;
+          transition: all 250ms ease;
+        }
+      }
+      &:checked {
+        + .radio-label {
+          &:before {
+            background-color: #D9D9D9; /* TODO : Replace hardcode color with dynamic color */
+            box-shadow: inset 0 0 0 4px #1F2029; /* TODO : Replace hardcode color with dynamic color */
+          }
+        }
+      }
+      &:focus {
+        + .radio-label {
+          &:before {
+            outline: none;
+            border-color: #D9D9D9; /* TODO : Replace hardcode color with dynamic color */
+          }
+        }
+      }
+      /* &:disabled {
+        + .radio-label {
+          &:before {
+            box-shadow: inset 0 0 0 4px #f4f4f4;
+            border-color: darken(#f4f4f4, 25%);
+            background: darken(#f4f4f4, 25%);
+          }
+        }
+      } */
+    }
+  }
+
 
 /* =================== Mobile Responsive CSS =================== */
 

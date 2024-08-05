@@ -1,6 +1,6 @@
 import '../../styles/modal.css';
 import './ConfigureProfile.css';
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useChainId } from 'wagmi';
 import tickIcon from '../../assets/images/white-tick.svg';
 import { AuthContext } from '../../context/AuthContext';
@@ -26,6 +26,17 @@ export function NormalView() {
     const { account, ethAddress } = useContext(AuthContext);
 
     const { configureProfileModal, setConfigureProfileModal } = useContext(ModalContext);
+
+    const [optionSelected, setOptionSelected] = useState<number>(1);
+
+    const options = [
+        { id: 1, name: "Claim a dm3 Name (dm3 cloud, Optimism, ...)", type: "dm3Name" },
+        { id: 2, name: "use your own Name (ENS, GENOME, ...)", type: "ownName" }
+    ]
+
+    useEffect(() => {
+        console.log("[[[[[[[[[[[[[[", optionSelected);
+    }, [optionSelected])
 
     const {
         setEnsName,
@@ -125,12 +136,21 @@ export function NormalView() {
                 <div className='dm3-prof-select-type'>
                     Add new dm3 profile  - select type
                 </div>
+
                 <div className='p-4'>
-                    <input type="radio" name="profile_name" value="dm-name" defaultChecked />
-                    <label className='name-option'>Claim a dm3 Name (dm3 cloud, Optimism, ...)</label>
-                    <br />
-                    <input type="radio" name="profile_name" value="own-name" />
-                    <label className='name-option mt-3'>use your own Name (ENS, GENOME, ...)</label>
+
+                    {options.map((option) =>
+                        <div className='radio d-flex mb-3' onClick={() =>
+                            setOptionSelected(option.id)
+                        }>
+                            <input type="radio" name="profile_name"
+                                value={option.type}
+                                checked={option.id === optionSelected ? true : false}
+
+                            />
+                            <label className='name-option radio-label'>{option.name}</label>
+                        </div>)}
+
                 </div>
                 <div className='d-flex justify-content-end me-3 mb-3'>
                     <button
