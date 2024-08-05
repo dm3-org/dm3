@@ -22,7 +22,6 @@ export default function AddConversation() {
     const { addConversation, setSelectedContactName } =
         useContext(ConversationContext);
     const { ethAddress } = useContext(AuthContext);
-    const { resolveTLDtoAlias } = useContext(TLDContext);
     const { setSelectedLeftView, setSelectedRightView } =
         useContext(UiViewContext);
     const {
@@ -31,7 +30,7 @@ export default function AddConversation() {
         setAddConversation,
     } = useContext(ModalContext);
 
-    const [tldName, setName] = useState<string>('');
+    const [tldName, setTldName] = useState<string>('');
     const [showError, setShowError] = useState<boolean>(false);
     const [errorMsg, setErrorMsg] = useState<string>('');
     const [inputClass, setInputClass] = useState<string>(INPUT_FIELD_CLASS);
@@ -39,7 +38,7 @@ export default function AddConversation() {
     // handles new contact submission
     const submit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setName(tldName.trim());
+        setTldName(tldName.trim());
         if (tldName.length) {
             // start loader
             setLoaderContent('Adding contact...');
@@ -57,7 +56,6 @@ export default function AddConversation() {
                 return;
             }
 
-            //TODO resolve TLD name
             const newContact = await addConversation(tldName);
 
             const addConversationData = {
@@ -95,7 +93,7 @@ export default function AddConversation() {
     const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setErrorMsg('');
         setShowError(false);
-        setName(e.target.value);
+        setTldName(e.target.value);
         if (!ethers.utils.isValidName(e.target.value)) {
             setErrorMsg('Invalid address or ENS name');
             setShowError(true);
