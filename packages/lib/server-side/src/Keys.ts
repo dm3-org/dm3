@@ -1,9 +1,10 @@
-import { v4 as uuidv4 } from 'uuid';
-import { Session } from './Session';
 import { checkSignature } from '@dm3-org/dm3-lib-crypto';
-import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
+import { getUserProfile, normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
+import { ethers } from 'ethers';
 import { sign, verify } from 'jsonwebtoken';
+import { v4 as uuidv4 } from 'uuid';
+import { IAccountDatabase } from './iAccountDatabase';
 
 const challengeJwtPayloadSchema = {
     type: 'object',
@@ -19,15 +20,14 @@ const challengeJwtPayloadSchema = {
 };
 
 export async function createChallenge(
-    getAccount: (accountAddress: string) => Promise<Session | null>,
+    db: IAccountDatabase,
     ensName: string,
     serverSecret: string,
 ) {
-    const account = normalizeEnsName(ensName);
-    const session = await getAccount(account);
+    const accountName = normalizeEnsName(ensName);
 
-    if (!session) {
-        throw Error('Session not found');
+    if (!db.hasAccount(accountName)) {
+        throw Error("User account doesn't exist");
     }
 
     // generates a jwt with a new, unique challenge
@@ -65,17 +65,31 @@ export function generateAuthJWT(
     });
 }
 
+/**
+ * Creates a new session token for the given ensName, after checking:
+ * - if the account exists
+ * - if the challenge is valid
+ * - if the signature is valid
+ * - if the user profile exists
+ * @param hasAccount function that checks if the account exists
+ * @param signature signature of the challenge
+ * @param challenge challenge that was created before
+ * @param ensName ens id of the account
+ * @param serverSecret secret value that is used to sign the JWT
+ * @returns JWT
+ */
 export async function createNewSessionToken(
-    getAccount: (ensName: string) => Promise<Session | null>,
+    db: IAccountDatabase,
     signature: string,
     challenge: string,
     ensName: string,
     serverSecret: string,
+    web3Provider: ethers.providers.JsonRpcProvider,
 ): Promise<string> {
-    const session = await getAccount(ensName);
+    const accountName = normalizeEnsName(ensName);
 
-    if (!session) {
-        throw Error('Session not found');
+    if (!db.hasAccount(accountName)) {
+        throw Error("User account doesn't exist");
     }
 
     // check the challenge jwt the user provided. It must be a valid
@@ -92,10 +106,15 @@ export async function createNewSessionToken(
         throw Error('Provided challenge is not valid');
     }
 
+    const signedProfile = await getUserProfile(web3Provider, ensName);
+
+    if (!signedProfile) {
+        throw Error("User profile doesn't exist");
+    }
+
     if (
-        // todo: get public signing key from public profile
         !(await checkSignature(
-            session.signedUserProfile.profile.publicSigningKey,
+            signedProfile.profile.publicSigningKey,
             // we expect the whole jwt to be signed, not just the challenge-part of the payload.
             // This way, the client does not have to understand the jwt.
             challenge,
