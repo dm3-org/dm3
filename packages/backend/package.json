@@ -35,7 +35,7 @@
     "build": "yarn tsc && cp ./config.yml ./dist/config.yml | true",
     "build:schema": "sh ./schemas.sh",
     "createDeliveryServiceProfile": "node --no-warnings ./cli.js",
-    "before:tests": "docker compose -f docker compose.test.yml up -d && DATABASE_URL='postgresql://prisma:prisma@localhost:5433/tests?schema=public' yarn prisma-init"
+    "before:tests": "docker compose -f docker-compose.test.yml up -d && DATABASE_URL='postgresql://prisma:prisma@localhost:5433/tests?schema=public' yarn prisma-init"
   },
   "devDependencies": {
     "@babel/core": "^7.19.6",

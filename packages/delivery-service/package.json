@@ -30,8 +30,8 @@
     "test": "yarn run before:tests &&  jest --coverage --runInBand --transformIgnorePatterns 'node_modules/(?!(dm3-lib-\\w*)/)' ",
     "build": "yarn tsc ",
     "createDeliveryServiceProfile": "node --no-warnings ./cli.js",
-    "before:tests": "docker compose -f docker compose.test.yml up -d",
-    "after:tests": "docker compose -f docker compose.test.yml down"
+    "before:tests": "docker compose -f docker-compose.test.yml up -d",
+    "after:tests": "docker compose -f docker-compose.test.yml down"
   },
   "devDependencies": {
     "@babel/core": "^7.19.6",
