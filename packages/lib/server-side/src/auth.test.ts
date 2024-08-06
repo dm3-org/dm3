@@ -11,7 +11,7 @@ import express from 'express';
 import { verify } from 'jsonwebtoken';
 import request from 'supertest';
 import { Auth } from './auth';
-import { IAccountDatabase } from './iSessionDatabase';
+import { IAccountDatabase } from './iAccountDatabase';
 
 const serverSecret = 'testSecret';
 

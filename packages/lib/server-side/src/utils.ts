@@ -9,7 +9,7 @@ import { NextFunction, Request, Response } from 'express';
 import { Socket } from 'socket.io';
 import { ExtendedError } from 'socket.io/dist/namespace';
 import winston from 'winston';
-import type { IAccountDatabase } from './iSessionDatabase';
+import type { IAccountDatabase } from './iAccountDatabase';
 
 export async function auth(
     req: Request,

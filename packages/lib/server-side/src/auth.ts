@@ -8,7 +8,7 @@ import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import cors from 'cors';
 import express from 'express';
 import { ethers } from 'ethers';
-import { IAccountDatabase } from './iSessionDatabase';
+import { IAccountDatabase } from './iAccountDatabase';
 
 const getChallengeSchema = {
     type: 'object',
