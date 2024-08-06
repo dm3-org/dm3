@@ -27,6 +27,7 @@ import { getMockedTldContext } from '../../context/testHelper/getMockedTldContex
 import { getEmptyContact } from '../../interfaces/utils';
 import { DM3Configuration } from '../../widget';
 import { useMessage } from './useMessage';
+import { stringify } from '@dm3-org/dm3-lib-shared';
 
 describe('useMessage hook test cases', () => {
     const CONTACT_NAME = 'user.dm3.eth';
@@ -805,6 +806,7 @@ describe('useMessage hook test cases', () => {
                     result.current.messages['alice.eth'].length > 0,
             );
 
+            console.log(stringify(result.current.messages['alice.eth']));
             expect(result.current.contactIsLoading('alice.eth')).toBe(false);
 
             expect(syncAcknowledgmentMock).toBeCalledTimes(1);
