@@ -12,7 +12,7 @@ generator client {
 model EncryptedMessage {
     id                        String       @id
     createdAt                 DateTime     @default(now())
-    encryptedEnvelopContainer String
+    encryptedEnvelopContainer String       @default("")
     encryptedContactName      String
     conversationId            String
     conversation              Conversation @relation(fields: [conversationId], references: [id])
