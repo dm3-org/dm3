@@ -3,6 +3,7 @@ import { createClient } from 'redis';
 import Storage from './storage';
 import { ConversationRecord } from './storage/postgres/dto/ConversationRecord';
 import { MessageRecord } from './storage/postgres/dto/MessageRecord';
+import { IAccountDatabase } from '@dm3-org/dm3-lib-server-side';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',
@@ -81,7 +82,7 @@ export async function getDatabase(
     };
 }
 
-export interface IBackendDatabase {
+export interface IBackendDatabase extends IAccountDatabase {
     setAccount: (ensName: string) => Promise<Account>;
     getAccount: (ensName: string) => Promise<Account | null>;
     hasAccount: (ensName: string) => Promise<boolean>;

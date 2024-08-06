@@ -1,14 +1,10 @@
-import {
-    Session,
-    createChallenge,
-    createNewSessionToken,
-} from '@dm3-org/dm3-lib-delivery';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import cors from 'cors';
-import express from 'express';
 import { ethers } from 'ethers';
+import express from 'express';
 import { IAccountDatabase } from './iAccountDatabase';
+import { createChallenge, createNewSessionToken } from './Keys';
 
 const getChallengeSchema = {
     type: 'object',
@@ -38,7 +34,11 @@ const createNewSessionTokenBodySchema = {
     additionalProperties: false,
 };
 
-export const Auth = (db: IAccountDatabase, serverSecret: string) => {
+export const Auth = (
+    db: IAccountDatabase,
+    serverSecret: string,
+    web3Provider: ethers.providers.JsonRpcProvider,
+) => {
     const router = express.Router();
 
     //TODO remove
@@ -58,7 +58,7 @@ export const Auth = (db: IAccountDatabase, serverSecret: string) => {
             }
 
             const challenge = await createChallenge(
-                db.getAccount,
+                db,
                 idEnsName,
                 serverSecret,
             );
@@ -89,11 +89,12 @@ export const Auth = (db: IAccountDatabase, serverSecret: string) => {
             }
 
             const jwt = await createNewSessionToken(
-                db.getAccount,
+                db,
                 req.body.signature,
                 req.body.challenge,
                 idEnsName,
                 serverSecret,
+                web3Provider,
             );
 
             res.json(jwt);
