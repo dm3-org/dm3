@@ -1,5 +1,5 @@
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
-import { auth } from '@dm3-org/dm3-lib-server-side';
+import { authorize } from '@dm3-org/dm3-lib-server-side';
 import { sha256, validateSchema } from '@dm3-org/dm3-lib-shared';
 import cors from 'cors';
 import { ethers } from 'ethers';
@@ -32,7 +32,7 @@ export default (
             next: NextFunction,
             ensName: string,
         ) => {
-            auth(
+            authorize(
                 req,
                 res,
                 next,

@@ -7,7 +7,6 @@ import {
     logError,
     logRequest,
     readKeysFromEnv,
-    socketAuth,
 } from '@dm3-org/dm3-lib-server-side';
 import { NotificationChannelType, logInfo } from '@dm3-org/dm3-lib-shared';
 import { Axios } from 'axios';
@@ -29,6 +28,7 @@ import { IDatabase, getDatabase } from './persistence/getDatabase';
 import { Profile } from './profile/profile';
 import RpcProxy from './rpc/rpc-proxy';
 import { WebSocketManager } from './ws/WebSocketManager';
+import { socketAuth } from './socketAuth';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -133,7 +133,7 @@ global.logger = winston.createLogger({
     //socketAuth
     //restAuth
 
-    app.use('/auth', Auth(db, serverSecret));
+    app.use('/auth', Auth(db, serverSecret, web3Provider));
     app.use('/profile', Profile(db, web3Provider, serverSecret));
     app.use('/delivery', Delivery(web3Provider, db, serverSecret));
     app.use(

@@ -3,7 +3,7 @@ import express, { NextFunction, Request, Response } from 'express';
 import { sign, verify } from 'jsonwebtoken';
 import request from 'supertest';
 import winston from 'winston';
-import { auth } from './utils';
+import { authorize } from './authorize';
 
 const serverSecret = 'testSecret';
 winston.loggers.add('default', {
@@ -37,7 +37,7 @@ describe('Utils', () => {
                     next: NextFunction,
                     ensName: string,
                 ) => {
-                    auth(
+                    authorize(
                         req,
                         res,
                         next,
@@ -86,7 +86,7 @@ describe('Utils', () => {
                     next: NextFunction,
                     ensName: string,
                 ) => {
-                    auth(
+                    authorize(
                         req,
                         res,
                         next,
@@ -134,7 +134,7 @@ describe('Utils', () => {
                     next: NextFunction,
                     ensName: string,
                 ) => {
-                    auth(
+                    authorize(
                         req,
                         res,
                         next,
@@ -191,7 +191,7 @@ describe('Utils', () => {
                     next: NextFunction,
                     ensName: string,
                 ) => {
-                    auth(
+                    authorize(
                         req,
                         res,
                         next,
@@ -260,7 +260,7 @@ describe('Utils', () => {
                     next: NextFunction,
                     ensName: string,
                 ) => {
-                    auth(
+                    authorize(
                         req,
                         res,
                         next,
@@ -349,7 +349,7 @@ describe('Utils', () => {
                     next: NextFunction,
                     ensName: string,
                 ) => {
-                    auth(
+                    authorize(
                         req,
                         res,
                         next,
