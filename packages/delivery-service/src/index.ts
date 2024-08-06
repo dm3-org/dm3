@@ -1,7 +1,6 @@
 import { Session } from '@dm3-org/dm3-lib-delivery';
 import {
     Auth,
-    Profile,
     errorHandler,
     getCachedWebProvider,
     getServerSecret,
@@ -27,6 +26,7 @@ import Delivery from './delivery';
 import { onConnection } from './messaging';
 import Notifications from './notifications';
 import { IDatabase, getDatabase } from './persistence/getDatabase';
+import { Profile } from './profile/profile';
 import RpcProxy from './rpc/rpc-proxy';
 import { WebSocketManager } from './ws/WebSocketManager';
 
@@ -36,10 +36,10 @@ app.use(express.urlencoded({ limit: '50mb' }));
 
 const server = http.createServer(app);
 
-//On the delivery-service side the address functions as an identifier for the account.
+// On the delivery-service side the address functions as an identifier for the account.
 // The reason for that is that the DS should accept all messages directet to the address. Regardless of its ENS name.
 // To use as much shared code as possible from lib/server-side the address is resolved to the account before each database call.
-//using this wrapper around the IDatabase
+// using this wrapper around the IDatabase
 const getDbWithAddressResolvedGetAccount = (
     db: IDatabase,
     web3Provider: ethers.providers.JsonRpcProvider,
