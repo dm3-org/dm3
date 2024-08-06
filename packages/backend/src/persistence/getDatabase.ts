@@ -97,7 +97,7 @@ export interface IDatabase extends IAccountDatabase {
     addConversation: (
         ensName: string,
         encryptedContactName: string,
-        encryptedProfileLocationL: string,
+        encryptedProfileLocation: string,
     ) => Promise<boolean>;
     getConversationList: (
         ensName: string,
