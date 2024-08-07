@@ -26,7 +26,7 @@ export async function createChallenge(
 ) {
     const accountName = normalizeEnsName(ensName);
 
-    if (!db.hasAccount(accountName)) {
+    if (!(await db.hasAccount(accountName))) {
         throw Error("User account doesn't exist");
     }
 
@@ -88,7 +88,7 @@ export async function createNewSessionToken(
 ): Promise<string> {
     const accountName = normalizeEnsName(ensName);
 
-    if (!db.hasAccount(accountName)) {
+    if (!(await db.hasAccount(accountName))) {
         throw Error("User account doesn't exist");
     }
 
