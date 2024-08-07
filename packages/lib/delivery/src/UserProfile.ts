@@ -6,7 +6,7 @@ import {
 } from '@dm3-org/dm3-lib-profile';
 import { logDebug } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
-import { generateAuthJWT } from './Keys';
+import { generateAuthJWT } from '@dm3-org/dm3-lib-server-side';
 import { Session } from './Session';
 
 export async function submitUserProfile(
