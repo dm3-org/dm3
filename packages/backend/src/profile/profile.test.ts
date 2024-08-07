@@ -56,14 +56,6 @@ describe('Profile', () => {
 
             const db = await createDbMock();
 
-            // const expectedUserProfile: UserProfile = {
-            //     publicSigningKey:
-            //         '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
-            //     publicEncryptionKey:
-            //         'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
-            //     deliveryServices: [],
-            // };
-
             const user = await mockUserProfile(
                 ethers.Wallet.createRandom(),
                 'alice.eth',
