@@ -1,10 +1,5 @@
-import { sign } from '@dm3-org/dm3-lib-crypto';
-import {
-    Session,
-    createChallenge,
-    spamFilter,
-} from '@dm3-org/dm3-lib-delivery';
-import { SignedUserProfile } from '@dm3-org/dm3-lib-profile';
+import { stringify } from '@dm3-org/dm3-lib-shared';
+import { mockUserProfile } from '@dm3-org/dm3-lib-test-helper';
 import bodyParser from 'body-parser';
 import { ethers } from 'ethers';
 import express from 'express';
@@ -12,40 +7,71 @@ import { verify } from 'jsonwebtoken';
 import request from 'supertest';
 import { Auth } from './auth';
 import { IAccountDatabase } from './iAccountDatabase';
+import { createChallenge } from './Keys';
+import { sign } from '@dm3-org/dm3-lib-crypto';
 
 const serverSecret = 'testSecret';
 
-describe('Auth', () => {
-    const getAccountMock = async (ensName: string) =>
-        Promise.resolve({ challenge: '123' });
-    const setAccountMock = async (_: string, __: any) => {
-        return (_: any, __: any, ___: any) => {};
-    };
+const mockDbWithAccount: IAccountDatabase = {
+    hasAccount: async (ensName: string) => Promise.resolve(true),
+};
 
-    const keysA = {
-        encryptionKeyPair: {
-            publicKey: 'eHmMq29FeiPKfNPkSctPuZGXvV0sKeO/KZkX2nXvMgw=',
-            privateKey: 'pMI77F2w3GK+omZCB4A61WDqISOOnWGXR2f/MTLbqbY=',
-        },
-        signingKeyPair: {
-            publicKey: '+tkDQWZfv9ixBmObsf8tgTHTZajwAE9muTtFAUj2e9I=',
-            privateKey:
-                '+DpeBjCzICFoi743/466yJunsHR55Bhr3GnqcS4cuJX62QNBZl+/2LEGY5ux/y2BMdNlqPAAT2a5O0UBSPZ70g==',
-        },
-        storageEncryptionKey: '+DpeBjCzICFoi743/466yJunsHR55Bhr3GnqcS4cuJU=',
-        storageEncryptionNonce: 0,
-    };
+const mockDbWithOUTAccount: IAccountDatabase = {
+    hasAccount: async (ensName: string) => Promise.resolve(false),
+};
+
+const keysA = {
+    encryptionKeyPair: {
+        publicKey: 'eHmMq29FeiPKfNPkSctPuZGXvV0sKeO/KZkX2nXvMgw=',
+        privateKey: 'pMI77F2w3GK+omZCB4A61WDqISOOnWGXR2f/MTLbqbY=',
+    },
+    signingKeyPair: {
+        publicKey: '+tkDQWZfv9ixBmObsf8tgTHTZajwAE9muTtFAUj2e9I=',
+        privateKey:
+            '+DpeBjCzICFoi743/466yJunsHR55Bhr3GnqcS4cuJX62QNBZl+/2LEGY5ux/y2BMdNlqPAAT2a5O0UBSPZ70g==',
+    },
+    storageEncryptionKey: '+DpeBjCzICFoi743/466yJunsHR55Bhr3GnqcS4cuJU=',
+    storageEncryptionNonce: 0,
+};
+
+describe('Auth', () => {
+    let user: any;
+    let expectedUserProfile: any;
+    let userAddress: string;
+    let mockWeb3Provider: ethers.providers.StaticJsonRpcProvider;
+
+    beforeAll(async () => {
+        user = await mockUserProfile(
+            ethers.Wallet.createRandom(),
+            'alice.eth',
+            ['ds1.eth', 'ds2.eth'],
+        );
+        expectedUserProfile = user.signedUserProfile;
+        userAddress = user.wallet.address;
+
+        const mockGetEnsResolver = (_: string) =>
+            Promise.resolve({
+                getText: (_: string) =>
+                    Promise.resolve(
+                        'data:application/json,' +
+                            stringify(expectedUserProfile),
+                    ),
+            });
+
+        mockWeb3Provider = {
+            getResolver: mockGetEnsResolver,
+            resolveName: async () => userAddress,
+        } as unknown as ethers.providers.StaticJsonRpcProvider;
+    });
 
     describe('getChallenge', () => {
         describe('schema', () => {
             it('Returns 200 and a jwt if schema is valid', async () => {
-                const db = {
-                    getAccount: getAccountMock,
-                } as IAccountDatabase;
-
                 const app = express();
                 app.use(bodyParser.json());
-                app.use(Auth(db, serverSecret));
+                app.use(
+                    Auth(mockDbWithAccount, serverSecret, mockWeb3Provider),
+                );
 
                 const response = await request(app)
                     .get(
@@ -112,118 +138,101 @@ describe('Auth', () => {
 
     describe('createNewSessionToken', () => {
         describe('schema', () => {
-            it('Returns 400 if params is invalid', async () => {
+            it('Returns 400 if signature is invalid', async () => {
                 const app = express();
-                const db = {
-                    getAccount: getAccountMock,
-                } as IAccountDatabase;
 
                 app.use(bodyParser.json());
-                app.use(Auth(db, serverSecret));
-
-                const mnemonic =
-                    'announce room limb pattern dry unit scale effort smooth jazz weasel alcohol';
-
-                const wallet = ethers.Wallet.fromMnemonic(mnemonic);
-
-                const sessionMocked = {
-                    challenge: '123',
-                    token: 'deprecated token that is not used anymore',
-                    signedUserProfile: {},
-                } as Session & {
-                    spamFilterRules: spamFilter.SpamFilterRules;
-                };
+                app.use(
+                    Auth(mockDbWithAccount, serverSecret, mockWeb3Provider),
+                );
 
                 // create the challenge jwt
-                const challengeJwt = createChallenge(
-                    async (ensName: string) =>
-                        Promise.resolve<
-                            Session & {
-                                spamFilterRules: spamFilter.SpamFilterRules;
-                            }
-                        >(sessionMocked),
-                    '1234',
+                const challengeJwt = await createChallenge(
+                    mockDbWithAccount,
+                    'bob.eth',
                     serverSecret,
                 );
 
-                const signature = await wallet.signMessage('123');
+                // signing with this keyA, but the server checks signature against user.profileKeys.signingKeyPair.privateKey,
+                const signature = await sign(
+                    keysA.signingKeyPair.privateKey,
+                    challengeJwt,
+                );
 
                 const { status } = await request(app).post(`/1234`).send({
-                    signature: 123,
+                    signature,
                     challenge: challengeJwt,
                 });
 
                 expect(status).toBe(400);
             });
-            it('Returns 400 if body is invalid', async () => {
+
+            it('Returns 400 if params is invalid', async () => {
                 const app = express();
-                const db = {
-                    getAccount: getAccountMock,
-                } as IAccountDatabase;
 
                 app.use(bodyParser.json());
-                app.use(Auth(db, serverSecret));
-
-                const mnemonic =
-                    'announce room limb pattern dry unit scale effort smooth jazz weasel alcohol';
-
-                const wallet = ethers.Wallet.fromMnemonic(mnemonic);
-
-                const foo = await wallet.signMessage('123');
-
-                const { status } = await request(app)
-                    .post(`/${wallet.address}`)
-                    .send({
-                        foo,
-                    });
-
-                expect(status).toBe(400);
-            });
-            it('Returns 200 if schema is valid', async () => {
-                const sessionMocked = {
-                    challenge: 'deprecated challenge that is not used anymore',
-                    token: 'deprecated token that is not used anymore',
-                    signedUserProfile: {
-                        profile: {
-                            publicSigningKey: keysA.signingKeyPair.publicKey,
-                        },
-                    } as SignedUserProfile,
-                } as Session & {
-                    spamFilterRules: spamFilter.SpamFilterRules;
-                };
-
-                const getAccountMockLocal = async (ensName: string) =>
-                    Promise.resolve<
-                        Session & {
-                            spamFilterRules: spamFilter.SpamFilterRules;
-                        }
-                    >(sessionMocked);
-                // async (ensName: string) => ({
-                //     challenge: 'my-Challenge',
-                //     signedUserProfile: {
-                //         profile: {
-                //             publicSigningKey: keysA.signingKeyPair.publicKey,
-                //         },
-                //     },
-                // });
-
-                const app = express();
-                const db = {
-                    getAccount: getAccountMockLocal,
-                } as IAccountDatabase;
-
-                app.use(bodyParser.json());
-                app.use(Auth(db, serverSecret));
+                app.use(
+                    Auth(mockDbWithAccount, serverSecret, mockWeb3Provider),
+                );
 
                 // create the challenge jwt
                 const challengeJwt = await createChallenge(
-                    getAccountMockLocal,
+                    mockDbWithAccount,
+                    'bob.eth',
+                    serverSecret,
+                );
+
+                const signature = await sign(
+                    user.profileKeys.signingKeyPair.privateKey,
+                    challengeJwt,
+                );
+
+                const { status } = await request(app).post(`/1234`).send({
+                    // we do not provide a signature
+                    challenge: challengeJwt,
+                });
+
+                expect(status).toBe(400);
+
+                const { status: status2 } = await request(app)
+                    .post(`/1234`)
+                    .send({
+                        signature,
+                        // we do not provide a challenge
+                    });
+                expect(status2).toBe(400);
+            });
+            it('Returns 400 if body is invalid', async () => {
+                const app = express();
+
+                app.use(bodyParser.json());
+                app.use(
+                    Auth(mockDbWithAccount, serverSecret, mockWeb3Provider),
+                );
+
+                const { status } = await request(app).post(`/somename`).send({
+                    foo: 'some content',
+                });
+
+                expect(status).toBe(400);
+            });
+            it('Returns 200 if schema and content is valid', async () => {
+                const app = express();
+
+                app.use(bodyParser.json());
+                app.use(
+                    Auth(mockDbWithAccount, serverSecret, mockWeb3Provider),
+                );
+
+                // create the challenge jwt
+                const challengeJwt = await createChallenge(
+                    mockDbWithAccount,
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
                     serverSecret,
                 );
 
                 const signature = await sign(
-                    keysA.signingKeyPair.privateKey,
+                    user.profileKeys.signingKeyPair.privateKey,
                     challengeJwt,
                 );
 
