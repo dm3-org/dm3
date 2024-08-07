@@ -1,4 +1,4 @@
-import { IBackendConnector } from '@dm3-org/dm3-lib-shared';
+import { IBackendConnector, stringify } from '@dm3-org/dm3-lib-shared';
 import { MessageRecord } from '../chunkStorage/ChunkStorageTypes';
 import {
     Encryption,
@@ -13,13 +13,23 @@ export const getCloudStorage = (
     ensName: string,
     encryption: Encryption,
 ): StorageAPI => {
-    const _addConversation = async (contactEnsName: string) => {
+    const _addConversation = async (
+        contactEnsName: string,
+        contactProfileLocation: string[],
+    ) => {
         const encryptedContactName = await encryption.encryptSync(
             contactEnsName,
         );
+
+        const encryptedProfileLocation = await encryption.encryptSync(
+            stringify(contactProfileLocation),
+        );
+
+        console.log('add contact ', contactEnsName, contactProfileLocation);
         return await backendConnector.addConversation(
             ensName,
             encryptedContactName,
+            encryptedProfileLocation,
         );
     };
 
@@ -34,14 +44,23 @@ export const getCloudStorage = (
             conversations.map(
                 async ({
                     contact,
+                    encryptedProfileLocation,
                     previewMessage,
                     updatedAt,
                 }: {
                     contact: string;
+                    encryptedProfileLocation: string;
                     previewMessage: string | null;
                     updatedAt: Date;
                 }) => ({
                     contactEnsName: await encryption.decryptSync(contact),
+                    contactProfileLocation: encryptedProfileLocation
+                        ? JSON.parse(
+                              await encryption.decryptSync(
+                                  encryptedProfileLocation,
+                              ),
+                          )
+                        : [],
                     isHidden: false,
                     messageCounter: 0,
                     previewMessage: previewMessage
@@ -119,7 +138,7 @@ export const getCloudStorage = (
             contactEnsName,
         );
         const encryptedEnvelopContainer = await encryption.encryptAsync(
-            JSON.stringify(envelop),
+            stringify(envelop),
         );
 
         //The client defines the createdAt timestamp for the message so it can be used to sort the messages
@@ -150,7 +169,7 @@ export const getCloudStorage = (
                 async (storageEnvelopContainer: StorageEnvelopContainer) => {
                     const encryptedEnvelopContainer =
                         await encryption.encryptAsync(
-                            JSON.stringify(storageEnvelopContainer),
+                            stringify(storageEnvelopContainer),
                         );
                     //The client defines the createdAt timestamp for the message so it can be used to sort the messages
                     const createdAt = Date.now();
@@ -190,7 +209,7 @@ export const getCloudStorage = (
                 async (storageEnvelopContainer: StorageEnvelopContainer) => {
                     const encryptedEnvelopContainer =
                         await encryption.encryptAsync(
-                            JSON.stringify(storageEnvelopContainer),
+                            stringify(storageEnvelopContainer),
                         );
                     return {
                         encryptedEnvelopContainer,

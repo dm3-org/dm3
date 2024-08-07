@@ -1,4 +1,5 @@
 import { decryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
+import { Acknowledgment } from '@dm3-org/dm3-lib-delivery';
 import {
     createReadOpenMessage,
     createReadReceiveMessage,
@@ -6,17 +7,16 @@ import {
     Envelop,
     MessageState,
 } from '@dm3-org/dm3-lib-messaging';
-import { MessageModel, MessageSource } from '../useMessage';
 import { Account, ProfileKeys } from '@dm3-org/dm3-lib-profile';
-import { AddConversation, StoreMessageBatch } from '../../storage/useStorage';
-import { Acknowledgment } from '@dm3-org/dm3-lib-delivery';
 import { ContactPreview } from '../../../interfaces/utils';
+import { StoreMessageBatch } from '../../storage/useStorage';
+import { MessageModel, MessageSource } from '../useMessage';
 
 export const handleMessagesFromDeliveryService = async (
     selectedContact: ContactPreview | undefined,
     account: Account,
     profileKeys: ProfileKeys,
-    addConversation: AddConversation,
+    addConversation: (contactEnsName: string) => Promise<ContactPreview | void>,
     storeMessageBatch: StoreMessageBatch,
     contact: string,
     fetchNewMessages: (ensName: string, contactAddress: string) => any,
@@ -85,6 +85,7 @@ export const handleMessagesFromDeliveryService = async (
     //If the DS has received messages from that contact we store them, and add the contact to conversation list aswell
     if (messagesSortedASC.length > 0) {
         //If the contact is not already in the conversation list then add it
+
         await addConversation(contact);
         // Update the conversation with the latest message timestamp
         updateConversationList(

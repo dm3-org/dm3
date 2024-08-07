@@ -22,7 +22,10 @@ export interface StorageAPI {
     ) => Promise<void>;
     getNumberOfMessages: (contactEnsName: string) => Promise<number>;
     getNumberOfConverations: () => Promise<number>;
-    addConversation: (contactEnsName: string) => Promise<void>;
+    addConversation: (
+        contactEnsName: string,
+        contactProfileLocation: string[],
+    ) => Promise<void>;
     addMessage: (
         contactEnsName: string,
         envelop: StorageEnvelopContainer,
@@ -46,8 +49,10 @@ export interface HaltedStorageEnvelopContainer {
 }
 
 export interface Conversation {
-    //the contactEnsName is the ensName of the contact
+    //the contactEnsName is the ensName of the contact used as the id of the conversation
     contactEnsName: string;
+    //The contact might have certain tld associated with it
+    contactProfileLocation: string[];
     //the previewMessage is the last message of the conversation
     previewMessage?: StorageEnvelopContainer;
     //isHidden is a flag to hide the conversation from the conversation list

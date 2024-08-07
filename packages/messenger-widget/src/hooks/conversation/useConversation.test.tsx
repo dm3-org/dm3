@@ -26,7 +26,7 @@ import {
     StorageContext,
     StorageContextType,
 } from '../../context/StorageContext';
-import { TLDContext } from '../../context/TLDContext';
+import { TLDContext, TLDContextProvider } from '../../context/TLDContext';
 import { getMockedAuthContext } from '../../context/testHelper/getMockedAuthContext';
 import { getMockedDeliveryServiceContext } from '../../context/testHelper/getMockedDeliveryServiceContext';
 import {
@@ -110,16 +110,24 @@ describe('useConversation hook test cases', () => {
                     isInitialized: true,
                 });
 
+            const tldContext = getMockedTldContext({
+                resolveTLDtoAlias: async (alias: string) => {
+                    return CONTACT_NAME;
+                },
+            });
+
             const wrapper = ({ children }: { children: any }) => (
                 <>
                     <AuthContext.Provider value={authContext}>
-                        <StorageContext.Provider value={storageContext}>
-                            <DeliveryServiceContext.Provider
-                                value={deliveryServiceContext}
-                            >
-                                {children}
-                            </DeliveryServiceContext.Provider>
-                        </StorageContext.Provider>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <DeliveryServiceContext.Provider
+                                    value={deliveryServiceContext}
+                                >
+                                    {children}
+                                </DeliveryServiceContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
                     </AuthContext.Provider>
                 </>
             );
@@ -172,16 +180,24 @@ describe('useConversation hook test cases', () => {
                     isInitialized: true,
                 });
 
+            const tldContext = getMockedTldContext({
+                resolveTLDtoAlias: async (alias: string) => {
+                    return CONTACT_NAME;
+                },
+            });
+
             const wrapper = ({ children }: { children: any }) => (
                 <>
                     <AuthContext.Provider value={authContext}>
-                        <StorageContext.Provider value={storageContext}>
-                            <DeliveryServiceContext.Provider
-                                value={deliveryServiceContext}
-                            >
-                                {children}
-                            </DeliveryServiceContext.Provider>
-                        </StorageContext.Provider>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <DeliveryServiceContext.Provider
+                                    value={deliveryServiceContext}
+                                >
+                                    {children}
+                                </DeliveryServiceContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
                     </AuthContext.Provider>
                 </>
             );
@@ -239,16 +255,24 @@ describe('useConversation hook test cases', () => {
                     isInitialized: true,
                 });
 
+            const tldContext = getMockedTldContext({
+                resolveTLDtoAlias: async (alias: string) => {
+                    return CONTACT_NAME;
+                },
+            });
+
             const wrapper = ({ children }: { children: any }) => (
                 <>
                     <AuthContext.Provider value={authContext}>
-                        <StorageContext.Provider value={storageContext}>
-                            <DeliveryServiceContext.Provider
-                                value={deliveryServiceContext}
-                            >
-                                {children}
-                            </DeliveryServiceContext.Provider>
-                        </StorageContext.Provider>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <DeliveryServiceContext.Provider
+                                    value={deliveryServiceContext}
+                                >
+                                    {children}
+                                </DeliveryServiceContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
                     </AuthContext.Provider>
                 </>
             );
@@ -298,16 +322,24 @@ describe('useConversation hook test cases', () => {
                     isInitialized: true,
                 });
 
+            const tldContext = getMockedTldContext({
+                resolveTLDtoAlias: async (alias: string) => {
+                    return CONTACT_NAME;
+                },
+            });
+
             const wrapper = ({ children }: { children: any }) => (
                 <>
                     <AuthContext.Provider value={authContext}>
-                        <StorageContext.Provider value={storageContext}>
-                            <DeliveryServiceContext.Provider
-                                value={deliveryServiceContext}
-                            >
-                                {children}
-                            </DeliveryServiceContext.Provider>
-                        </StorageContext.Provider>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <DeliveryServiceContext.Provider
+                                    value={deliveryServiceContext}
+                                >
+                                    {children}
+                                </DeliveryServiceContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
                     </AuthContext.Provider>
                 </>
             );
@@ -352,6 +384,7 @@ describe('useConversation hook test cases', () => {
                             return {
                                 //Use offset here to create a distinct contactEnsName
                                 contactEnsName: 'contact ' + i + offset,
+                                contactProfileLocation: [],
                                 isHidden: false,
                                 previewMessage: undefined,
                                 updatedAt: 0,
@@ -422,6 +455,7 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: 'max.eth',
+                            contactProfileLocation: [],
                             previewMessage: undefined,
                             isHidden: false,
                             updatedAt: 0,
@@ -488,12 +522,14 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: 'max.eth',
+                            contactProfileLocation: [],
                             isHidden: false,
                             previewMessage: undefined,
                             updatedAt: 0,
                         },
                         {
                             contactEnsName: 'bob.eth',
+                            contactProfileLocation: [],
                             previewMessage: {
                                 envelop: {
                                     message: {
@@ -580,6 +616,7 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: 'max.eth',
+                            contactProfileLocation: [],
                             isHidden: false,
                             previewMessage: undefined,
                             updatedAt: 0,
@@ -665,12 +702,14 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: 'max.eth',
+                            contactProfileLocation: [],
                             isHidden: false,
                             previewMessage: undefined,
                             updatedAt: 0,
                         },
                         {
                             contactEnsName: 'mydefaultcontract.eth',
+                            contactProfileLocation: [],
                             isHidden: false,
                             previewMessage: undefined,
                             updatedAt: 0,
@@ -756,18 +795,21 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: 'ron.eth',
+                            contactProfileLocation: [],
                             isHidden: true,
                             previewMessage: undefined,
                             updatedAt: 0,
                         },
                         {
                             contactEnsName: 'max.eth',
+                            contactProfileLocation: [],
                             isHidden: false,
                             previewMessage: undefined,
                             updatedAt: 0,
                         },
                         {
                             contactEnsName: 'mydefaultcontract.eth',
+                            contactProfileLocation: [],
                             isHidden: false,
                             previewMessage: undefined,
                             updatedAt: 0,
@@ -856,6 +898,7 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: 'max.eth',
+                            contactProfileLocation: [],
                             isHidden: false,
                             previewMessage: undefined,
                             updatedAt: 0,
@@ -876,16 +919,24 @@ describe('useConversation hook test cases', () => {
                     isInitialized: true,
                 });
 
+            const tldContext = getMockedTldContext({
+                resolveTLDtoAlias: async (alias: string) => {
+                    return alias;
+                },
+            });
+
             const wrapper = ({ children }: { children: any }) => (
                 <>
                     <AuthContext.Provider value={authContext}>
-                        <StorageContext.Provider value={storageContext}>
-                            <DeliveryServiceContext.Provider
-                                value={deliveryServiceContext}
-                            >
-                                {children}
-                            </DeliveryServiceContext.Provider>
-                        </StorageContext.Provider>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <DeliveryServiceContext.Provider
+                                    value={deliveryServiceContext}
+                                >
+                                    {children}
+                                </DeliveryServiceContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
                     </AuthContext.Provider>
                 </>
             );
@@ -940,16 +991,36 @@ describe('useConversation hook test cases', () => {
                     isInitialized: true,
                 });
 
+            const tldContext = getMockedTldContext({
+                resolveTLDtoAlias: async (alias: string) => {
+                    if (alias === 'bob.eth') {
+                        return 'bob.eth';
+                    }
+                    if (alias === 'liza.eth') {
+                        return 'liza.eth';
+                    }
+                    if (alias === 'heroku.eth') {
+                        return 'heroku.eth';
+                    }
+                    if (alias === 'samar.eth') {
+                        return 'samar.eth';
+                    }
+                    return alias;
+                },
+            });
+
             const wrapper = ({ children }: { children: any }) => (
                 <>
                     <AuthContext.Provider value={authContext}>
-                        <StorageContext.Provider value={storageContext}>
-                            <DeliveryServiceContext.Provider
-                                value={deliveryServiceContext}
-                            >
-                                {children}
-                            </DeliveryServiceContext.Provider>
-                        </StorageContext.Provider>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <DeliveryServiceContext.Provider
+                                    value={deliveryServiceContext}
+                                >
+                                    {children}
+                                </DeliveryServiceContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
                     </AuthContext.Provider>
                 </>
             );
@@ -981,6 +1052,7 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: sender.account.ensName,
+                            contactProfileLocation: [],
                             isHidden: false,
                             previewMessage: undefined,
                             updatedAt: 0,
@@ -1093,6 +1165,7 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: sender.account.ensName,
+                            contactProfileLocation: [],
                             isHidden: false,
                             previewMessage: undefined,
                             updatedAt: 0,
@@ -1187,12 +1260,14 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: 'max.eth',
+                            contactProfileLocation: [],
                             previewMessage: undefined,
                             isHidden: false,
                             updatedAt: new Date().getTime(),
                         },
                         {
                             contactEnsName: 'horo.eth',
+                            contactProfileLocation: [],
                             previewMessage: undefined,
                             isHidden: false,
                             updatedAt: new Date().getTime() + 2000,
@@ -1260,12 +1335,14 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: 'max.eth',
+                            contactProfileLocation: [],
                             previewMessage: undefined,
                             isHidden: false,
                             updatedAt: 0,
                         },
                         {
                             contactEnsName: 'horo.eth',
+                            contactProfileLocation: [],
                             previewMessage: undefined,
                             isHidden: false,
                             updatedAt: 0,
@@ -1342,6 +1419,7 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: 'max.eth',
+                            contactProfileLocation: [],
                             previewMessage: undefined,
                             isHidden: false,
                             updatedAt: 0,
@@ -1362,16 +1440,24 @@ describe('useConversation hook test cases', () => {
                     isInitialized: true,
                 });
 
+            const tldContext = getMockedTldContext({
+                resolveTLDtoAlias: async (alias: string) => {
+                    return 'bob.eth';
+                },
+            });
+
             const wrapper = ({ children }: { children: any }) => (
                 <>
                     <AuthContext.Provider value={authContext}>
-                        <StorageContext.Provider value={storageContext}>
-                            <DeliveryServiceContext.Provider
-                                value={deliveryServiceContext}
-                            >
-                                {children}
-                            </DeliveryServiceContext.Provider>
-                        </StorageContext.Provider>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <DeliveryServiceContext.Provider
+                                    value={deliveryServiceContext}
+                                >
+                                    {children}
+                                </DeliveryServiceContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
                     </AuthContext.Provider>
                 </>
             );

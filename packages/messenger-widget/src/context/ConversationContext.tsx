@@ -11,7 +11,7 @@ export type ConversationContextType = {
     selectedContact?: ContactPreview;
     setSelectedContactName: (contactEnsName: string | undefined) => void;
     initialized: boolean;
-    addConversation: (ensName: string) => ContactPreview | undefined;
+    addConversation: (ensName: string) => Promise<ContactPreview | undefined>;
     loadMoreConversations: () => Promise<number>;
     hideContact: (ensName: string) => void;
     updateConversationList: (conversation: string, updatedAt: number) => void;
@@ -26,7 +26,7 @@ export const ConversationContext = React.createContext<ConversationContextType>(
         selectedContactName: undefined,
         selectedContact: undefined,
         addConversation: (ensName: string) => {
-            return {} as ContactPreview;
+            return Promise.resolve({} as ContactPreview);
         },
         loadMoreConversations: () => {
             return new Promise((resolve, reject) => resolve(0));

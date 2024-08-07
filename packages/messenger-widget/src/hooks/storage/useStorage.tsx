@@ -125,11 +125,14 @@ export const useStorage = (
         return storageApi.getConversations(size, offset);
     };
 
-    const addConversationAsync = (contact: string) => {
+    const addConversationAsync = (
+        contact: string,
+        contactProfileLocation: string[],
+    ) => {
         if (!storageApi) {
             throw Error('Storage not initialized');
         }
-        storageApi.addConversation(contact);
+        storageApi.addConversation(contact, contactProfileLocation);
     };
     const getMessages = async (
         contact: string,
@@ -204,7 +207,10 @@ export type GetConversations = (
     size: number,
     offset: number,
 ) => Promise<Conversation[]>;
-export type AddConversation = (contact: string) => void;
+export type AddConversation = (
+    contact: string,
+    contactProfileLocation: string[],
+) => void;
 export type GetMessages = (
     contact: string,
     pageSize: number,

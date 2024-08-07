@@ -37,6 +37,7 @@ export const getMockedStorageContext = (
             return Promise.resolve([
                 {
                     contactEnsName: 'max.eth',
+                    contactProfileLocation: [],
                     isHidden: false,
                     messageCounter: 1,
                     previewMessage: undefined,

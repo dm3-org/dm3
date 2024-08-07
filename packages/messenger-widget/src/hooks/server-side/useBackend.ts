@@ -54,8 +54,16 @@ export const useBackend = (): IBackendConnector & {
 
     return {
         isInitialized,
-        addConversation: (ensName: string, encryptedContactName: string) => {
-            beConnector?.addConversation(ensName, encryptedContactName);
+        addConversation: (
+            ensName: string,
+            encryptedContactName: string,
+            encryptedProfileLocation: string,
+        ) => {
+            beConnector?.addConversation(
+                ensName,
+                encryptedContactName,
+                encryptedProfileLocation,
+            );
         },
         getConversations: async (
             ensName: string,
