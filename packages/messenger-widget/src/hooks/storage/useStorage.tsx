@@ -15,6 +15,7 @@ import { sha256, stringify } from '@dm3-org/dm3-lib-shared';
 import { Conversation, StorageAPI } from '@dm3-org/dm3-lib-storage';
 import { useEffect, useState } from 'react';
 import { BackendContextType } from '../../context/BackendContext';
+import { HaltedStorageEnvelopContainer } from '@dm3-org/dm3-lib-storage';
 
 //Handels storage sync and offers an interface for other hooks to interact with the storage
 export const useStorage = (
@@ -124,11 +125,14 @@ export const useStorage = (
         return storageApi.getConversations(size, offset);
     };
 
-    const addConversationAsync = (contact: string) => {
+    const addConversationAsync = (
+        contact: string,
+        contactProfileLocation: string[],
+    ) => {
         if (!storageApi) {
             throw Error('Storage not initialized');
         }
-        storageApi.addConversation(contact);
+        storageApi.addConversation(contact, contactProfileLocation);
     };
     const getMessages = async (
         contact: string,
@@ -203,13 +207,16 @@ export type GetConversations = (
     size: number,
     offset: number,
 ) => Promise<Conversation[]>;
-export type AddConversation = (contact: string) => void;
+export type AddConversation = (
+    contact: string,
+    contactProfileLocation: string[],
+) => void;
 export type GetMessages = (
     contact: string,
     pageSize: number,
     offset: number,
 ) => Promise<StorageEnvelopContainerNew[]>;
-export type GetHaltedMessages = () => Promise<StorageEnvelopContainerNew[]>;
+export type GetHaltedMessages = () => Promise<HaltedStorageEnvelopContainer[]>;
 export type ClearHaltedMessages = (
     messageId: string,
     aliasName: string,

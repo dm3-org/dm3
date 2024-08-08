@@ -31,6 +31,7 @@ export const useHaltDelivery = () => {
         // Fetch all messages the user has halted. Then check if they can be delivered now.
         const handleHaltedMessages = async () => {
             const haltedMessages = await getHaltedMessages();
+
             //Get all recipients of the halted messages
             const recipients = Array.from(
                 new Set(
@@ -39,6 +40,7 @@ export const useHaltDelivery = () => {
                     ),
                 ),
             );
+
             //Resolve the  tldNames to their aliases
             const resolvedAliases = await Promise.all(
                 recipients.map(async (ensName) => ({
@@ -124,9 +126,7 @@ export const useHaltDelivery = () => {
                                             );
                                         return {
                                             //To clear the envelop that has been used to store the halted message
-                                            haltedEnvelopId:
-                                                message.envelop.metadata
-                                                    ?.encryptedMessageHash!,
+                                            haltedEnvelopId: message.messageId,
                                             ...dispatchableEnvelop,
                                             //we keep the alias name for the receiver. In case it differes from the ensName
                                             aliasName:
@@ -145,6 +145,7 @@ export const useHaltDelivery = () => {
 
             await submitEnvelopsToReceiversDs(dispatchableEnvelops);
 
+            // clear the halted messages as those are sent
             dispatchableEnvelops.map((envelop) => {
                 clearHaltedMessages(envelop.haltedEnvelopId, envelop.aliasName);
             });

@@ -22,13 +22,14 @@ model EncryptedMessage {
 }
 
 model Conversation {
-    id                   String             @id @default(uuid())
-    updatedAt            DateTime           @default(now())
-    encryptedContactName String
-    Message              EncryptedMessage[]
-    Account              Account            @relation(fields: [accountId], references: [id])
-    accountId            String
-    isHidden             Boolean            @default(false)
+    id                       String             @id @default(uuid())
+    updatedAt                DateTime           @default(now())
+    encryptedContactName     String
+    encryptedProfileLocation String             @default("")
+    Message                  EncryptedMessage[]
+    Account                  Account            @relation(fields: [accountId], references: [id])
+    accountId                String
+    isHidden                 Boolean            @default(false)
 }
 
 model Account {

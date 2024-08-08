@@ -53,5 +53,6 @@ export const getConversationList =
             previewMessage:
                 previewMessages[idx]?.encryptedEnvelopContainer ?? null,
             updatedAt: c.updatedAt,
+            encryptedProfileLocation: c.encryptedProfileLocation,
         }));
     };
