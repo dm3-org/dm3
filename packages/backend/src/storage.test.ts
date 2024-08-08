@@ -1,4 +1,4 @@
-import { generateAuthJWT } from '@dm3-org/dm3-lib-delivery';
+import { generateAuthJWT } from '@dm3-org/dm3-lib-server-side';
 import { sha256 } from '@dm3-org/dm3-lib-shared';
 import {
     MockDeliveryServiceProfile,

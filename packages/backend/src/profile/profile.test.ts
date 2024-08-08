@@ -1,4 +1,4 @@
-import { generateAuthJWT } from '@dm3-org/dm3-lib-delivery';
+import { generateAuthJWT } from '@dm3-org/dm3-lib-server-side';
 import {
     UserProfile,
     getProfileCreationMessage,
@@ -10,9 +10,9 @@ import { ethers } from 'ethers';
 import express from 'express';
 import http from 'http';
 import request from 'supertest';
-import { IBackendDatabase } from './persistence/getDatabase';
+import { IBackendDatabase } from '../persistence/getDatabase';
 import profile from './profile';
-import storage from './storage';
+import storage from '../storage';
 import { mockUserProfile } from '@dm3-org/dm3-lib-test-helper';
 
 // todo: create a web3 provider mock that returns a resolver and that thren returns a text when the respective functions

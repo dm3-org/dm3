@@ -2,7 +2,7 @@
 import cors from 'cors';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import express from 'express';
-import { auth } from '@dm3-org/dm3-lib-server-side';
+import { authorize } from '@dm3-org/dm3-lib-server-side';
 import { ethers } from 'ethers';
 import {
     validateNewNotificationChannelData,
@@ -35,7 +35,7 @@ export default (
 
     // Adding a route parameter middleware named 'ensName'
     router.param('ensName', (req, res, next, ensName: string) => {
-        auth(
+        authorize(
             req,
             res,
             next,
