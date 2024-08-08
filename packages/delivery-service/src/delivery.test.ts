@@ -61,6 +61,7 @@ describe('Delivery', () => {
                 setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
+                hasAccount: (_: string) => Promise.resolve(true),
                 getMessages: () => Promise.resolve([]),
                 getIdEnsName: async (ensName: string) => ensName,
             };
@@ -100,6 +101,7 @@ describe('Delivery', () => {
                 setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
+                hasAccount: (_: string) => Promise.resolve(true),
                 getIdEnsName: async (ensName: string) => ensName,
             };
             const app = express();
@@ -145,6 +147,7 @@ describe('Delivery', () => {
                 setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
+                hasAccount: (_: string) => Promise.resolve(true),
                 getIdEnsName: async (ensName: string) => ensName,
             };
 

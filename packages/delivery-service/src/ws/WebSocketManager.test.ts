@@ -2,7 +2,7 @@ import { io as Client } from 'socket.io-client';
 import { Server as SocketIoServer } from 'socket.io';
 import { createServer, Server as HttpServerType } from 'http';
 import { AUTHORIZED, UNAUTHORIZED, WebSocketManager } from './WebSocketManager';
-import { generateAuthJWT } from '@dm3-org/dm3-lib-delivery';
+import { generateAuthJWT } from '@dm3-org/dm3-lib-server-side';
 import {
     getMockDeliveryServiceProfile,
     MockDeliveryServiceProfile,
@@ -139,6 +139,7 @@ describe('WebSocketManager', () => {
                         token: 'token',
                         createdAt: new Date().getTime(),
                     }),
+                hasAccount: (_: string) => Promise.resolve(true),
             } as any;
 
             new WebSocketManager(
@@ -184,6 +185,7 @@ describe('WebSocketManager', () => {
                         token: 'old token that is not used anymore',
                         createdAt: new Date().getTime(),
                     }),
+                hasAccount: (_: string) => Promise.resolve(true),
             } as any;
 
             const wsManager = new WebSocketManager(
@@ -232,6 +234,7 @@ describe('WebSocketManager', () => {
                         token: 'old token that is not used anymore',
                         createdAt: new Date().getTime(),
                     }),
+                hasAccount: (_: string) => Promise.resolve(true),
             } as any;
 
             const wsManager = new WebSocketManager(
@@ -305,6 +308,7 @@ describe('WebSocketManager', () => {
                         token: 'old token that is not used anymore',
                         createdAt: new Date().getTime(),
                     }),
+                hasAccount: (_: string) => Promise.resolve(true),
             } as any;
 
             const wsManager = new WebSocketManager(
@@ -374,6 +378,7 @@ describe('WebSocketManager', () => {
                         });
                     }
                 },
+                hasAccount: (_: string) => Promise.resolve(true),
             } as any;
 
             const wsManager = new WebSocketManager(
@@ -470,6 +475,7 @@ describe('WebSocketManager', () => {
                         token: 'old token that is not used anymore',
                         createdAt: new Date().getTime(),
                     }),
+                hasAccount: (_: string) => Promise.resolve(true),
             } as any;
 
             const wsManager = new WebSocketManager(
