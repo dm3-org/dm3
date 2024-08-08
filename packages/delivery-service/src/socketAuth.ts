@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { checkToken } from '@dm3-org/dm3-lib-delivery';
+import { checkToken } from '@dm3-org/dm3-lib-server-side';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { ethers } from 'ethers';
 import { Socket } from 'socket.io';

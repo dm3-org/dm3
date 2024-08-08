@@ -1,6 +1,5 @@
-import { generateAuthJWT } from '@dm3-org/dm3-lib-server-side';
+import { checkToken, generateAuthJWT } from '@dm3-org/dm3-lib-server-side';
 import { sign, verify } from 'jsonwebtoken';
-import { checkToken } from './Session';
 
 const serverSecret = 'veryImportantSecretToGenerateAndValidateJSONWebTokens';
 // create valid jwt
