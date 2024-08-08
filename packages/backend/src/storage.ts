@@ -60,7 +60,7 @@ export default (
                         message.encryptedEnvelopContainer,
                 })),
             );
-            return res.sendStatus();
+            return res.sendStatus(200);
         } catch (e) {
             next(e);
         }
@@ -100,7 +100,7 @@ export default (
                 ],
             );
             if (success) {
-                return res.sendStatus();
+                return res.sendStatus(200);
             }
             res.status(400).send('unable to add message');
         } catch (e) {
@@ -133,7 +133,7 @@ export default (
                     isHalted: message.isHalted,
                 })),
             );
-            return res.sendStatus();
+            return res.sendStatus(200);
         } catch (e) {
             return res.status(400).send('unable to add message batch');
         }
@@ -212,7 +212,7 @@ export default (
                 _encryptedProfileLocation,
             );
             if (success) {
-                return res.sendStatus();
+                return res.sendStatus(200);
             }
             res.status(400).send('unable to add conversation');
         } catch (e) {
@@ -290,7 +290,7 @@ export default (
             );
 
             if (success) {
-                return res.sendStatus();
+                return res.sendStatus(200);
             }
             res.status(400).send('unable to clear halted message');
         } catch (err) {
@@ -316,7 +316,7 @@ export default (
                     encryptedContactName,
                     hide,
                 );
-                return res.sendStatus();
+                return res.sendStatus(200);
             } catch (e) {
                 return res
                     .status(400)

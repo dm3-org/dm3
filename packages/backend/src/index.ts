@@ -35,7 +35,7 @@ app.use(bodyParser.json());
     app.use(logRequest);
 
     app.get('/hello', (req, res) => {
-        return res.sendStatus('Hello DM3');
+        return res.status(200).send('Hello DM3');
     });
     app.use('/profile', Profile(db, web3Provider, serverSecret));
     app.use('/storage', Storage(db, web3Provider, serverSecret));
