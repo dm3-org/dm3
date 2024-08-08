@@ -54,7 +54,7 @@ export const Auth = (db: IAccountDatabase, serverSecret: string) => {
             );
 
             if (!schemaIsValid) {
-                return res.send(400);
+                return res.sendStatus(400);
             }
 
             const challenge = await createChallenge(
@@ -85,7 +85,7 @@ export const Auth = (db: IAccountDatabase, serverSecret: string) => {
             const schemaIsValid = paramsAreValid && bodyIsValid;
 
             if (!schemaIsValid) {
-                return res.send(400);
+                return res.sendStatus(400);
             }
 
             const jwt = await createNewSessionToken(

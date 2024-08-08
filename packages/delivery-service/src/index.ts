@@ -126,7 +126,7 @@ global.logger = winston.createLogger({
     app.use(logRequest);
 
     app.get('/hello', (req, res) => {
-        return res.send('Hello DM3');
+        return res.sendStatus('Hello DM3');
     });
 
     //Auth
