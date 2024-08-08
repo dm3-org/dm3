@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
+import { createOrUpdateConversation } from './utils/createOrUpdateConversation';
 import { getOrCreateAccount } from './utils/getOrCreateAccount';
-import { getOrCreateConversation } from './utils/getOrCreateConversation';
 export const addConversation =
     (db: PrismaClient) =>
     async (
@@ -10,7 +10,7 @@ export const addConversation =
     ) => {
         try {
             const account = await getOrCreateAccount(db, ensName);
-            await getOrCreateConversation(
+            await createOrUpdateConversation(
                 db,
                 account.id,
                 contactName,
