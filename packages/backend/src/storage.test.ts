@@ -176,7 +176,7 @@ describe('Storage', () => {
             expect(body[0].encryptedProfileLocation).toEqual('123');
             expect(body.length).toBe(1);
         });
-        it('can add update existing conversation with encryptedProfileLocation', async () => {
+        it('can update existing conversation with encryptedProfileLocation', async () => {
             const aliceId = 'alice.eth';
 
             const { status } = await request(app)
