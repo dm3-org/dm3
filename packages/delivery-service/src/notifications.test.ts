@@ -661,7 +661,7 @@ describe('Notifications', () => {
     });
 
     describe('Resend OTP', () => {
-        it.only('Returns 400 on resend email verification OTP as globalNotifications is turned off', async () => {
+        it('Returns 400 on resend email verification OTP as globalNotifications is turned off', async () => {
             const app = express();
             app.use(bodyParser.json());
             const resendOtpMock = jest.fn();
