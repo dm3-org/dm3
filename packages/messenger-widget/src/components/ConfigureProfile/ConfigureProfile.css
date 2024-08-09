@@ -66,10 +66,11 @@
 }
 
 .name-service-selector {
-    background: var(--preferences-highlighted-color);
+    background-color: var(--text-primary-color);
     font-size: 14px;
     padding: 0.3rem;
-    font-weight: 500;
+    font-weight: bold;
+    color: #0D0D0D;
     outline: none;
 }
 
@@ -129,28 +130,32 @@ input::placeholder {
 }
 
 .dm3-prof-select-container{
-    border: 1px solid #FFFFFF; /* TODO : Replace hardcode color with dynamic color */
+    border: 1px solid var(--text-primary-color);
     border-radius: 5px;
 }
 
 .dm3-prof-select-type{
-    background: #D9D9D9; /* TODO : Replace hardcode color with dynamic color */
-    color: black;
+    background: var(--configure-profile-modal-background-color);
     font-weight: 500;
     font-size: 14px;
     padding: 0.5rem 0.5rem 0.5rem 0.5rem;
     line-height: 24px;
     border-radius: 5px;
+    color: black;
 }
 
 .name-option{
-    color: #FFFFFF; /* TODO : Replace hardcode color with dynamic color */
+    color: var(--text-primary-color);
     font-weight: 500;
     font-size: 14px;
     line-height: 24px;
     margin-left: 0.5rem;
     display: flex;
     align-items: center;
+}
+
+.prof-option-container{
+    padding: 1rem;
 }
 
 /* Customized CSS for radio button */
@@ -160,9 +165,9 @@ input::placeholder {
       + .radio-label {
         &:before {
           content: '';
-          background: #1F2029; /* TODO : Replace hardcode color with dynamic color */
+          background: #1F2029;
           border-radius: 100%;
-          border: 1px solid #FFFFFF; /* TODO : Replace hardcode color with dynamic color */
+          border: 1px solid var(--text-primary-color);
           display: inline-block;
           width: 1.4em;
           height: 1.4em;
@@ -178,8 +183,8 @@ input::placeholder {
       &:checked {
         + .radio-label {
           &:before {
-            background-color: #D9D9D9; /* TODO : Replace hardcode color with dynamic color */
-            box-shadow: inset 0 0 0 4px #1F2029; /* TODO : Replace hardcode color with dynamic color */
+            background-color: var(--configure-profile-modal-background-color);
+            box-shadow: inset 0 0 0 4px #1F2029;
           }
         }
       }
@@ -187,22 +192,16 @@ input::placeholder {
         + .radio-label {
           &:before {
             outline: none;
-            border-color: #D9D9D9; /* TODO : Replace hardcode color with dynamic color */
+            border-color: var(--configure-profile-modal-background-color);
           }
         }
       }
-      /* &:disabled {
-        + .radio-label {
-          &:before {
-            box-shadow: inset 0 0 0 4px #f4f4f4;
-            border-color: darken(#f4f4f4, 25%);
-            background: darken(#f4f4f4, 25%);
-          }
-        }
-      } */
     }
   }
 
+  .ens-components-container{
+    padding: 1.25rem;
+  }
 
 /* =================== Mobile Responsive CSS =================== */
 
@@ -213,12 +212,20 @@ input::placeholder {
     .conversation-error {
         font-size: 0.7rem !important;
     }
+    .ens-components-container{
+        padding: 1rem;
+      }
 }
 
 @media only screen and (max-width: 800px) {
     .profile-input {
         padding: 0.2rem 0.5rem 0.2rem 0.5rem;
         width: 100%;
+        font-size: 12px;
+    }
+
+    .profile-input::placeholder{
+        font-size: 10px !important;
     }
 
     .dm3-name-container {
@@ -257,6 +264,7 @@ input::placeholder {
 
     .name-service-selector{
         font-size: 12px;
+        width: 100%;
     }
 
     .dm3-address {
@@ -265,6 +273,37 @@ input::placeholder {
     }
 
     .address-tooltip-text{
-        margin: 22px 0px 10px -118px !important;
+        margin: 22px 0px 10px -83px !important;
     }
+
+    .prof-option-container{
+        padding: 1rem 1rem 1rem 0rem;
+    }
+
+    .name-select-container{
+        margin-left: -11px;
+    }
+
+    .radio {
+        input[type="radio"] {
+          opacity: 0;
+          + .radio-label {
+            &:before {
+              width: 2em !important;
+            }
+          }
+        }
+    }
+
+    .dm3-prof-select-type{
+        font-size: 12px;
+    }
+
+    .title-content {
+        font-size: 12px;
+    }
+
+    .ens-components-container{
+        padding: 0.5rem;
+      }
 }

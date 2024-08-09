@@ -1,7 +1,15 @@
 import React from 'react';
 import { NewContact } from '../interfaces/utils';
-import { MessageActionType } from '../utils/enum-type-utils';
-import { IConfigureProfileModal, IOpenEmojiPopup, useModal } from '../hooks/modals/useModal';
+import {
+    MessageActionType,
+    ProfileScreenType,
+    ProfileType,
+} from '../utils/enum-type-utils';
+import {
+    IConfigureProfileModal,
+    IOpenEmojiPopup,
+    useModal,
+} from '../hooks/modals/useModal';
 
 export type ModalContextType = {
     loaderContent: string;
@@ -22,39 +30,42 @@ export type ModalContextType = {
     setShowAboutModal: (show: boolean) => void;
     showAddConversationModal: boolean;
     setShowAddConversationModal: (show: boolean) => void;
-    configureProfileModal: IConfigureProfileModal
-    setConfigureProfileModal: (modal: IConfigureProfileModal) => void,
+    configureProfileModal: IConfigureProfileModal;
+    setConfigureProfileModal: (modal: IConfigureProfileModal) => void;
     resetConfigureProfileModal: () => void;
     resetModalStates: () => void;
 };
 
 export const ModalContext = React.createContext<ModalContextType>({
     loaderContent: '',
-    setLoaderContent: (content: string) => { },
+    setLoaderContent: (content: string) => {},
     contactToHide: undefined,
-    setContactToHide: (action: string | undefined) => { },
+    setContactToHide: (action: string | undefined) => {},
     addConversation: {
         active: false,
         ensName: undefined,
         processed: false,
     },
-    setAddConversation: (contact: NewContact) => { },
+    setAddConversation: (contact: NewContact) => {},
     openEmojiPopup: { action: false, data: undefined },
-    setOpenEmojiPopup: (action: IOpenEmojiPopup) => { },
+    setOpenEmojiPopup: (action: IOpenEmojiPopup) => {},
     lastMessageAction: MessageActionType.NONE,
-    setLastMessageAction: (action: MessageActionType) => { },
+    setLastMessageAction: (action: MessageActionType) => {},
     showProfileConfigurationModal: false,
-    setShowProfileConfigurationModal: (show: boolean) => { },
+    setShowProfileConfigurationModal: (show: boolean) => {},
     showPreferencesModal: false,
-    setShowPreferencesModal: (show: boolean) => { },
+    setShowPreferencesModal: (show: boolean) => {},
     showAboutModal: false,
-    setShowAboutModal: (show: boolean) => { },
+    setShowAboutModal: (show: boolean) => {},
     showAddConversationModal: false,
-    setShowAddConversationModal: (show: boolean) => { },
-    configureProfileModal: { isAddProfileButtonActive: true },
-    setConfigureProfileModal: (modal: IConfigureProfileModal) => { },
-    resetConfigureProfileModal: () => { },
-    resetModalStates: () => { },
+    setShowAddConversationModal: (show: boolean) => {},
+    configureProfileModal: {
+        profileOptionSelected: ProfileType.DM3_NAME,
+        onScreen: ProfileScreenType.NONE,
+    },
+    setConfigureProfileModal: (modal: IConfigureProfileModal) => {},
+    resetConfigureProfileModal: () => {},
+    resetModalStates: () => {},
 });
 
 export const ModalContextProvider = ({ children }: { children?: any }) => {
@@ -107,7 +118,7 @@ export const ModalContextProvider = ({ children }: { children?: any }) => {
                 resetModalStates,
                 configureProfileModal,
                 setConfigureProfileModal,
-                resetConfigureProfileModal
+                resetConfigureProfileModal,
             }}
         >
             {children}

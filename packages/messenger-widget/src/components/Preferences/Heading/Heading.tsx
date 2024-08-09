@@ -14,8 +14,11 @@ export interface IHeading {
 export function Heading(props: IHeading) {
     const { screenWidth } = useContext(DM3ConfigurationContext);
 
-    const { setShowPreferencesModal, setShowProfileConfigurationModal, resetConfigureProfileModal } =
-        useContext(ModalContext);
+    const {
+        setShowPreferencesModal,
+        setShowProfileConfigurationModal,
+        resetConfigureProfileModal,
+    } = useContext(ModalContext);
 
     return (
         <div className="background-container d-flex justify-content-between">

@@ -1,6 +1,5 @@
 import { useContext } from 'react';
 import { AuthContext } from '../../../context/AuthContext';
-import DeleteDM3Name from '../../DeleteDM3Name/DeleteDM3Name';
 import { ConfigureDM3NameContext } from '../context/ConfigureDM3NameContext';
 import { ConfigureProfileContext } from '../context/ConfigureProfileContext';
 import {
@@ -9,7 +8,6 @@ import {
     NAME_TYPE,
     PROFILE_INPUT_FIELD_CLASS,
 } from '../chain/common';
-import deleteIcon from '../../../assets/images/delete.svg';
 
 export const MobileView = ({
     nameExtension,
@@ -24,25 +22,11 @@ export const MobileView = ({
 
     const { errorMsg, showError } = useContext(ConfigureProfileContext);
 
-    const {
-        dm3Name,
-        existingDm3Name,
-        showDeleteConfirmation,
-        handleNameChange,
-        handleClaimOrRemoveDm3Name,
-        updateDeleteConfirmation,
-        setShowDeleteConfirmation,
-    } = useContext(ConfigureDM3NameContext);
+    const { dm3Name, handleNameChange, handleClaimOrRemoveDm3Name } =
+        useContext(ConfigureDM3NameContext);
 
     return (
         <div className="d-flex ps-2 align-items-baseline">
-            {/* Delete DM3 name confirmation popup modal */}
-            {showDeleteConfirmation && (
-                <DeleteDM3Name
-                    setDeleteDM3NameConfirmation={updateDeleteConfirmation}
-                    removeDm3Name={handleClaimOrRemoveDm3Name}
-                />
-            )}
             <div className="dm3-name-container">
                 <div className="d-flex flex-column">
                     <p
@@ -58,81 +42,61 @@ export const MobileView = ({
                     >
                         {showError === NAME_TYPE.DM3_NAME && errorMsg}
                     </div>
-                    {!existingDm3Name ? (
-                        <form
-                            className="pe-2"
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                handleClaimOrRemoveDm3Name(
-                                    ACTION_TYPE.CONFIGURE,
-                                    setDisplayName,
-                                    submitDm3UsernameClaim,
-                                );
-                            }}
-                        >
-                            <input
-                                data-testid="dm3-name"
-                                className={PROFILE_INPUT_FIELD_CLASS.concat(
-                                    ' ',
-                                    showError === NAME_TYPE.DM3_NAME
-                                        ? 'err-background'
-                                        : '',
-                                )}
-                                type="text"
-                                value={dm3Name}
-                                placeholder={placeholder}
-                                onChange={(
-                                    e: React.ChangeEvent<HTMLInputElement>,
-                                ) => handleNameChange(e, NAME_TYPE.DM3_NAME)}
-                            />
-                            <p
-                                className="mb-0 ms-1 font-size-14 font-weight-500 
+
+                    <form
+                        className="pe-2"
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            handleClaimOrRemoveDm3Name(
+                                ACTION_TYPE.CONFIGURE,
+                                setDisplayName,
+                                submitDm3UsernameClaim,
+                            );
+                        }}
+                    >
+                        <input
+                            data-testid="dm3-name"
+                            className={PROFILE_INPUT_FIELD_CLASS.concat(
+                                ' ',
+                                showError === NAME_TYPE.DM3_NAME
+                                    ? 'err-background'
+                                    : '',
+                            )}
+                            type="text"
+                            value={dm3Name}
+                            placeholder={placeholder}
+                            onChange={(
+                                e: React.ChangeEvent<HTMLInputElement>,
+                            ) => handleNameChange(e, NAME_TYPE.DM3_NAME)}
+                        />
+                        <p
+                            className="mb-0 ms-1 font-size-14 font-weight-500 
                 line-height-24 grey-text"
-                            >
-                                {nameExtension}
-                            </p>
-                        </form>
-                    ) : (
-                        <>
-                            <p
-                                className="m-0 font-size-14 font-weight-500 line-height-24 
-                grey-text d-flex align-items-center"
-                            >
-                                {existingDm3Name}
-                                <img
-                                    className="ms-4 pointer-cursor"
-                                    src={deleteIcon}
-                                    alt="remove"
-                                    onClick={() =>
-                                        setShowDeleteConfirmation(true)
-                                    }
-                                />
-                            </p>
-                        </>
-                    )}
+                        >
+                            {nameExtension}
+                        </p>
+                    </form>
                 </div>
                 <div className="mt-2">
-                    {!existingDm3Name && (
-                        <button
-                            data-testid="claim-publish"
-                            disabled={!dm3Name || !dm3Name.length}
-                            className={BUTTON_CLASS.concat(
-                                ' ',
-                                !dm3Name || !dm3Name.length
-                                    ? 'modal-btn-disabled'
-                                    : 'modal-btn-active',
-                            )}
-                            onClick={() =>
-                                handleClaimOrRemoveDm3Name(
-                                    ACTION_TYPE.CONFIGURE,
-                                    setDisplayName,
-                                    submitDm3UsernameClaim,
-                                )
-                            }
-                        >
-                            Claim & Publish
-                        </button>
-                    )}
+                    <button
+                        data-testid="claim-publish"
+                        disabled={!dm3Name || !dm3Name.length}
+                        className={BUTTON_CLASS.concat(
+                            ' ',
+                            !dm3Name || !dm3Name.length
+                                ? 'add-prof-btn-disabled'
+                                : 'add-prof-btn-active',
+                        )}
+                        onClick={() =>
+                            handleClaimOrRemoveDm3Name(
+                                ACTION_TYPE.CONFIGURE,
+                                setDisplayName,
+                                submitDm3UsernameClaim,
+                            )
+                        }
+                    >
+                        Claim & Publish
+                    </button>
                 </div>
                 <div className="mt-3 dm3-name-content">
                     <div className="small-text font-weight-300 grey-text">

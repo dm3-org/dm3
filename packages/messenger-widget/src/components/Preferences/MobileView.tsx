@@ -10,7 +10,7 @@ export function MobileView() {
         setShowPreferencesModal,
         showProfileConfigurationModal,
         setShowProfileConfigurationModal,
-        resetConfigureProfileModal
+        resetConfigureProfileModal,
     } = useContext(ModalContext);
 
     const [optionChoosen, setOptionChoosen] = useState<any>(null);
@@ -27,7 +27,7 @@ export function MobileView() {
 
     // reset states of configure profile modal if any other component is loaded
     useEffect(() => {
-        if (optionChoosen && optionChoosen.name !== "dm3 Profile") {
+        if (optionChoosen && optionChoosen.name !== 'dm3 Profile') {
             resetConfigureProfileModal();
         }
     }, [optionChoosen]);
@@ -53,7 +53,7 @@ export function MobileView() {
                                                     ' ',
                                                     optionChoosen &&
                                                         optionChoosen.name ===
-                                                        item.name
+                                                            item.name
                                                         ? 'normal-btn-hover'
                                                         : '',
                                                 )}
