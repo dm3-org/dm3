@@ -7,17 +7,29 @@ import { Genome } from './nameService/Genome';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 import { OptimismNames } from './nameService/OptimismNames';
+import { DM3Configuration } from '../../interfaces/config';
+import { ITLDResolver } from './nameService/ITLDResolver';
+import { ForeignName } from './nameService/ForeignName';
 
 const SUPPORTED_NAMESERVICES = (
     provider: ethers.providers.JsonRpcProvider,
-    addrEnsSubdomain: string,
-    userEnsSubdomain: string,
-) => [
-    new EthereumNameService(provider, addrEnsSubdomain, userEnsSubdomain),
-    new Genome(provider, addrEnsSubdomain),
-    new OptimismNames(provider, addrEnsSubdomain),
-    new Dm3Name(provider, addrEnsSubdomain, userEnsSubdomain),
-    new EthAddressResolver(),
+    {
+        addressEnsSubdomain,
+        userEnsSubdomain,
+        resolverBackendUrl,
+    }: DM3Configuration,
+): ITLDResolver[] => [
+    new EthereumNameService(provider, addressEnsSubdomain, userEnsSubdomain),
+    new Genome(provider, addressEnsSubdomain),
+    new OptimismNames(provider, addressEnsSubdomain),
+    new ForeignName(provider, addressEnsSubdomain),
+    new Dm3Name(
+        provider,
+        addressEnsSubdomain,
+        userEnsSubdomain,
+        resolverBackendUrl,
+    ),
+    new EthAddressResolver(addressEnsSubdomain),
 ];
 
 export type TldAliasCache = {
@@ -31,24 +43,29 @@ export const useTopLevelAlias = () => {
     const [aliasTldCache, setAliasTldCache] = useState<TldAliasCache>({});
 
     //e.g. 0x1234.gnosis.eth -> 0x1234.gno
-    const resolveAliasToTLD = async (ensName: string) => {
+    const resolveAliasToTLD = async (
+        ensName: string,
+        foreignTldName?: string,
+    ) => {
         if (aliasTldCache[ensName]) {
             return aliasTldCache[ensName];
         }
+
+        console.log('resolveAliasToTLD START', ensName, foreignTldName);
+
         for (const nameservice of SUPPORTED_NAMESERVICES(
             mainnetProvider,
-            dm3Configuration.addressEnsSubdomain,
-            dm3Configuration.userEnsSubdomain,
+            dm3Configuration,
         )) {
             if (
                 await nameservice.isResolverForAliasName(
                     ensName,
-                    dm3Configuration.addressEnsSubdomain,
+                    foreignTldName,
                 )
             ) {
                 const tldName = await nameservice.resolveAliasToTLD(
                     ensName,
-                    dm3Configuration.resolverBackendUrl,
+                    foreignTldName,
                 );
                 setAliasTldCache((prev) => ({ ...prev, [ensName]: tldName }));
                 return tldName;
@@ -63,14 +80,10 @@ export const useTopLevelAlias = () => {
         }
         for (const nameservice of SUPPORTED_NAMESERVICES(
             mainnetProvider,
-            dm3Configuration.addressEnsSubdomain,
-            dm3Configuration.userEnsSubdomain,
+            dm3Configuration,
         )) {
             if (await nameservice.isResolverForTldName(ensName)) {
-                const aliasName = await nameservice.resolveTLDtoAlias(
-                    ensName,
-                    dm3Configuration.addressEnsSubdomain,
-                );
+                const aliasName = await nameservice.resolveTLDtoAlias(ensName);
                 setTldAliasCache((prev) => ({ ...prev, [ensName]: aliasName }));
                 return aliasName;
             }

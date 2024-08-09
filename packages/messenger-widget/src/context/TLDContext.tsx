@@ -3,7 +3,10 @@ import React from 'react';
 import { useTopLevelAlias } from '../hooks/topLevelAlias/useTopLevelAlias';
 
 export type TLDContextType = {
-    resolveAliasToTLD: (ensName: string) => Promise<string>;
+    resolveAliasToTLD: (
+        ensName: string,
+        foreinTldName?: string,
+    ) => Promise<string>;
     resolveTLDtoAlias: (ensName: string) => Promise<string>;
 };
 

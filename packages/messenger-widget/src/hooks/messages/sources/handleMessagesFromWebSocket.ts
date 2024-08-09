@@ -8,16 +8,18 @@ import {
 } from '@dm3-org/dm3-lib-messaging';
 import {
     Account,
-    ProfileKeys,
     normalizeEnsName,
+    ProfileKeys,
 } from '@dm3-org/dm3-lib-profile';
 import { ContactPreview } from '../../../interfaces/utils';
-import { AddConversation, StoreMessageAsync } from '../../storage/useStorage';
+import { StoreMessageAsync } from '../../storage/useStorage';
 import { MessageModel, MessageSource, MessageStorage } from '../useMessage';
 
 export const handleMessagesFromWebSocket = async (
     account: Account,
-    addConversation: AddConversation,
+    addConversation: (
+        contactEnsName: string,
+    ) => Promise<ContactPreview | undefined>,
     setMessages: Function,
     storeMessage: StoreMessageAsync,
     profileKeys: ProfileKeys,
@@ -47,8 +49,8 @@ export const handleMessagesFromWebSocket = async (
         await resolveTLDtoAlias(decryptedEnvelop.message.metadata.from),
     );
 
-    decryptedEnvelop.message.metadata.from = contact;
-    await addConversation(contact);
+    //TODO use TLD name
+    await addConversation(decryptedEnvelop.message.metadata.from);
 
     const messageState =
         selectedContact?.contactDetails.account.ensName === contact

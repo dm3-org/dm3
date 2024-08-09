@@ -46,7 +46,10 @@ export const StorageContext = React.createContext<StorageContextType>({
     ) => {},
     getConversations: async (size: number, offset: number) =>
         Promise.resolve([]),
-    addConversationAsync: (contact: string) => {},
+    addConversationAsync: (
+        contact: string,
+        contactProfileLocation: string[],
+    ) => {},
     getMessages: async (contact: string, pageSize: number, offset: number) =>
         Promise.resolve([]),
     getHaltedMessages: async () => Promise.resolve([]),

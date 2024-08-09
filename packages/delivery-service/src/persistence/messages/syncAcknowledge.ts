@@ -1,3 +1,4 @@
+import { stringify } from '@dm3-org/dm3-lib-shared';
 import { Redis, RedisPrefix } from '../getDatabase';
 import { getMessages } from './getMessages';
 
@@ -33,7 +34,7 @@ export function syncAcknowledge(redis: Redis) {
         //remove the message from the sorted set
         const res = await redis.zRem(
             RedisPrefix.Conversation + conversationId,
-            JSON.stringify(message),
+            stringify(message),
         );
         //returns true if the message is removed successfully
         return !!res;

@@ -60,7 +60,7 @@ export default (
                         message.encryptedEnvelopContainer,
                 })),
             );
-            return res.send();
+            return res.sendStatus(200);
         } catch (e) {
             next(e);
         }
@@ -100,7 +100,7 @@ export default (
                 ],
             );
             if (success) {
-                return res.send();
+                return res.sendStatus(200);
             }
             res.status(400).send('unable to add message');
         } catch (e) {
@@ -133,7 +133,7 @@ export default (
                     isHalted: message.isHalted,
                 })),
             );
-            return res.send();
+            return res.sendStatus(200);
         } catch (e) {
             return res.status(400).send('unable to add message batch');
         }
@@ -196,19 +196,23 @@ export default (
     );
 
     router.post('/new/:ensName/addConversation', async (req, res, next) => {
-        const { encryptedContactName } = req.body;
+        const { encryptedContactName, encryptedProfileLocation } = req.body;
         if (!encryptedContactName) {
             res.status(400).send('invalid schema');
             return;
         }
+
+        //Param encryptedProfileLocation is optional, hence the default value is an empty string
+        const _encryptedProfileLocation = encryptedProfileLocation || '';
         try {
             const ensName = normalizeEnsName(req.params.ensName);
             const success = await db.addConversation(
                 ensName,
                 encryptedContactName,
+                _encryptedProfileLocation,
             );
             if (success) {
-                return res.send();
+                return res.sendStatus(200);
             }
             res.status(400).send('unable to add conversation');
         } catch (e) {
@@ -286,7 +290,7 @@ export default (
             );
 
             if (success) {
-                return res.send();
+                return res.sendStatus(200);
             }
             res.status(400).send('unable to clear halted message');
         } catch (err) {
@@ -312,7 +316,7 @@ export default (
                     encryptedContactName,
                     hide,
                 );
-                return res.send();
+                return res.sendStatus(200);
             } catch (e) {
                 return res
                     .status(400)
