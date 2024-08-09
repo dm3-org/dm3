@@ -8,6 +8,6 @@ export function hasAccount(redis: Redis) {
         );
 
         // return true if account exists, false otherwise
-        return account ? true : false;
+        return !!account;
     };
 }

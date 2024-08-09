@@ -28,7 +28,6 @@ export async function authorize(
     const normalizedEnsName = normalizeEnsName(ensName);
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
-    //TODO resolve addr for ens name
     if (
         token &&
         (await checkToken(
