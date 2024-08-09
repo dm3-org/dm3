@@ -1,11 +1,20 @@
 import { useState } from 'react';
 import { NewContact } from '../../interfaces/utils';
 import { MessageProps } from '../../interfaces/props';
-import { MessageActionType } from '../../utils/enum-type-utils';
+import {
+    MessageActionType,
+    ProfileScreenType,
+    ProfileType,
+} from '../../utils/enum-type-utils';
 
 export interface IOpenEmojiPopup {
     action: boolean;
     data: MessageProps | undefined;
+}
+
+export interface IConfigureProfileModal {
+    profileOptionSelected: ProfileType;
+    onScreen: ProfileScreenType;
 }
 
 export const useModal = () => {
@@ -40,6 +49,18 @@ export const useModal = () => {
 
     const [showAboutModal, setShowAboutModal] = useState<boolean>(false);
 
+    const [configureProfileModal, setConfigureProfileModal] =
+        useState<IConfigureProfileModal>({
+            profileOptionSelected: ProfileType.DM3_NAME,
+            onScreen: ProfileScreenType.NONE,
+        });
+
+    const resetConfigureProfileModal = () => {
+        setConfigureProfileModal({
+            profileOptionSelected: ProfileType.DM3_NAME,
+            onScreen: ProfileScreenType.NONE,
+        });
+    };
     const resetModalStates = () => {
         setLoaderContent('');
         setContactToHide(undefined);
@@ -54,6 +75,10 @@ export const useModal = () => {
         setShowPreferencesModal(false);
         setShowAboutModal(false);
         setShowAddConversationModal(false);
+        setConfigureProfileModal({
+            profileOptionSelected: ProfileType.DM3_NAME,
+            onScreen: ProfileScreenType.NONE,
+        });
     };
 
     return {
@@ -76,5 +101,8 @@ export const useModal = () => {
         showAddConversationModal,
         setShowAddConversationModal,
         resetModalStates,
+        configureProfileModal,
+        setConfigureProfileModal,
+        resetConfigureProfileModal,
     };
 };

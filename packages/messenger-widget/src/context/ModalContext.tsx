@@ -1,7 +1,15 @@
 import React from 'react';
 import { NewContact } from '../interfaces/utils';
-import { MessageActionType } from '../utils/enum-type-utils';
-import { IOpenEmojiPopup, useModal } from '../hooks/modals/useModal';
+import {
+    MessageActionType,
+    ProfileScreenType,
+    ProfileType,
+} from '../utils/enum-type-utils';
+import {
+    IConfigureProfileModal,
+    IOpenEmojiPopup,
+    useModal,
+} from '../hooks/modals/useModal';
 
 export type ModalContextType = {
     loaderContent: string;
@@ -22,6 +30,9 @@ export type ModalContextType = {
     setShowAboutModal: (show: boolean) => void;
     showAddConversationModal: boolean;
     setShowAddConversationModal: (show: boolean) => void;
+    configureProfileModal: IConfigureProfileModal;
+    setConfigureProfileModal: (modal: IConfigureProfileModal) => void;
+    resetConfigureProfileModal: () => void;
     resetModalStates: () => void;
 };
 
@@ -48,6 +59,12 @@ export const ModalContext = React.createContext<ModalContextType>({
     setShowAboutModal: (show: boolean) => {},
     showAddConversationModal: false,
     setShowAddConversationModal: (show: boolean) => {},
+    configureProfileModal: {
+        profileOptionSelected: ProfileType.DM3_NAME,
+        onScreen: ProfileScreenType.NONE,
+    },
+    setConfigureProfileModal: (modal: IConfigureProfileModal) => {},
+    resetConfigureProfileModal: () => {},
     resetModalStates: () => {},
 });
 
@@ -71,6 +88,9 @@ export const ModalContextProvider = ({ children }: { children?: any }) => {
         setShowAboutModal,
         showAddConversationModal,
         setShowAddConversationModal,
+        configureProfileModal,
+        setConfigureProfileModal,
+        resetConfigureProfileModal,
         resetModalStates,
     } = useModal();
 
@@ -96,6 +116,9 @@ export const ModalContextProvider = ({ children }: { children?: any }) => {
                 showAddConversationModal,
                 setShowAddConversationModal,
                 resetModalStates,
+                configureProfileModal,
+                setConfigureProfileModal,
+                resetConfigureProfileModal,
             }}
         >
             {children}
