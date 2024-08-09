@@ -1,5 +1,6 @@
 export { Auth } from './auth';
-export * from './utils';
+export * from './authorize';
 export { getCachedWebProvider } from './web3Provider/getCachedWebProvider';
-export type { IAccountDatabase } from './iSessionDatabase';
-export { Profile } from './profile';
+export type { IAccountDatabase } from './iAccountDatabase';
+export * from './utils';
+export * from './Keys';

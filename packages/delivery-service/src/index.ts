@@ -1,14 +1,12 @@
 import { Session } from '@dm3-org/dm3-lib-delivery';
 import {
     Auth,
-    Profile,
     errorHandler,
     getCachedWebProvider,
     getServerSecret,
     logError,
     logRequest,
     readKeysFromEnv,
-    socketAuth,
 } from '@dm3-org/dm3-lib-server-side';
 import { NotificationChannelType, logInfo } from '@dm3-org/dm3-lib-shared';
 import { Axios } from 'axios';
@@ -27,8 +25,10 @@ import Delivery from './delivery';
 import { onConnection } from './messaging';
 import Notifications from './notifications';
 import { IDatabase, getDatabase } from './persistence/getDatabase';
+import { Profile } from './profile/profile';
 import RpcProxy from './rpc/rpc-proxy';
 import { WebSocketManager } from './ws/WebSocketManager';
+import { socketAuth } from './socketAuth';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -36,10 +36,10 @@ app.use(express.urlencoded({ limit: '50mb' }));
 
 const server = http.createServer(app);
 
-//On the delivery-service side the address functions as an identifier for the account.
+// On the delivery-service side the address functions as an identifier for the account.
 // The reason for that is that the DS should accept all messages directet to the address. Regardless of its ENS name.
 // To use as much shared code as possible from lib/server-side the address is resolved to the account before each database call.
-//using this wrapper around the IDatabase
+// using this wrapper around the IDatabase
 const getDbWithAddressResolvedGetAccount = (
     db: IDatabase,
     web3Provider: ethers.providers.JsonRpcProvider,
@@ -63,9 +63,29 @@ const getDbWithAddressResolvedGetAccount = (
         };
     };
 
+    const hasAccountForEnsName = (
+        web3Provider: ethers.providers.JsonRpcProvider,
+        hasAccount: (ensName: string) => Promise<boolean>,
+    ) => {
+        return async (ensName: string) => {
+            const address = await web3Provider.resolveName(ensName);
+            console.debug(
+                'getDbWithAddressResolvedHasAccount resolved address for ens name: ',
+                ensName,
+                address,
+            );
+            if (!address) {
+                console.info('no address found for ens name: ', ensName);
+                return false;
+            }
+            return hasAccount(address);
+        };
+    };
+
     return {
         ...db,
         getAccount: getAccountForEnsName(web3Provider, db.getAccount),
+        hasAccount: hasAccountForEnsName(web3Provider, db.hasAccount),
     };
 };
 //TODO remove
@@ -133,7 +153,7 @@ global.logger = winston.createLogger({
     //socketAuth
     //restAuth
 
-    app.use('/auth', Auth(db, serverSecret));
+    app.use('/auth', Auth(db, serverSecret, web3Provider));
     app.use('/profile', Profile(db, web3Provider, serverSecret));
     app.use('/delivery', Delivery(web3Provider, db, serverSecret));
     app.use(

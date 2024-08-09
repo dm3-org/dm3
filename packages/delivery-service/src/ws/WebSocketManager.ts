@@ -1,4 +1,4 @@
-import { checkToken } from '@dm3-org/dm3-lib-delivery';
+import { checkToken } from '@dm3-org/dm3-lib-server-side';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { IWebSocketManager } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
@@ -60,7 +60,7 @@ export class WebSocketManager implements IWebSocketManager {
             //Use the already existing function checkToken to check whether the token matches the provided ensName
             const hasSession = await checkToken(
                 this.web3Provider,
-                this.db.getAccount,
+                this.db.hasAccount,
                 ensName,
                 token,
                 this.serverSecret,

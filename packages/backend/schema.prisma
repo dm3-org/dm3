@@ -34,6 +34,7 @@ model Conversation {
 
 model Account {
     id               String             @id
+    createdAt        DateTime           @default(now())
     conversations    Conversation[]
     EncryptedMessage EncryptedMessage[]
 }

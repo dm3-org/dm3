@@ -10,6 +10,9 @@ import { MessageRecord } from './postgres/dto/MessageRecord';
 
 import { getHaltedMessages } from './postgres/haltedMessage/getHaltedMessages';
 import { clearHaltedMessage } from './postgres/haltedMessage/clearHaltedMessage';
+import { getAccount } from './postgres/getAccount';
+import { setAccount } from './postgres/setAccount';
+import { hasAccount } from './postgres/hasAccount';
 
 export default {
     addConversation,
@@ -22,6 +25,9 @@ export default {
     toggleHideConversation,
     getHaltedMessages,
     clearHaltedMessage,
+    getAccount,
+    setAccount,
+    hasAccount,
 };
 
 export type { MessageRecord };

@@ -39,7 +39,7 @@ app.use(bodyParser.json());
     });
     app.use('/profile', Profile(db, web3Provider, serverSecret));
     app.use('/storage', Storage(db, web3Provider, serverSecret));
-    app.use('/auth', Auth(db, serverSecret));
+    app.use('/auth', Auth(db, serverSecret, web3Provider));
     app.use(logError);
     app.use(errorHandler);
 })();

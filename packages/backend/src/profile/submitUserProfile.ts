@@ -1,17 +1,16 @@
-import { Session, generateAuthJWT } from '@dm3-org/dm3-lib-delivery';
 import {
     SignedUserProfile,
-    normalizeEnsName,
     checkUserProfile,
-    getDefaultProfileExtension,
+    normalizeEnsName,
 } from '@dm3-org/dm3-lib-profile';
+import { generateAuthJWT } from '@dm3-org/dm3-lib-server-side';
 import { logDebug } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
+import { IBackendDatabase } from '../persistence/getDatabase';
 
 export async function submitUserProfile(
     provider: ethers.providers.JsonRpcProvider,
-    getAccount: (accountAddress: string) => Promise<Session | null>,
-    setAccount: (accountAddress: string, session: Session) => Promise<void>,
+    db: IBackendDatabase,
     ensName: string,
     signedUserProfile: SignedUserProfile,
     serverSecret: string,
@@ -22,19 +21,16 @@ export async function submitUserProfile(
         logDebug('submitUserProfile - Signature invalid');
         throw Error('Signature invalid.');
     }
-    if (await getAccount(account)) {
+    if (await db.hasAccount(account)) {
         logDebug('submitUserProfile - Profile exists already');
         throw Error('Profile exists already');
     }
-    const session: Session = {
-        account,
-        signedUserProfile,
-        token: generateAuthJWT(ensName, serverSecret),
-        createdAt: new Date().getTime(),
-        profileExtension: getDefaultProfileExtension(),
-    };
-    logDebug({ text: 'submitUserProfile', session });
-    await setAccount(account.toLocaleLowerCase(), session);
+    logDebug({ text: 'submitUserProfile', account });
 
-    return session.token;
+    await db.setAccount(account.toLocaleLowerCase());
+
+    // create auth jwt
+    const token = generateAuthJWT(account, serverSecret);
+
+    return token;
 }

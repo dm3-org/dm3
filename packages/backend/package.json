@@ -29,10 +29,11 @@
   "scripts": {
     "docker:up": "docker compose up -d",
     "prisma-init": "prisma generate && prisma migrate deploy ",
+    "prisma-create-migrations": "prisma generate && prisma migrate dev",
     "start": "yarn prisma-init && node  ./dist/index.js",
     "start-inspect": "node --inspect=0.0.0.0:9229  ./dist/index.js",
     "test": "yarn run before:tests && DATABASE_URL='postgresql://prisma:prisma@localhost:5433/tests?schema=public' yarn jest --coverage --runInBand --transformIgnorePatterns 'node_modules/(?!(dm3-lib-\\w*)/)'",
-    "build": "yarn tsc && cp ./config.yml ./dist/config.yml | true",
+    "build": "yarn prisma generate && yarn tsc && cp ./config.yml ./dist/config.yml | true",
     "build:schema": "sh ./schemas.sh",
     "createDeliveryServiceProfile": "node --no-warnings ./cli.js",
     "before:tests": "docker compose -f docker-compose.test.yml up -d && DATABASE_URL='postgresql://prisma:prisma@localhost:5433/tests?schema=public' yarn prisma-init"

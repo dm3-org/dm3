@@ -1,4 +1,5 @@
-import { Session, generateAuthJWT } from '@dm3-org/dm3-lib-delivery';
+import { Session } from '@dm3-org/dm3-lib-delivery';
+import { generateAuthJWT } from '@dm3-org/dm3-lib-server-side';
 import {
     UserProfile,
     getProfileCreationMessage,
@@ -9,7 +10,7 @@ import { ethers } from 'ethers';
 import express from 'express';
 import request from 'supertest';
 import { Profile as profile } from './profile';
-import { IAccountDatabase } from '../dist';
+import { IDatabase } from '../persistence/getDatabase';
 
 const serverSecret = 'veryImportantSecretToGenerateAndValidateJSONWebTokens';
 
@@ -17,7 +18,7 @@ const token = generateAuthJWT('alice.eth', serverSecret);
 
 const setUpApp = async (
     app: express.Express,
-    db: IAccountDatabase,
+    db: IDatabase,
     web3Provider: ethers.providers.JsonRpcProvider,
     serverSecret: string = 'my-secret',
 ) => {

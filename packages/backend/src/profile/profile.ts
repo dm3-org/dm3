@@ -1,13 +1,18 @@
-import { normalizeEnsName, schema } from '@dm3-org/dm3-lib-profile';
+import { generateAuthJWT } from '@dm3-org/dm3-lib-server-side';
+import { getUserProfile } from '@dm3-org/dm3-lib-profile';
+
+import {
+    checkUserProfile,
+    normalizeEnsName,
+    schema,
+} from '@dm3-org/dm3-lib-profile';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import express from 'express';
-import { IDatabase } from '../persistence/getDatabase';
-import { getUserProfile } from './getUserProfile';
-import { submitUserProfile } from './submitUserProfile';
+import { IBackendDatabase } from '../persistence/getDatabase';
 
 export default (
-    db: IDatabase,
+    db: IBackendDatabase,
     web3Provider: ethers.providers.JsonRpcProvider,
     serverSecret: string,
 ) => {
@@ -17,7 +22,7 @@ export default (
         try {
             const ensName = normalizeEnsName(req.params.ensName);
 
-            const profile = await getUserProfile(db.getAccount, ensName);
+            const profile = await getUserProfile(web3Provider, ensName);
             if (profile) {
                 res.json(profile);
             } else {
@@ -28,6 +33,11 @@ export default (
         }
     });
 
+    /**
+     * Creates a new profile for the given ensName
+     * @param ensName ens id of the account
+     * @param signedUserProfile signed user profile
+     */
     router.post('/:ensName', async (req: express.Request, res, next) => {
         try {
             const schemaIsValid = validateSchema(
@@ -48,21 +58,44 @@ export default (
                     process.env.DISABLE_SESSION_CHECK === 'true',
             });
 
-            const data = await submitUserProfile(
-                web3Provider,
-                db.getAccount,
-                db.setAccount,
-                ensName,
-                req.body,
-                serverSecret,
-            );
+            // check if profile and signature are valid
+            if (
+                !(await checkUserProfile(
+                    web3Provider,
+                    req.body, // as SignedUserProfile,
+                    normalizeEnsName(ensName),
+                ))
+            ) {
+                console.debug(
+                    'Not creating account for ' +
+                        ensName +
+                        '  - Signature invalid',
+                );
+                throw Error('Signature invalid.');
+            }
+
+            // check if an account for this name already exists
+            if (await db.getAccount(ensName)) {
+                console.debug(
+                    'Not creating account for ' +
+                        ensName +
+                        ' - account exists already',
+                );
+                throw Error('Account exists already');
+            }
+
+            // create account
+            const account = await db.setAccount(ensName);
             console.debug({
                 message: 'POST profile',
                 ensName,
-                data,
+                account,
             });
 
-            res.json(data);
+            // generate auth jwt
+            const token = generateAuthJWT(ensName, serverSecret);
+
+            res.json(token);
         } catch (e) {
             console.warn({
                 message: 'POST profile',
