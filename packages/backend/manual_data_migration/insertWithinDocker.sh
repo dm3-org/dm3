@@ -3,8 +3,8 @@
 # Input file
 input_file="dump.txt"
 
-DB_NAME="dm3-storage"
-DB_USER="postgres"
+DB_NAME="dm3"
+DB_USER="prisma"
 
 
 # Read the input file line by line
@@ -18,7 +18,10 @@ do
     timestamp_seconds=$(echo $timestamp | sed 's/...$//')
 
     # Insert the extracted values into the PostgreSQL table
-    psql -U $DB_USER -d $DB_NAME -c "INSERT INTO \"Account\" (id, \"createdAt\") VALUES ('$id', to_timestamp($timestamp_seconds));"
+    psql -U $DB_USER -d $DB_NAME -c "INSERT INTO \"Account\" (id, \"createdAt\") \
+    VALUES ('$id', to_timestamp($timestamp_seconds))\
+    ON CONFLICT (id) \
+    DO UPDATE SET \"createdAt\" = excluded.\"createdAt\";"
 
 done < "$input_file"
 
