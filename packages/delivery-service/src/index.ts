@@ -63,9 +63,29 @@ const getDbWithAddressResolvedGetAccount = (
         };
     };
 
+    const hasAccountForEnsName = (
+        web3Provider: ethers.providers.JsonRpcProvider,
+        hasAccount: (ensName: string) => Promise<boolean>,
+    ) => {
+        return async (ensName: string) => {
+            const address = await web3Provider.resolveName(ensName);
+            console.debug(
+                'getDbWithAddressResolvedHasAccount resolved address for ens name: ',
+                ensName,
+                address,
+            );
+            if (!address) {
+                console.info('no address found for ens name: ', ensName);
+                return false;
+            }
+            return hasAccount(address);
+        };
+    };
+
     return {
         ...db,
         getAccount: getAccountForEnsName(web3Provider, db.getAccount),
+        hasAccount: hasAccountForEnsName(web3Provider, db.hasAccount),
     };
 };
 //TODO remove
