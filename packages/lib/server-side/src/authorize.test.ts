@@ -51,7 +51,7 @@ describe('Utils', () => {
 
             //Mock request auth protected
             router.get('/:address', (req, res) => {
-                return res.send(200);
+                return res.sendStatus(200);
             });
 
             const { status, body } = await request(app)
@@ -100,7 +100,7 @@ describe('Utils', () => {
 
             //Mock request auth protected
             router.get('/:address', (req, res) => {
-                return res.send(200);
+                return res.sendStatus(200);
             });
 
             const { status, body } = await request(app)
@@ -148,7 +148,7 @@ describe('Utils', () => {
 
             //Mock request auth protected
             router.get('/:address', (req, res) => {
-                return res.send(200);
+                return res.sendStatus(200);
             });
 
             app.locals.web3Provider = {
@@ -205,7 +205,7 @@ describe('Utils', () => {
 
             //Mock request auth protected
             router.get('/:address', (req, res) => {
-                return res.send(200);
+                return res.sendStatus(200);
             });
 
             const { status, body } = await request(app)
@@ -274,7 +274,7 @@ describe('Utils', () => {
 
             //Mock request auth protected
             router.get('/:address', (req, res) => {
-                return res.send(200);
+                return res.sendStatus(200);
             });
 
             const { status, body } = await request(app)
@@ -363,7 +363,7 @@ describe('Utils', () => {
 
             //Mock request auth protected
             router.get('/:address', (req, res) => {
-                return res.send(200);
+                return res.sendStatus(200);
             });
 
             const { status, body } = await request(app)

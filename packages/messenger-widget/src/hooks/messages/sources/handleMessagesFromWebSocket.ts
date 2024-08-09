@@ -49,9 +49,8 @@ export const handleMessagesFromWebSocket = async (
         await resolveTLDtoAlias(decryptedEnvelop.message.metadata.from),
     );
 
-    decryptedEnvelop.message.metadata.from = contact;
     //TODO use TLD name
-    await addConversation(contact);
+    await addConversation(decryptedEnvelop.message.metadata.from);
 
     const messageState =
         selectedContact?.contactDetails.account.ensName === contact

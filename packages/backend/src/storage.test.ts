@@ -142,6 +142,52 @@ describe('Storage', () => {
             expect(body[0].encryptedProfileLocation).toEqual('123');
             expect(body.length).toBe(1);
         });
+        it('can update existing conversation with encryptedProfileLocation', async () => {
+            const aliceId = 'alice.eth';
+
+            const { status } = await request(app)
+                .post(`/new/bob.eth/addConversation`)
+                .set({
+                    authorization: 'Bearer ' + token,
+                })
+                .send({
+                    encryptedContactName: aliceId,
+                    encryptedProfileLocation: '123',
+                });
+            expect(status).toBe(200);
+
+            const { body } = await request(app)
+                .get(`/new/bob.eth/getConversations`)
+                .set({
+                    authorization: 'Bearer ' + token,
+                })
+                .send();
+
+            expect(status).toBe(200);
+            expect(body[0].contact).toEqual(aliceId);
+            expect(body[0].encryptedProfileLocation).toEqual('123');
+            expect(body.length).toBe(1);
+
+            const { status: updateStatus } = await request(app)
+                .post(`/new/bob.eth/addConversation`)
+                .set({
+                    authorization: 'Bearer ' + token,
+                })
+                .send({
+                    encryptedContactName: aliceId,
+                    encryptedProfileLocation: '123456',
+                });
+            expect(updateStatus).toBe(200);
+
+            const { body: updatedBody } = await request(app)
+                .get(`/new/bob.eth/getConversations`)
+                .set({
+                    authorization: 'Bearer ' + token,
+                });
+
+            expect(updatedBody[0].contact).toEqual(aliceId);
+            expect(updatedBody[0].encryptedProfileLocation).toEqual('123456');
+        });
         it('handle duplicates add conversation', async () => {
             const aliceId = 'alice.eth';
             const ronId = 'ron.eth';

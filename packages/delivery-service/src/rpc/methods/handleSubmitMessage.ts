@@ -70,7 +70,7 @@ export async function handleSubmitMessage(
 
     try {
         await messageProcessor.processEnvelop(envelop);
-        res.send(200);
+        res.sendStatus(200);
     } catch (error) {
         console.error('handle submit message error');
         console.error(error);
