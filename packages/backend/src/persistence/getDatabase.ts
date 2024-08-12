@@ -1,50 +1,8 @@
 import { Account, PrismaClient } from '@prisma/client';
-import { createClient } from 'redis';
 import Storage from './storage';
 import { ConversationRecord } from './storage/postgres/dto/ConversationRecord';
 import { MessageRecord } from './storage/postgres/dto/MessageRecord';
 import { IAccountDatabase } from '@dm3-org/dm3-lib-server-side';
-
-export enum RedisPrefix {
-    Conversation = 'conversation:',
-    IncomingConversations = 'incoming.conversations:',
-    Sync = 'sync:',
-    // Account used to be called Session. The prefix still resolves to "session:" for now.
-    Account = 'session:',
-    NotificationChannel = 'notificationChannel:',
-    GlobalNotification = 'globalNotification:',
-    Otp = 'otp:',
-    UserStorageMigrated = 'user.storage.migrated:',
-}
-
-export async function getRedisClient() {
-    const url = process.env.REDIS_URL || 'redis://127.0.0.1:6380';
-    const socketConf = {
-        socket: {
-            tls: true,
-            rejectUnauthorized: false,
-        },
-    };
-    const client = createClient(
-        process.env.NODE_ENV === 'production'
-            ? {
-                  url,
-                  ...socketConf,
-              }
-            : { url },
-    );
-
-    client.on('error', (err) => {
-        console.error('Redis error: ' + (err as Error).message);
-    });
-
-    client.on('reconnecting', () => console.info('Redis reconnection'));
-    client.on('ready', () => console.info('Redis ready'));
-
-    await client.connect();
-
-    return client;
-}
 
 export async function getPrismaClient() {
     return new PrismaClient();
@@ -130,5 +88,3 @@ export interface IBackendDatabase extends IAccountDatabase {
         messageId: string,
     ) => Promise<boolean>;
 }
-
-export type Redis = Awaited<ReturnType<typeof getRedisClient>>;
