@@ -4,15 +4,15 @@ import { Redis, RedisPrefix } from '../getDatabase';
 
 export function getAccount(redis: Redis) {
     return async (address: string) => {
-        const session = await redis.get(
+        const account = await redis.get(
             RedisPrefix.Account + ethers.utils.getAddress(address),
         );
 
-        if (!session) {
+        if (!account) {
             console.debug('there is no account for this address: ', address);
             return null;
         }
 
-        return JSON.parse(session) as Account;
+        return JSON.parse(account) as Account;
     };
 }

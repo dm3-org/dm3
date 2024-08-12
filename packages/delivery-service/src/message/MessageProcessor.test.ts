@@ -76,7 +76,7 @@ describe('MessageProcessor', () => {
         const isSender = getAddress(ensName) === sender.address;
         const isReceiver = getAddress(ensName) === receiver.address;
 
-        const session = (
+        const account = (
             account: string,
             token: string,
             profile: UserProfile,
@@ -97,14 +97,14 @@ describe('MessageProcessor', () => {
 
         if (isSender) {
             return {
-                ...session(sender.address, '123', emptyProfile),
+                ...account(sender.address, '123', emptyProfile),
                 spamFilterRules: {},
             };
         }
 
         if (isReceiver) {
             return {
-                ...session(getAddress(receiver.address), 'abc', {
+                ...account(getAddress(receiver.address), 'abc', {
                     ...emptyProfile,
                     publicEncryptionKey:
                         receiver.profileKeys.encryptionKeyPair.publicKey,
@@ -256,7 +256,7 @@ describe('MessageProcessor', () => {
 
         await expect(() =>
             messageProcessor.processEnvelop(incomingEnvelop),
-        ).rejects.toEqual(Error('unknown session'));
+        ).rejects.toEqual(Error('unknown account'));
     });
     // //TODO remove skip once spam-filter is implemented
     // //TODO remove skip once spam-filter is implemented

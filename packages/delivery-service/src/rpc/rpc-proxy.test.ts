@@ -65,7 +65,7 @@ describe('rpc-Proxy', () => {
         const isReceiver =
             ethersHelper.formatAddress(address) === receiver.address;
 
-        const session = (
+        const account = (
             account: string,
             token: string,
             profile: UserProfile,
@@ -79,11 +79,11 @@ describe('rpc-Proxy', () => {
         });
 
         if (isSender) {
-            return session(sender.address, '123', emptyProfile);
+            return account(sender.address, '123', emptyProfile);
         }
 
         if (isReceiver) {
-            return session(RECEIVER_NAME, 'abc', {
+            return account(RECEIVER_NAME, 'abc', {
                 ...emptyProfile,
                 publicEncryptionKey:
                     receiver.profileKeys.encryptionKeyPair.publicKey,

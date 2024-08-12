@@ -98,7 +98,7 @@ export async function getDatabase(
 }
 
 export interface IDatabase extends IAccountDatabase {
-    setAccount: (address: string, session: AccountType) => Promise<void>;
+    setAccount: (address: string, account: AccountType) => Promise<void>;
     getAccount: (address: string) => Promise<AccountType | null>;
     //TODO use address
     getIncomingMessages: (

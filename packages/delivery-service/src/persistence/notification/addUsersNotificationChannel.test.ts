@@ -37,7 +37,7 @@ describe('Set Users NotificationChannel', () => {
         const priorSetUsersNotificationChannel =
             await db.getUsersNotificationChannels(USER_ADDRESS);
 
-        //User has no session yet
+        //User has no account yet
         expect(priorSetUsersNotificationChannel).toEqual([]);
         await db.addUsersNotificationChannel(USER_ADDRESS, notificationChannel);
 
@@ -121,7 +121,7 @@ describe('Set Users NotificationChannel', () => {
         const priorSetUsersNotificationChannel =
             await db.getUsersNotificationChannels(USER_ADDRESS);
 
-        //User has no session yet
+        //User has no account yet
         expect(priorSetUsersNotificationChannel).toEqual([]);
         await db.addUsersNotificationChannel(USER_ADDRESS, notificationChannel);
 

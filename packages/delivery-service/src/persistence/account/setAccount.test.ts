@@ -25,7 +25,7 @@ describe('Set Account', () => {
             publicSigningKey: '',
             deliveryServices: [],
         };
-        const session: Account = {
+        const account: Account = {
             account: USER_ADDRESS,
             signedUserProfile: { profile, signature: 'foo' },
             token: '',
@@ -36,12 +36,12 @@ describe('Set Account', () => {
         };
 
         const priorSetAccount = await db.getAccount(USER_ADDRESS);
-        //User has no session yet
+        //User has no account yet
         expect(priorSetAccount).toBe(null);
-        await db.setAccount(USER_ADDRESS, session);
+        await db.setAccount(USER_ADDRESS, account);
 
         const afterSetAccount = await db.getAccount(USER_ADDRESS);
-        //User has no session yet
+        //User has no account yet
         expect(afterSetAccount?.signedUserProfile).toEqual({
             profile,
             signature: 'foo',
@@ -53,7 +53,7 @@ describe('Set Account', () => {
             publicSigningKey: '',
             deliveryServices: [],
         };
-        const session: Account = {
+        const account: Account = {
             // Address is not normalized
             account: USER_ADDRESS.toUpperCase(),
             signedUserProfile: { profile, signature: 'foo' },
@@ -65,25 +65,25 @@ describe('Set Account', () => {
         };
 
         const priorSetAccount = await db.getAccount(USER_ADDRESS);
-        //User has no session yet
+        //User has no account yet
         expect(priorSetAccount).toBe(null);
-        await db.setAccount(USER_ADDRESS, session);
+        await db.setAccount(USER_ADDRESS, account);
 
         const afterSetAccount = await db.getAccount(USER_ADDRESS);
-        //User has no session yet
+        //User has no account yet
         expect(afterSetAccount?.signedUserProfile).toEqual({
             profile,
             signature: 'foo',
         });
     });
 
-    it('Rejects session with an invalid address', async () => {
+    it('Rejects account with an invalid address', async () => {
         const profile: UserProfile = {
             publicEncryptionKey: '',
             publicSigningKey: '',
             deliveryServices: [],
         };
-        const session: Account = {
+        const account: Account = {
             account: USER_ADDRESS,
             signedUserProfile: {
                 profile,
@@ -96,20 +96,20 @@ describe('Set Account', () => {
             },
         };
         try {
-            await db.setAccount('foo', session);
+            await db.setAccount('foo', account);
             fail();
         } catch (e) {
             expect(e).toStrictEqual(Error('Invalid address'));
         }
     });
 
-    it('Rejects session with an invalid schema', async () => {
+    it('Rejects account with an invalid schema', async () => {
         const invalidAccount = {} as Account;
         try {
             await db.setAccount('foo', invalidAccount);
             fail();
         } catch (e) {
-            expect(e).toStrictEqual(Error('Invalid session'));
+            expect(e).toStrictEqual(Error('Invalid account'));
         }
     });
 });

@@ -50,7 +50,7 @@ export class MessageProcessor {
      * In order to be considered valid a incoming message has to meet the following criterias
      * 1. The message size must be lower than the sizeLimit specified by the deliveryService {@see messageIsToLarge}
      * 2. The DeliveryServiceToken used by the sender has to be valid
-     * 3. The receiver has to have a session at the deliveryService
+     * 3. The receiver has to have a account at the deliveryService
      * 4. The message must pass every {@see SpamFilterRule} the receiver declared
      */
     public async processEnvelop(envelop: EncryptionEnvelop): Promise<void> {
@@ -107,11 +107,11 @@ export class MessageProcessor {
         );
         console.debug(conversationId, deliveryInformation);
 
-        //Retrieves the session of the receiver
+        //Retrieves the account of the receiver
         const receiverAccount = await this.db.getAccount(receiverAddress);
         if (!receiverAccount) {
             console.debug('unknown user ', deliveryInformation.to);
-            throw Error('unknown session');
+            throw Error('unknown account');
         }
 
         //Checks if the message is spam

@@ -9,8 +9,8 @@ export function setAccount(redis: Redis) {
         const isAddess = ethers.utils.isAddress(address);
 
         if (!isValid) {
-            console.debug('Invalid session: ', Account);
-            throw Error('Invalid session');
+            console.debug('Invalid account: ', Account);
+            throw Error('Invalid account');
         }
 
         if (!isAddess) {

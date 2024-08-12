@@ -11,9 +11,9 @@ export function handleResolveProfileExtension(axios: Axios, db: IDatabase) {
         const idEnsName = await db.getIdEnsName(ensName);
 
         //Get the Account to retrieve profileExtension
-        const session = await db.getAccount(idEnsName);
+        const account = await db.getAccount(idEnsName);
 
-        if (!session) {
+        if (!account) {
             //The requested ens-name is not known to the delivery service
             const error = 'unknown user';
             global.logger.warn({
@@ -23,7 +23,7 @@ export function handleResolveProfileExtension(axios: Axios, db: IDatabase) {
             return res.status(400).send({ error });
         }
 
-        const { profileExtension } = session;
+        const { profileExtension } = account;
 
         return res.status(200).send({
             jsonrpc: '2.0',

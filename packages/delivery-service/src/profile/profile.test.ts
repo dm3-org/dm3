@@ -27,7 +27,7 @@ const setUpApp = async (
 };
 
 const createDbMock = async () => {
-    const sessionMocked = {
+    const accountMocked = {
         challenge: '123',
         token: 'deprecated token that is not used anymore',
         signedUserProfile: {},
@@ -35,7 +35,7 @@ const createDbMock = async () => {
 
     const dbMock = {
         getAccount: async (ensName: string) =>
-            Promise.resolve<Account>(sessionMocked), // returns some valid session
+            Promise.resolve<Account>(accountMocked), // returns some valid account
         setAccount: async (_: string, __: Account) => {},
         getIdEnsName: async (ensName: string) => ensName,
     };

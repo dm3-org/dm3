@@ -50,7 +50,7 @@ describe('Messaging', () => {
         const isReceiver =
             ethersHelper.formatAddress(address) === receiver.address;
 
-        const session = (
+        const account = (
             account: string,
             token: string,
             profile: UserProfile,
@@ -64,11 +64,11 @@ describe('Messaging', () => {
         });
 
         if (isSender) {
-            return session(sender.address, '123', emptyProfile);
+            return account(sender.address, '123', emptyProfile);
         }
 
         if (isReceiver) {
-            return session(receiver.address, 'abc', {
+            return account(receiver.address, 'abc', {
                 ...emptyProfile,
                 publicEncryptionKey:
                     receiver.profileKeys.encryptionKeyPair.publicKey,
@@ -198,14 +198,14 @@ describe('Messaging', () => {
                 done();
             });
 
-            const session = async (addr: string) => {
+            const account = async (addr: string) => {
                 return {
                     ...(await getAccount(addr)),
                     spamFilterRules: { minNonce: 2 },
                 } as Account;
             };
             const db = {
-                getAccount: session,
+                getAccount: account,
                 createMessage: () => {},
                 getIdEnsName: async (ensName: string) => ensName,
                 getUsersNotificationChannels: () => Promise.resolve([]),
