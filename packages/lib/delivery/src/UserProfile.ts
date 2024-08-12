@@ -7,11 +7,11 @@ import {
 import { logDebug } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import { generateAuthJWT } from '@dm3-org/dm3-lib-server-side';
-import { Session } from './Session';
+import { Account } from './Account';
 
 export async function submitUserProfile(
-    getAccount: (accountAddress: string) => Promise<Session | null>,
-    setAccount: (accountAddress: string, session: Session) => Promise<void>,
+    getAccount: (accountAddress: string) => Promise<Account | null>,
+    setAccount: (accountAddress: string, session: Account) => Promise<void>,
     address: string,
     signedUserProfile: SignedUserProfile,
     serverSecret: string,
@@ -27,7 +27,7 @@ export async function submitUserProfile(
         logDebug('submitUserProfile - Signature invalid');
         throw Error('Signature invalid.');
     }
-    const session: Session = {
+    const session: Account = {
         account: _address,
         signedUserProfile,
         token: generateAuthJWT(_address, serverSecret),
@@ -42,7 +42,7 @@ export async function submitUserProfile(
 
 // todo: remove this function (profiles should be loaded from chain and possibly cached)
 export async function getUserProfile(
-    getAccount: (accountAddress: string) => Promise<Session | null>,
+    getAccount: (accountAddress: string) => Promise<Account | null>,
     ensName: string,
 ): Promise<SignedUserProfile | undefined> {
     const account = normalizeEnsName(ensName);

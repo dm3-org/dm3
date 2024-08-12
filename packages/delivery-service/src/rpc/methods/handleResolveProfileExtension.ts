@@ -10,7 +10,7 @@ export function handleResolveProfileExtension(axios: Axios, db: IDatabase) {
         } = req.body;
         const idEnsName = await db.getIdEnsName(ensName);
 
-        //Get the Session to retrieve profileExtension
+        //Get the Account to retrieve profileExtension
         const session = await db.getAccount(idEnsName);
 
         if (!session) {

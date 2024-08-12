@@ -12,7 +12,7 @@ import { MessageProcessor } from './MessageProcessor';
 import { checkSignature, decryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
 import {
     DeliveryServiceProperties,
-    Session,
+    Account,
     spamFilter,
 } from '@dm3-org/dm3-lib-delivery';
 import { UserProfile, normalizeEnsName } from '@dm3-org/dm3-lib-profile';
@@ -66,7 +66,7 @@ describe('MessageProcessor', () => {
         ensName: string,
         socketId?: string,
     ): Promise<
-        (Session & { spamFilterRules: spamFilter.SpamFilterRules }) | null
+        (Account & { spamFilterRules: spamFilter.SpamFilterRules }) | null
     > => {
         const emptyProfile: UserProfile = {
             publicSigningKey: '',
@@ -80,7 +80,7 @@ describe('MessageProcessor', () => {
             account: string,
             token: string,
             profile: UserProfile,
-        ): Session => ({
+        ): Account => ({
             account,
             signedUserProfile: {
                 profile,
@@ -265,7 +265,7 @@ describe('MessageProcessor', () => {
             ({
                 ...(await getAccount(address)),
                 spamFilterRules: { minNonce: 2 },
-            } as Session & { spamFilterRules: spamFilter.SpamFilterRules });
+            } as Account & { spamFilterRules: spamFilter.SpamFilterRules });
 
         const db = {
             createMessage: async () => {},
@@ -322,7 +322,7 @@ describe('MessageProcessor', () => {
             ({
                 ...(await getAccount(address)),
                 spamFilterRules: { minBalance: '0xa' },
-            } as Session & { spamFilterRules: spamFilter.SpamFilterRules });
+            } as Account & { spamFilterRules: spamFilter.SpamFilterRules });
 
         const db = {
             createMessage: async () => {},
@@ -384,7 +384,7 @@ describe('MessageProcessor', () => {
                         amount: '0xa',
                     },
                 },
-            } as Session & { spamFilterRules: spamFilter.SpamFilterRules });
+            } as Account & { spamFilterRules: spamFilter.SpamFilterRules });
 
         const db = {
             createMessage: async () => {},

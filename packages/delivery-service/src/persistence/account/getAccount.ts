@@ -1,4 +1,4 @@
-import { Session } from '@dm3-org/dm3-lib-delivery';
+import { Account } from '@dm3-org/dm3-lib-delivery';
 import { ethers } from 'ethers';
 import { Redis, RedisPrefix } from '../getDatabase';
 
@@ -13,6 +13,6 @@ export function getAccount(redis: Redis) {
             return null;
         }
 
-        return JSON.parse(session) as Session;
+        return JSON.parse(session) as Account;
     };
 }

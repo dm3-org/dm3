@@ -5,7 +5,7 @@ import { nonceFilterFactory } from './filter/nonceFilter/NonceFilter';
 import { SpamFilter, SpamFilterFactory } from './filter/SpamFilter';
 import { tokenBalanceFilterFactory } from './filter/tokenBalanceFilter/TokenBalanceFilter';
 import { SpamFilterRules } from './SpamFilterRules';
-import { Session } from '../Session';
+import { Account } from '../Account';
 
 export type { SpamFilterRules };
 
@@ -39,7 +39,7 @@ function compileSpamFilter(filter: SpamFilter[]) {
  */
 function getUsersSpamFilters(
     provider: ethers.providers.BaseProvider,
-    { spamFilterRules }: Session,
+    { spamFilterRules }: Account,
 ) {
     //User has not defined any rules
     if (!spamFilterRules) {
@@ -55,7 +55,7 @@ function getUsersSpamFilters(
  */
 export async function isSpam(
     provider: ethers.providers.BaseProvider,
-    session: Session,
+    session: Account,
     deliveryInformation: DeliveryInformation,
 ) {
     const usersSpamFilters = getUsersSpamFilters(provider, session);

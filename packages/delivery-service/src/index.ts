@@ -1,4 +1,4 @@
-import { Session } from '@dm3-org/dm3-lib-delivery';
+import { Account } from '@dm3-org/dm3-lib-delivery';
 import {
     Auth,
     errorHandler,
@@ -46,7 +46,7 @@ const getDbWithAddressResolvedGetAccount = (
 ): IDatabase => {
     const getAccountForEnsName = (
         web3Provider: ethers.providers.JsonRpcProvider,
-        getAccount: (ensName: string) => Promise<Session | null>,
+        getAccount: (ensName: string) => Promise<Account | null>,
     ) => {
         return async (ensName: string) => {
             const address = await web3Provider.resolveName(ensName);

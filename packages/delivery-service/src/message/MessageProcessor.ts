@@ -108,8 +108,8 @@ export class MessageProcessor {
         console.debug(conversationId, deliveryInformation);
 
         //Retrieves the session of the receiver
-        const receiverSession = await this.db.getAccount(receiverAddress);
-        if (!receiverSession) {
+        const receiverAccount = await this.db.getAccount(receiverAddress);
+        if (!receiverAccount) {
             console.debug('unknown user ', deliveryInformation.to);
             throw Error('unknown session');
         }
@@ -118,7 +118,7 @@ export class MessageProcessor {
         if (
             await spamFilter.isSpam(
                 this.provider,
-                receiverSession,
+                receiverAccount,
                 deliveryInformation,
             )
         ) {
@@ -129,7 +129,7 @@ export class MessageProcessor {
         }
 
         const receiverEncryptionKey =
-            receiverSession.signedUserProfile.profile.publicEncryptionKey;
+            receiverAccount.signedUserProfile.profile.publicEncryptionKey;
 
         const envelopWithPostmark: EncryptionEnvelop = {
             ...envelop,
@@ -154,11 +154,11 @@ export class MessageProcessor {
             //Client is already connect to the delivery service and the message can be dispatched
             //TODO MOVE send method to the WebSocketManager
             this.onSubmitMessage(
-                receiverSession.socketId!,
+                receiverAccount.socketId!,
                 envelopWithPostmark,
             );
 
-            console.debug('WS send to socketId ', receiverSession.socketId);
+            console.debug('WS send to socketId ', receiverAccount.socketId);
             //If not we're notifing the user that there is a new message waiting for them
         } else {
             try {

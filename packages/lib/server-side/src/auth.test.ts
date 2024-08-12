@@ -136,7 +136,7 @@ describe('Auth', () => {
         });
     });
 
-    describe('createNewSessionToken', () => {
+    describe('createNewAccountToken', () => {
         describe('schema', () => {
             it('Returns 400 if signature is invalid', async () => {
                 const app = express();

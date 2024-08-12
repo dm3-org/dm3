@@ -4,7 +4,7 @@ import {
     UserProfile,
 } from '@dm3-org/dm3-lib-profile';
 import { stringify } from '@dm3-org/dm3-lib-shared';
-import { Session } from './Session';
+import { Account } from './Account';
 import { getUserProfile, submitUserProfile } from './UserProfile';
 
 const SENDER_NAME = 'alice.eth';
@@ -66,7 +66,7 @@ describe('UserProfile', () => {
                     account: string,
                     token: string,
                     profile: UserProfile,
-                ): Promise<Session> => {
+                ): Promise<Account> => {
                     const signedUserProfile = await signProfile(profile);
                     return {
                         account,
@@ -131,7 +131,7 @@ describe('UserProfile', () => {
         });
         it('Returns the signedUserProfile if a session was created', async () => {
             const getAccount = () =>
-                Promise.resolve({ signedUserProfile: {} } as Session);
+                Promise.resolve({ signedUserProfile: {} } as Account);
 
             const profile = await getUserProfile(getAccount, RANDO_NAME);
 

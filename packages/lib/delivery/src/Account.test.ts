@@ -5,7 +5,7 @@ const serverSecret = 'veryImportantSecretToGenerateAndValidateJSONWebTokens';
 // create valid jwt
 const token = generateAuthJWT('alice.eth', serverSecret);
 
-describe('Session', () => {
+describe('Account', () => {
     describe('checkToken with state', () => {
         it('Should return true if the jwt is valid', async () => {
             const hasAccount = (_: string) => Promise.resolve(true);

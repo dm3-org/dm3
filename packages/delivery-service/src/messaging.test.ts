@@ -1,4 +1,4 @@
-import { Session } from '@dm3-org/dm3-lib-delivery';
+import { Account } from '@dm3-org/dm3-lib-delivery';
 import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
 import { UserProfile } from '@dm3-org/dm3-lib-profile';
 import { IWebSocketManager, ethersHelper } from '@dm3-org/dm3-lib-shared';
@@ -202,7 +202,7 @@ describe('Messaging', () => {
                 return {
                     ...(await getAccount(addr)),
                     spamFilterRules: { minNonce: 2 },
-                } as Session;
+                } as Account;
             };
             const db = {
                 getAccount: session,
