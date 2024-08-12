@@ -14,28 +14,28 @@ export async function getDatabase(
     const prisma = _prisma ?? (await getPrismaClient());
 
     return {
-        //Session
+        //Account
         setAccount: Storage.setAccount(prisma),
         getAccount: Storage.getAccount(prisma),
         hasAccount: Storage.hasAccount(prisma),
-        //Storage AddConversation
+        //AddConversation
         addConversation: Storage.addConversation(prisma),
         getConversationList: Storage.getConversationList(prisma),
-        //Storage Add Messages
+        //Add Messages
         addMessageBatch: Storage.addMessageBatch(prisma),
-        //Storage Get Messages
+        //Get Messages
         getMessagesFromStorage: Storage.getMessages(prisma),
-        //Storage Edit Message Batch
+        //Edit Message Batch
         editMessageBatch: Storage.editMessageBatch(prisma),
-        //Storage Get Number Of Messages
+        //Get Number Of Messages
         getNumberOfMessages: Storage.getNumberOfMessages(prisma),
-        //Storage Get Number Of Converations
+        //Get Number Of Converations
         getNumberOfConverations: Storage.getNumberOfConversations(prisma),
-        //Storage Toggle Hide Conversation
+        //Toggle Hide Conversation
         toggleHideConversation: Storage.toggleHideConversation(prisma),
-        //Storage Get Halted Messages
+        //Get Halted Messages
         getHaltedMessages: Storage.getHaltedMessages(prisma),
-        //Storage Delete Halted Message
+        //Delete Halted Message
         clearHaltedMessage: Storage.clearHaltedMessage(prisma),
     };
 }
