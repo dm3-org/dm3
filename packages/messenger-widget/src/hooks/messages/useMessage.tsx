@@ -180,10 +180,7 @@ export const useMessage = () => {
             // add messages
             await Promise.all(
                 readedMsgs.map(async (msgs, index) => {
-                    await addMessage(
-                        ackToSend[index].envelop.message.metadata.from,
-                        msgs,
-                    );
+                    await addMessage(_contact, msgs);
                 }),
             );
 

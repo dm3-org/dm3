@@ -45,12 +45,15 @@ export const handleMessagesFromWebSocket = async (
         metadata: encryptedEnvelop.metadata,
     };
 
-    const contact = normalizeEnsName(
-        await resolveTLDtoAlias(decryptedEnvelop.message.metadata.from),
+    //we wait for the contact to be added to resolve TLD to alias
+    const contactPreview = await addConversation(
+        decryptedEnvelop.message.metadata.from,
     );
 
-    //TODO use TLD name
-    await addConversation(decryptedEnvelop.message.metadata.from);
+    // Resolve TLD to alias
+    const contact = contactPreview?.contactDetails.account.ensName!;
+
+    console.log('contactPreview MSGWS', contactPreview);
 
     const messageState =
         selectedContact?.contactDetails.account.ensName === contact
@@ -84,8 +87,7 @@ export const handleMessagesFromWebSocket = async (
     // if contact is selected then send READ_OPENED acknowledgment to sender for new message received
     if (
         selectedContact &&
-        selectedContact.contactDetails.account.ensName ===
-            messageModel.envelop.message.metadata.from
+        selectedContact.contactDetails.account.ensName === contact
     ) {
         const readedMsg = await createReadOpenMessage(
             messageModel.envelop.message.metadata.from,
@@ -95,7 +97,7 @@ export const handleMessagesFromWebSocket = async (
             messageModel.envelop.metadata?.encryptedMessageHash as string,
         );
 
-        await addMessage(messageModel.envelop.message.metadata.from, readedMsg);
+        await addMessage(contact, readedMsg);
     } else if (
         messageModel.envelop.message.metadata.type !== 'READ_RECEIVED' &&
         messageModel.envelop.message.metadata.type !== 'READ_OPENED'
@@ -109,7 +111,7 @@ export const handleMessagesFromWebSocket = async (
             messageModel.envelop.metadata?.encryptedMessageHash as string,
         );
 
-        await addMessage(messageModel.envelop.message.metadata.from, readedMsg);
+        await addMessage(contact, readedMsg);
     }
 
     // Update the conversation with the latest message timestamp

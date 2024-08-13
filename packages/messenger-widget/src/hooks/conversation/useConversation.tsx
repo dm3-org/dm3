@@ -2,6 +2,7 @@
 import {
     DeliveryInformation,
     EncryptionEnvelop,
+    Envelop,
 } from '@dm3-org/dm3-lib-messaging';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { Conversation } from '@dm3-org/dm3-lib-storage/dist/new/types';
@@ -159,33 +160,44 @@ export const useConversation = (config: DM3Configuration) => {
         //We can make some optimizations here if we use the messages fetched from incommingMessages in useMessages aswell.
         //This would require a refactor of the useMessages away from a contact based model.
         //Maybe we decide to to this in the future, for now we're going to keep it simple
-        const incommingMessages = await fetchIncommingMessages(
+        const incommingMessages: Envelop[] = await fetchIncommingMessages(
             account?.ensName as string,
         );
         //Every pending conversation is going to be added to the conversation list
-        return (
-            incommingMessages
-                .map((pendingMessage: EncryptionEnvelop) => {
-                    //TODO might be necessary to resolve alias
-                    const contactEnsName = (
-                        pendingMessage.metadata
-                            .deliveryInformation as DeliveryInformation
-                    ).from;
+        const incommingConversations = await Promise.all(
+            incommingMessages.map(async (pendingMessage: Envelop) => {
+                //TODO might be necessary to resolve alias
+                const contactTldName = (
+                    pendingMessage.metadata!
+                        .deliveryInformation as DeliveryInformation
+                ).from;
 
-                    return {
-                        contactEnsName,
-                        isHidden: false,
-                    };
-                })
-                //filter duplicates
-                .filter((conversation: Conversation) => {
-                    return !contacts.some(
-                        (current) =>
-                            current.contactDetails.account.ensName ===
-                            conversation.contactEnsName,
-                    );
-                })
+                //rrsolves the TLD name. That name becomes the identifier for the conversation
+                const aliasName = await resolveTLDtoAlias(contactTldName);
+
+                console.log(
+                    'getConversationfromDelivery',
+                    aliasName,
+                    contactTldName,
+                );
+
+                return {
+                    contactProfileLocation: [contactTldName],
+                    contactEnsName: aliasName,
+                    updatedAt: new Date().getTime(),
+                    isHidden: false,
+                };
+            }),
         );
+
+        //filter duplicates
+        return incommingConversations.filter((conversation: Conversation) => {
+            return !contacts.some(
+                (current) =>
+                    current.contactDetails.account.ensName ===
+                    conversation.contactEnsName,
+            );
+        });
     };
 
     const addConversation = async (_ensName: string) => {
