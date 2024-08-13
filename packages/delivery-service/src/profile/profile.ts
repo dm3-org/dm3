@@ -3,10 +3,10 @@ import { normalizeEnsName, schema } from '@dm3-org/dm3-lib-profile';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import express from 'express';
-import { IAccountDatabase } from './iSessionDatabase';
+import { IDatabase } from '../persistence/getDatabase';
 
 export const Profile = (
-    db: IAccountDatabase,
+    db: IDatabase,
     web3Provider: ethers.providers.JsonRpcProvider,
     serverSecret: string,
 ) => {

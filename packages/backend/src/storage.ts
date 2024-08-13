@@ -1,10 +1,10 @@
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
-import { auth } from '@dm3-org/dm3-lib-server-side';
+import { authorize } from '@dm3-org/dm3-lib-server-side';
 import { sha256, validateSchema } from '@dm3-org/dm3-lib-shared';
 import cors from 'cors';
 import { ethers } from 'ethers';
 import express, { NextFunction, Request, Response } from 'express';
-import { IDatabase } from './persistence/getDatabase';
+import { IBackendDatabase } from './persistence/getDatabase';
 import { MessageRecord } from './persistence/storage';
 import { AddMessageBatchRequest } from './schema/storage/AddMessageBatchRequest';
 import { AddMessageRequest } from './schema/storage/AddMesssageRequest';
@@ -15,7 +15,7 @@ const DEFAULT_CONVERSATION_PAGE_SIZE = 10;
 const DEFAULT_MESSAGE_PAGE_SIZE = 100;
 
 export default (
-    db: IDatabase,
+    db: IBackendDatabase,
     web3Provider: ethers.providers.JsonRpcProvider,
     serverSecret: string,
 ) => {
@@ -32,7 +32,15 @@ export default (
             next: NextFunction,
             ensName: string,
         ) => {
-            auth(req, res, next, ensName, db, web3Provider, serverSecret);
+            authorize(
+                req,
+                res,
+                next,
+                ensName,
+                db.hasAccount,
+                web3Provider,
+                serverSecret,
+            );
         },
     );
 
