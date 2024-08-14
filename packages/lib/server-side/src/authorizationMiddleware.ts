@@ -16,7 +16,7 @@ const authJwtPayloadSchema = {
     additionalProperties: false,
 };
 
-export async function authorize(
+export async function authorizationMiddleware(
     req: Request,
     res: Response,
     next: NextFunction,

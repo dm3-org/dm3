@@ -3,7 +3,7 @@ import express, { NextFunction, Request, Response } from 'express';
 import { sign, verify } from 'jsonwebtoken';
 import request from 'supertest';
 import winston from 'winston';
-import { authorize } from './authorize';
+import { authorizationMiddleware } from './authorizationMiddleware';
 
 const serverSecret = 'testSecret';
 winston.loggers.add('default', {
@@ -37,7 +37,7 @@ describe('Utils', () => {
                     next: NextFunction,
                     ensName: string,
                 ) => {
-                    authorize(
+                    authorizationMiddleware(
                         req,
                         res,
                         next,
@@ -86,7 +86,7 @@ describe('Utils', () => {
                     next: NextFunction,
                     ensName: string,
                 ) => {
-                    authorize(
+                    authorizationMiddleware(
                         req,
                         res,
                         next,
@@ -134,7 +134,7 @@ describe('Utils', () => {
                     next: NextFunction,
                     ensName: string,
                 ) => {
-                    authorize(
+                    authorizationMiddleware(
                         req,
                         res,
                         next,
@@ -191,7 +191,7 @@ describe('Utils', () => {
                     next: NextFunction,
                     ensName: string,
                 ) => {
-                    authorize(
+                    authorizationMiddleware(
                         req,
                         res,
                         next,
@@ -260,7 +260,7 @@ describe('Utils', () => {
                     next: NextFunction,
                     ensName: string,
                 ) => {
-                    authorize(
+                    authorizationMiddleware(
                         req,
                         res,
                         next,
@@ -349,7 +349,7 @@ describe('Utils', () => {
                     next: NextFunction,
                     ensName: string,
                 ) => {
-                    authorize(
+                    authorizationMiddleware(
                         req,
                         res,
                         next,
