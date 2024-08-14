@@ -55,7 +55,7 @@ export default (
         '/messages/:ensName/contact/:contactEnsName',
         async (req: express.Request, res, next) => {
             try {
-                //retive the address for the contact name since it is used as a key in the db
+                //retrive the address for the contact name since it is used as a key in the db
                 const receiverAddress = await web3Provider.resolveName(
                     req.params.ensName,
                 );
@@ -111,10 +111,26 @@ export default (
         //@ts-ignore
         async (req: express.Request, res, next) => {
             try {
-                console.debug('get incoming messages for ', req.params.ensName);
+                //retrive the address for the contact name since it is used as a key in the db
+                const receiverAddress = await web3Provider.resolveName(
+                    req.params.ensName,
+                );
+                //If the address is not found we return a 404. This should normally not happen since the receiver always is known to the delivery service
+                if (!receiverAddress) {
+                    console.error(
+                        'receiver address not found for name ',
+                        req.params.ensName,
+                    );
+                    return res.status(404).send({
+                        error:
+                            'receiver address not found for name ' +
+                            req.params.ensName,
+                    });
+                }
+                console.debug('get incoming messages for ', receiverAddress);
                 //TODO use address
                 const incomingMessages = await db.getIncomingMessages(
-                    req.params.ensName,
+                    receiverAddress,
                     //Fetch the last 10 messages per conversation
                     //If we decide to add pagination for that endpoint we can pass this value as a param
                     1000,
