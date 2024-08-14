@@ -149,9 +149,9 @@ global.logger = winston.createLogger({
         return res.status(200).send('Hello DM3');
     });
 
-    //Auth
-    //socketAuth
-    //restAuth
+    app.get('/metrics', (req, res) => {
+        return res.status(200).send({ status: 'better', message: 'ok' });
+    });
 
     app.use('/auth', Auth(db, serverSecret, web3Provider));
     app.use('/profile', Profile(db, web3Provider, serverSecret));
