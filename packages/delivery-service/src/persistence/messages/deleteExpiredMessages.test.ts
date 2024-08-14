@@ -21,36 +21,52 @@ describe('Delete Expired messages', () => {
     });
 
     it('Delete all messages createdAt before a given time', async () => {
-        await db.createMessage('', 'foox', {
-            message: 'hello',
-            metadata: {
-                deliveryInformation: '',
-                signature: '',
-                encryptedMessageHash: '',
-                version: '',
-                encryptionScheme: 'x25519-chacha20-poly1305',
+        await db.createMessage(
+            '',
+            'foox',
+            {
+                message: 'hello',
+                metadata: {
+                    deliveryInformation: '',
+                    signature: '',
+                    encryptedMessageHash: '',
+                    version: '',
+                    encryptionScheme: 'x25519-chacha20-poly1305',
+                },
             },
-        });
-        await db.createMessage('', 'foox', {
-            message: 'world',
-            metadata: {
-                deliveryInformation: '',
-                signature: '',
-                encryptedMessageHash: '',
-                version: '',
-                encryptionScheme: 'x25519-chacha20-poly1305',
+            1,
+        );
+        await db.createMessage(
+            '',
+            'foox',
+            {
+                message: 'world',
+                metadata: {
+                    deliveryInformation: '',
+                    signature: '',
+                    encryptedMessageHash: '',
+                    version: '',
+                    encryptionScheme: 'x25519-chacha20-poly1305',
+                },
             },
-        });
-        await db.createMessage('', 'foox', {
-            message: 'dm3',
-            metadata: {
-                deliveryInformation: '',
-                signature: '',
-                encryptedMessageHash: '',
-                version: '',
-                encryptionScheme: 'x25519-chacha20-poly1305',
+            3,
+        );
+
+        await db.createMessage(
+            '',
+            'foox',
+            {
+                message: 'dm3',
+                metadata: {
+                    deliveryInformation: '',
+                    signature: '',
+                    encryptedMessageHash: '',
+                    version: '',
+                    encryptionScheme: 'x25519-chacha20-poly1305',
+                },
             },
-        });
+            100,
+        );
 
         const priorDeleteMessages = await db.getMessages('foox', 0, 50);
         expect(priorDeleteMessages.length).toBe(3);
