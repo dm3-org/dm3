@@ -5,7 +5,7 @@ import { ethers } from 'ethers';
 import express from 'express';
 import { verify } from 'jsonwebtoken';
 import request from 'supertest';
-import { Authenticate } from './auth';
+import { Authenticate } from './authenticate';
 import { IAccountDatabase } from './iAccountDatabase';
 import { createChallenge } from './Keys';
 import { sign } from '@dm3-org/dm3-lib-crypto';
