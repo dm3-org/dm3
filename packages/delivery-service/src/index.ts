@@ -153,7 +153,7 @@ global.logger = winston.createLogger({
     //socketAuth
     //restAuth
 
-    app.use('/auth', Auth(db, serverSecret, web3Provider));
+    app.use('/auth', Authenticate(db, serverSecret, web3Provider));
     app.use('/profile', Profile(db, web3Provider, serverSecret));
     app.use('/delivery', Delivery(web3Provider, db, serverSecret));
     app.use(
