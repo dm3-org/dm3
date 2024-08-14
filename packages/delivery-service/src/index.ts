@@ -1,6 +1,6 @@
 import { Account } from '@dm3-org/dm3-lib-delivery';
 import {
-    Auth,
+    Authenticate,
     errorHandler,
     getCachedWebProvider,
     getServerSecret,
