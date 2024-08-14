@@ -16,13 +16,9 @@ import bodyParser from 'body-parser';
 import { ethers } from 'ethers';
 import express from 'express';
 import request from 'supertest';
-import winston from 'winston';
+
 import RpcProxy from './rpc-proxy';
 import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
-
-global.logger = winston.createLogger({
-    transports: [new winston.transports.Console()],
-});
 
 const mockWsManager: IWebSocketManager = {
     isConnected: function (ensName: string): Promise<boolean> {
