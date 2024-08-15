@@ -9,9 +9,9 @@ import { createClient } from 'redis';
 import Account from './account';
 import { getIdEnsName } from './getIdEnsName';
 import Messages from './messages';
-import Metrics from './metrics';
-import type { MetricsMap, IntervalMetric } from './metrics';
 import { syncAcknowledge } from './messages/syncAcknowledge';
+import type { MetricsMap } from './metrics';
+import Metrics from './metrics';
 import Notification from './notification';
 import Otp from './otp';
 
@@ -95,6 +95,7 @@ export async function getDatabase(
         resetOtp: Otp.resetOtp(redis),
         // Metrics
         getMetrics: Metrics.getMetrics(redis),
+        setMetrics: Metrics.setMetrics(redis),
     };
 }
 
@@ -161,6 +162,7 @@ export interface IDatabase extends IAccountDatabase {
         channelType: NotificationChannelType,
     ) => Promise<void>;
     getMetrics: () => Promise<MetricsMap>;
+    setMetrics: (metrics: MetricsMap) => Promise<void>;
 }
 
 export type Redis = Awaited<ReturnType<typeof getRedisClient>>;

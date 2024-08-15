@@ -1,10 +1,12 @@
 import { getMetrics } from './getMetrics';
+import type { IntervalMetric, MetricsMap } from './metricTypes';
+import { setMetrics } from './setMetrics';
 import { stringifyMetrics } from './stringifyMetrics';
-import type { MetricsMap, IntervalMetric } from './metricTypes';
 
 export default {
     getMetrics,
+    setMetrics,
     stringifyMetrics,
 };
 
-export type { MetricsMap, IntervalMetric };
+export type { IntervalMetric, MetricsMap };
