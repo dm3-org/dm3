@@ -23,7 +23,7 @@ export const handleMessagesFromDeliveryService = async (
     profileKeys: ProfileKeys,
     addConversation: (contactEnsName: string) => Promise<ContactPreview | void>,
     storeMessageBatch: StoreMessageBatch,
-    fetchNewMessages: (ensName: string, contactAddress: string) => any,
+    fetchIncommingMessages: (ensName: string) => any,
     syncAcknowledgment: (
         ensName: string,
         acknoledgments: Acknowledgment[],
@@ -32,9 +32,8 @@ export const handleMessagesFromDeliveryService = async (
     addMessage: Function,
 ) => {
     //Fetch the messages from the delivery service
-    const encryptedIncommingMessages = await fetchNewMessages(
+    const encryptedIncommingMessages = await fetchIncommingMessages(
         account.ensName,
-        '',
     );
 
     console.log('MSG incommingMessages', encryptedIncommingMessages);

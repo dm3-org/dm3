@@ -334,7 +334,7 @@ describe('useMessage hook test cases', () => {
                 onNewMessage: (cb: Function) => {
                     console.log('on new message');
                 },
-                fetchNewMessages: jest.fn().mockResolvedValue([]),
+                fetchIncommingMessages: jest.fn().mockResolvedValue([]),
                 removeOnNewMessageListener: jest.fn(),
                 syncAcknowledgment: jest.fn(),
             });
@@ -443,7 +443,7 @@ describe('useMessage hook test cases', () => {
                 onNewMessage: (cb: Function) => {
                     console.log('on new message');
                 },
-                fetchNewMessages: jest.fn().mockResolvedValue([]),
+                fetchIncommingMessages: jest.fn().mockResolvedValue([]),
                 removeOnNewMessageListener: jest.fn(),
                 syncAcknowledgment: jest.fn(),
             });
@@ -565,7 +565,7 @@ describe('useMessage hook test cases', () => {
                 onNewMessage: (cb: Function) => {
                     console.log('on new message');
                 },
-                fetchNewMessages: jest.fn().mockResolvedValue([]),
+                fetchIncommingMessages: jest.fn().mockResolvedValue([]),
                 syncAcknowledgment: jest.fn(),
                 removeOnNewMessageListener: jest.fn(),
             });
@@ -650,7 +650,7 @@ describe('useMessage hook test cases', () => {
                 onNewMessage: (cb: Function) => {
                     console.log('on new message');
                 },
-                fetchNewMessages: jest
+                fetchIncommingMessages: jest
                     .fn()
                     .mockResolvedValue([message1, message2, message3]),
                 syncAcknowledgment: jest.fn(),
@@ -752,7 +752,7 @@ describe('useMessage hook test cases', () => {
                 onNewMessage: (cb: Function) => {
                     console.log('on new message');
                 },
-                fetchNewMessages: jest
+                fetchIncommingMessages: jest
                     .fn()
                     .mockResolvedValue([
                         message1,
@@ -886,7 +886,7 @@ describe('useMessage hook test cases', () => {
                 onNewMessage: (cb: Function) => {
                     console.log('on new message');
                 },
-                fetchNewMessages: jest.fn().mockResolvedValue([]),
+                fetchIncommingMessages: jest.fn().mockResolvedValue([]),
                 syncAcknowledgment: jest.fn(),
                 removeOnNewMessageListener: jest.fn(),
             });
@@ -984,7 +984,7 @@ describe('useMessage hook test cases', () => {
                 onNewMessage: (cb: Function) => {
                     console.log('on new message');
                 },
-                fetchNewMessages: async (_: string) =>
+                fetchIncommingMessages: async (_: string) =>
                     Promise.all(
                         Array.from({ length: 13 }, (_, i) =>
                             messageFactory.createEncryptedEnvelop(
