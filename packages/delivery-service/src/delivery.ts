@@ -51,6 +51,7 @@ export default (
         );
     });
     //Returns all incoming messages for a specific contact name
+    //TODO deprecated. remove in the future
     router.get(
         '/messages/:ensName/contact/:contactEnsName',
         async (req: express.Request, res, next) => {

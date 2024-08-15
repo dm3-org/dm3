@@ -20,7 +20,6 @@ export type DeliveryServiceContextType = {
         otp: string,
         notificationChannelType: NotificationChannelType,
     ) => any;
-    fetchNewMessages: (ensName: string, contactAddress: string) => any;
     fetchIncommingMessages: (ensName: string) => any;
     syncAcknowledgment: (
         ensName: string,
@@ -60,7 +59,6 @@ export const DeliveryServiceContext =
             otp: string,
             notificationChannelType: NotificationChannelType,
         ) => {},
-        fetchNewMessages: (ensName: string, contactAddress: string) => {},
         fetchIncommingMessages: (ensName: string) => {},
         syncAcknowledgment: (
             ensName: string,
@@ -93,7 +91,6 @@ export const DeliveryServiceContextProvider = ({
         addNotificationChannel,
         sendOtp,
         verifyOtp,
-        fetchNewMessages,
         fetchIncommingMessages,
         syncAcknowledgment,
         getGlobalNotification,
@@ -113,7 +110,6 @@ export const DeliveryServiceContextProvider = ({
                 addNotificationChannel,
                 sendOtp,
                 verifyOtp,
-                fetchNewMessages,
                 fetchIncommingMessages,
                 syncAcknowledgment,
                 getGlobalNotification,

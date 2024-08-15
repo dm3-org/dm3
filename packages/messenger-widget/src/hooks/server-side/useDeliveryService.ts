@@ -159,17 +159,6 @@ export const useDeliveryService = () => {
                 notificationChannelType,
             );
         },
-
-        fetchNewMessages: async (ensName: string, contactAddress: string) => {
-            const connectors = _getConnectors();
-            const messages = await Promise.all(
-                connectors.map((c) =>
-                    c.fetchNewMessages(ensName, contactAddress),
-                ),
-            );
-            //flatten all messages to one array
-            return messages.reduce((acc, val) => acc.concat(val), []);
-        },
         fetchIncommingMessages: async (ensName: string) => {
             const connectors = _getConnectors();
             const messages = await Promise.all(

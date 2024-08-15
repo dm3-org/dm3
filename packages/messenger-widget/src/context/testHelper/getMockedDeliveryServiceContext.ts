@@ -12,9 +12,7 @@ export const getMockedDeliveryServiceContext = (
         getDeliveryServiceProperties: function (): Promise<any[]> {
             throw new Error('Function not implemented.');
         },
-        fetchNewMessages: function (ensName: string, contactAddress: string) {
-            throw new Error('Function not implemented.');
-        },
+
         fetchIncommingMessages: function (ensName: string) {
             throw new Error('Function not implemented.');
         },
