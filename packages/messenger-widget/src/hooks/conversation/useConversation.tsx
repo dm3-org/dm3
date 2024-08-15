@@ -163,6 +163,31 @@ export const useConversation = (config: DM3Configuration) => {
         const incommingMessages: Envelop[] = await fetchIncommingMessages(
             account?.ensName as string,
         );
+
+        //It might be possible that the same contact has sent multiple messages. We only want to retrive the TLDAlias for each contact once
+        const uniqueSenders = new Set(
+            incommingMessages.map(
+                (message) =>
+                    (
+                        message.metadata!
+                            .deliveryInformation as DeliveryInformation
+                    ).from,
+            ),
+        );
+
+        //For each unique sender we're going to resolve the TLD name to the TLDAlias
+        //We have to do it before processing incoming conversations to warm up the cache.
+        const resolvedTldAliases = await Array.from(uniqueSenders).reduce(
+            async (acc, tldName) => {
+                const aliasName = await resolveTLDtoAlias(tldName);
+                return {
+                    ...acc,
+                    [tldName]: aliasName,
+                };
+            },
+            {} as Promise<{ [tldName: string]: string }>,
+        );
+
         //Every pending conversation is going to be added to the conversation list
         const incommingConversations = await Promise.all(
             incommingMessages.map(async (pendingMessage: Envelop) => {
@@ -172,14 +197,11 @@ export const useConversation = (config: DM3Configuration) => {
                         .deliveryInformation as DeliveryInformation
                 ).from;
 
-                //rrsolves the TLD name. That name becomes the identifier for the conversation
-                const aliasName = await resolveTLDtoAlias(contactTldName);
-
-                console.log(
-                    'getConversationfromDelivery',
-                    aliasName,
-                    contactTldName,
-                );
+                //resolves the TLD name. That name becomes the identifier for the conversation. The alias name is the name that is displayed in the conversation list
+                //Every name should already be part of resolvedTldAliases. resolveTLDtoAlias is only there as a fallback
+                const aliasName =
+                    resolvedTldAliases[contactTldName] ??
+                    (await resolveTLDtoAlias(contactTldName));
 
                 return {
                     contactProfileLocation: [contactTldName],
