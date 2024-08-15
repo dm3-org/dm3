@@ -103,7 +103,7 @@ export function Contacts() {
         const _contact = normalizeEnsName(contactEnsName);
         const messages = getMessages(_contact);
 
-        // don't include the preview of acknowledgment msgs
+        // don't include the preview of acknowledgement msgs
         if (messages?.length > 0) {
             return messages[0].envelop.message.metadata.type === 'NEW' &&
                 messages[0].envelop.message.message

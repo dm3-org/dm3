@@ -334,9 +334,9 @@ describe('useMessage hook test cases', () => {
                 onNewMessage: (cb: Function) => {
                     console.log('on new message');
                 },
-                fetchNewMessages: jest.fn().mockResolvedValue([]),
+                fetchIncomingMessages: jest.fn().mockResolvedValue([]),
                 removeOnNewMessageListener: jest.fn(),
-                syncAcknowledgment: jest.fn(),
+                syncAcknowledgement: jest.fn(),
             });
 
             const authContext = getMockedAuthContext({
@@ -443,9 +443,9 @@ describe('useMessage hook test cases', () => {
                 onNewMessage: (cb: Function) => {
                     console.log('on new message');
                 },
-                fetchNewMessages: jest.fn().mockResolvedValue([]),
+                fetchIncomingMessages: jest.fn().mockResolvedValue([]),
                 removeOnNewMessageListener: jest.fn(),
-                syncAcknowledgment: jest.fn(),
+                syncAcknowledgement: jest.fn(),
             });
 
             const authContext = getMockedAuthContext({
@@ -565,8 +565,8 @@ describe('useMessage hook test cases', () => {
                 onNewMessage: (cb: Function) => {
                     console.log('on new message');
                 },
-                fetchNewMessages: jest.fn().mockResolvedValue([]),
-                syncAcknowledgment: jest.fn(),
+                fetchIncomingMessages: jest.fn().mockResolvedValue([]),
+                syncAcknowledgement: jest.fn(),
                 removeOnNewMessageListener: jest.fn(),
             });
             const authContext = getMockedAuthContext({
@@ -640,20 +640,29 @@ describe('useMessage hook test cases', () => {
                     undefined,
                     false,
                     0,
-                    [],
+                    ['alice.eth'],
                 ),
                 contacts: [
-                    getEmptyContact('alice.eth', undefined, false, 0, []),
+                    getEmptyContact('alice.eth', undefined, false, 0, [
+                        'alice.eth',
+                    ]),
                 ],
+                addConversation: () => {
+                    return Promise.resolve(
+                        getEmptyContact('alice.eth', undefined, false, 0, [
+                            'alice.eth',
+                        ]),
+                    );
+                },
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
                 onNewMessage: (cb: Function) => {
                     console.log('on new message');
                 },
-                fetchNewMessages: jest
+                fetchIncomingMessages: jest
                     .fn()
                     .mockResolvedValue([message1, message2, message3]),
-                syncAcknowledgment: jest.fn(),
+                syncAcknowledgement: jest.fn(),
                 removeOnNewMessageListener: jest.fn(),
             });
             const authContext = getMockedAuthContext({
@@ -699,10 +708,9 @@ describe('useMessage hook test cases', () => {
                     result.current.messages['alice.eth'].length > 0,
             );
 
-            // Filter out the acknowledgment messages
+            // Filter out the acknowledgement messages
             const sentMsgs = result.current.messages['alice.eth'].filter(
-                (data) =>
-                    data.envelop.message.metadata.type !== 'READ_RECEIVED',
+                (data) => data.envelop.message.metadata.type === 'NEW',
             );
 
             expect(result.current.contactIsLoading('alice.eth')).toBe(false);
@@ -727,7 +735,7 @@ describe('useMessage hook test cases', () => {
                     'this message is not encryptable',
                 );
 
-            const syncAcknowledgmentMock = jest.fn();
+            const syncAcknowledgementMock = jest.fn();
 
             const storageContext = getMockedStorageContext({
                 editMessageBatchAsync: jest.fn(),
@@ -745,14 +753,23 @@ describe('useMessage hook test cases', () => {
                     [],
                 ),
                 contacts: [
-                    getEmptyContact('alice.eth', undefined, false, 0, []),
+                    getEmptyContact('alice.eth', undefined, false, 0, [
+                        'alice.eth',
+                    ]),
                 ],
+                addConversation: () => {
+                    return Promise.resolve(
+                        getEmptyContact('alice.eth', undefined, false, 0, [
+                            'alice.eth',
+                        ]),
+                    );
+                },
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
                 onNewMessage: (cb: Function) => {
                     console.log('on new message');
                 },
-                fetchNewMessages: jest
+                fetchIncomingMessages: jest
                     .fn()
                     .mockResolvedValue([
                         message1,
@@ -760,7 +777,7 @@ describe('useMessage hook test cases', () => {
                         message2,
                         message3,
                     ]),
-                syncAcknowledgment: syncAcknowledgmentMock,
+                syncAcknowledgement: syncAcknowledgementMock,
                 removeOnNewMessageListener: jest.fn(),
             });
             const authContext = getMockedAuthContext({
@@ -809,8 +826,8 @@ describe('useMessage hook test cases', () => {
             console.log(stringify(result.current.messages['alice.eth']));
             expect(result.current.contactIsLoading('alice.eth')).toBe(false);
 
-            expect(syncAcknowledgmentMock).toBeCalledTimes(1);
-            expect(syncAcknowledgmentMock).toBeCalledWith(
+            expect(syncAcknowledgementMock).toBeCalledTimes(1);
+            expect(syncAcknowledgementMock).toBeCalledWith(
                 receiver.account.ensName,
                 [
                     {
@@ -886,8 +903,8 @@ describe('useMessage hook test cases', () => {
                 onNewMessage: (cb: Function) => {
                     console.log('on new message');
                 },
-                fetchNewMessages: jest.fn().mockResolvedValue([]),
-                syncAcknowledgment: jest.fn(),
+                fetchIncomingMessages: jest.fn().mockResolvedValue([]),
+                syncAcknowledgement: jest.fn(),
                 removeOnNewMessageListener: jest.fn(),
             });
             const authContext = getMockedAuthContext({
@@ -974,17 +991,26 @@ describe('useMessage hook test cases', () => {
                     undefined,
                     false,
                     0,
-                    [],
+                    ['max.eth'],
                 ),
                 contacts: [
-                    getEmptyContact('alice.eth', undefined, false, 0, []),
+                    getEmptyContact('alice.eth', undefined, false, 0, [
+                        'alice.eth',
+                    ]),
                 ],
+                addConversation(ensName) {
+                    return Promise.resolve(
+                        getEmptyContact('alice.eth', undefined, false, 0, [
+                            'alice.eth',
+                        ]),
+                    );
+                },
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
                 onNewMessage: (cb: Function) => {
                     console.log('on new message');
                 },
-                fetchNewMessages: async (_: string) =>
+                fetchIncomingMessages: async (_: string) =>
                     Promise.all(
                         Array.from({ length: 13 }, (_, i) =>
                             messageFactory.createEncryptedEnvelop(
@@ -992,7 +1018,7 @@ describe('useMessage hook test cases', () => {
                             ),
                         ),
                     ),
-                syncAcknowledgment: jest.fn(),
+                syncAcknowledgement: jest.fn(),
                 removeOnNewMessageListener: jest.fn(),
             });
             const authContext = getMockedAuthContext({
@@ -1038,10 +1064,9 @@ describe('useMessage hook test cases', () => {
                     result.current.messages['alice.eth'].length > 0,
             );
 
-            // Filter out the acknowledgment messages
+            // Filter out the acknowledgement messages
             const sentMsgs = result.current.messages['alice.eth'].filter(
-                (data) =>
-                    data.envelop.message.metadata.type !== 'READ_RECEIVED',
+                (data) => data.envelop.message.metadata.type === 'NEW',
             );
 
             expect(result.current.contactIsLoading('alice.eth')).toBe(false);
@@ -1058,10 +1083,9 @@ describe('useMessage hook test cases', () => {
                     result.current.messages['alice.eth'].length > 133,
             );
 
-            // Filter out the acknowledgment messages
+            // Filter out the acknowledgement messages
             const moreSentMsgs = result.current.messages['alice.eth'].filter(
-                (data) =>
-                    data.envelop.message.metadata.type !== 'READ_RECEIVED',
+                (data) => data.envelop.message.metadata.type === 'NEW',
             );
 
             expect(result.current.contactIsLoading('alice.eth')).toBe(false);

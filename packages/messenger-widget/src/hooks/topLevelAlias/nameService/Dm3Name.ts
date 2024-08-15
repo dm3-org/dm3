@@ -34,7 +34,7 @@ export class Dm3Name implements ITLDResolver {
         return ensName.endsWith(this.addrEnsSubdomain);
     }
     async resolveTLDtoAlias(ensName: string): Promise<string> {
-        //Offchain resolver should retrive the profile
+        //Offchain resolver should retrieve the profile
         const address = await this.provider.resolveName(ensName);
         if (!address) {
             throw new Error('No address found for ' + ensName);

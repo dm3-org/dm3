@@ -147,7 +147,11 @@ export class MessageProcessor {
             ),
         };
         console.debug('storeNewMessage', conversationId);
-        await this.db.createMessage(conversationId, envelopWithPostmark);
+        await this.db.createMessage(
+            receiverAddress,
+            conversationId,
+            envelopWithPostmark,
+        );
 
         //If there is currently a webSocket connection open to the receiver, the message will be directly send.
         if (await this.webSocketManager.isConnected(receiverAddress)) {

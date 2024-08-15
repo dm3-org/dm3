@@ -5,9 +5,8 @@ import {
     Message,
     MessageState,
     buildEnvelop,
-    createReadOpenMessage,
 } from '@dm3-org/dm3-lib-messaging';
-import { Account, normalizeEnsName } from '@dm3-org/dm3-lib-profile';
+import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { sha256, stringify } from '@dm3-org/dm3-lib-shared';
 import { StorageEnvelopContainer as StorageEnvelopContainerNew } from '@dm3-org/dm3-lib-storage';
 import { useCallback, useContext, useEffect, useState } from 'react';
@@ -18,6 +17,7 @@ import { StorageContext } from '../../context/StorageContext';
 import { TLDContext } from '../../context/TLDContext';
 import { submitEnvelopsToReceiversDs } from '../../utils/deliveryService/submitEnvelopsToReceiversDs';
 import { useHaltDelivery } from '../haltDelivery/useHaltDelivery';
+import { ReceiptDispatcher } from './receipt/ReceiptDispatcher';
 import { renderMessage } from './renderer/renderMessage';
 import { checkIfEnvelopAreInSizeLimit } from './sizeLimit/checkIfEnvelopIsInSizeLimit';
 import { handleMessagesFromDeliveryService } from './sources/handleMessagesFromDeliveryService';
@@ -63,15 +63,15 @@ export const useMessage = () => {
         updateConversationList,
     } = useContext(ConversationContext);
     const { account, profileKeys } = useContext(AuthContext);
-    const { fetchNewMessages, syncAcknowledgment } = useContext(
-        DeliveryServiceContext,
-    );
+    const {
+        fetchIncomingMessages,
+        syncAcknowledgement,
+        isInitialized: deliveryServiceInitialized,
+    } = useContext(DeliveryServiceContext);
 
     const { onNewMessage, removeOnNewMessageListener } = useContext(
         DeliveryServiceContext,
     );
-
-    const { resolveTLDtoAlias } = useContext(TLDContext);
 
     const {
         getMessages: getMessagesFromStorage,
@@ -100,6 +100,29 @@ export const useMessage = () => {
         });
     }, [contacts]);
 
+    useEffect(() => {
+        if (!account) return;
+        const getMessagesFromDs = async () => {
+            const messagesFromDs = await handleMessagesFromDeliveryService(
+                selectedContact,
+                account!,
+                profileKeys!,
+                addConversation,
+                storeMessageBatch,
+                fetchIncomingMessages,
+                syncAcknowledgement,
+                updateConversationList,
+                addMessage,
+            );
+            await Promise.all(
+                messagesFromDs.map(async (conversation) => {
+                    _addMessages(conversation.aliasName, conversation.messages);
+                }),
+            );
+        };
+        getMessagesFromDs();
+    }, [storageInitialized, account, deliveryServiceInitialized]);
+
     //Effect to reset the messages when the storage is initialized, i.e on account change
     useEffect(() => {
         setMessages({});
@@ -110,20 +133,19 @@ export const useMessage = () => {
     useEffect(() => {
         onNewMessage((encryptedEnvelop: EncryptionEnvelop) => {
             handleMessagesFromWebSocket(
-                account as Account,
                 addConversation,
                 setMessages,
                 storeMessage,
                 profileKeys!,
                 selectedContact!,
                 encryptedEnvelop,
-                resolveTLDtoAlias,
+                new ReceiptDispatcher(account!, profileKeys!, addMessage),
                 updateConversationList,
-                addMessage,
             );
         });
 
         return () => {
+            console.log('remove on new message listener');
             removeOnNewMessageListener();
         };
     }, [onNewMessage, selectedContact, contacts]);
@@ -157,34 +179,17 @@ export const useMessage = () => {
                 };
             });
 
-            const ackToSend = unreadMessages.filter(
-                (data) =>
-                    data.envelop.message.metadata.type !== 'READ_RECEIVED' &&
-                    data.envelop.message.metadata.type !== 'READ_OPENED',
+            //For every read message we sent a READ_OPENED acknowledgement to sender using acknowledgementManager
+            const receiptDispatcher = new ReceiptDispatcher(
+                account!,
+                profileKeys!,
+                addMessage,
             );
 
-            // send READ_OPENED acknowledgment to sender for all new messages received
-            const readedMsgs = await Promise.all(
-                ackToSend.map(async (message: MessageModel) => {
-                    return await createReadOpenMessage(
-                        message.envelop.message.metadata.from,
-                        account!.ensName,
-                        'READ_OPENED',
-                        profileKeys?.signingKeyPair.privateKey!,
-                        message.envelop.metadata
-                            ?.encryptedMessageHash as string,
-                    );
-                }),
-            );
-
-            // add messages
-            await Promise.all(
-                readedMsgs.map(async (msgs, index) => {
-                    await addMessage(
-                        ackToSend[index].envelop.message.metadata.from,
-                        msgs,
-                    );
-                }),
+            await receiptDispatcher.sendMultiple(
+                selectedContact,
+                contact,
+                unreadMessages,
             );
 
             editMessageBatchAsync(
@@ -397,23 +402,13 @@ export const useMessage = () => {
                 //For the first page we use 0 as offset
                 0,
             ),
-            handleMessagesFromDeliveryService(
-                selectedContact,
-                account!,
-                profileKeys!,
-                addConversation,
-                storeMessageBatch,
-                contactName,
-                fetchNewMessages,
-                syncAcknowledgment,
-                updateConversationList,
-                addMessage,
-            ),
         ]);
         const flatten = initialMessages.reduce(
             (acc, val) => acc.concat(val),
             [],
         );
+
+        console.log('load initial messages for contact', contactName);
         await _addMessages(contactName, flatten);
     };
 
@@ -505,10 +500,8 @@ export const useMessage = () => {
                             metadata: {
                                 ...message.envelop.message.metadata,
                                 from: normalizeEnsName(
-                                    await resolveTLDtoAlias(
-                                        message.envelop.message.metadata
-                                            ?.from ?? '',
-                                    ),
+                                    message.envelop.message.metadata?.from ??
+                                        '',
                                 ),
                             },
                         },

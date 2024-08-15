@@ -48,7 +48,7 @@ describe('Create Message', () => {
 
         expect(priorCreateMessages.length).toBe(0);
 
-        await db.createMessage(conversionId, envelop);
+        await db.createMessage(RECEIVER_ADDRESS, conversionId, envelop);
 
         const afterCreateMessages = await db.getMessages(conversionId, 0, 50);
 
@@ -73,8 +73,12 @@ describe('Create Message', () => {
         const firstMessageConversionId = SENDER_ADDRESS + RECEIVER_ADDRESS;
         const secondMessageConversionId = RECEIVER_ADDRESS + RECEIVER_ADDRESS;
 
-        await db.createMessage(firstMessageConversionId, envelop);
-        await db.createMessage(secondMessageConversionId, {
+        await db.createMessage(
+            RECEIVER_ADDRESS,
+            firstMessageConversionId,
+            envelop,
+        );
+        await db.createMessage(RECEIVER_ADDRESS, secondMessageConversionId, {
             ...envelop,
             message: 'foo',
             metadata: {
@@ -98,7 +102,7 @@ describe('Create Message', () => {
     it('Rejcts message with an invalid schema', async () => {
         const invalidMessage = {} as EncryptionEnvelop;
         try {
-            await db.createMessage('foo', invalidMessage);
+            await db.createMessage(RECEIVER_ADDRESS, 'foo', invalidMessage);
             fail();
         } catch (e) {
             expect(e).toStrictEqual(Error('Invalid message'));
