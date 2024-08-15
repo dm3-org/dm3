@@ -29,6 +29,7 @@ import { Profile } from './profile/profile';
 import RpcProxy from './rpc/rpc-proxy';
 import { WebSocketManager } from './ws/WebSocketManager';
 import { socketAuth } from './socketAuth';
+import Metrics from './metrics';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -149,10 +150,7 @@ global.logger = winston.createLogger({
         return res.status(200).send('Hello DM3');
     });
 
-    app.get('/metrics', (req, res) => {
-        return res.status(200).send({ status: 'better', message: 'ok' });
-    });
-
+    app.use('/metrics', Metrics(db));
     app.use('/auth', Auth(db, serverSecret, web3Provider));
     app.use('/profile', Profile(db, web3Provider, serverSecret));
     app.use('/delivery', Delivery(web3Provider, db, serverSecret));
