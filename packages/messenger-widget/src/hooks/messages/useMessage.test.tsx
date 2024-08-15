@@ -640,11 +640,20 @@ describe('useMessage hook test cases', () => {
                     undefined,
                     false,
                     0,
-                    [],
+                    ['alice.eth'],
                 ),
                 contacts: [
-                    getEmptyContact('alice.eth', undefined, false, 0, []),
+                    getEmptyContact('alice.eth', undefined, false, 0, [
+                        'alice.eth',
+                    ]),
                 ],
+                addConversation: () => {
+                    return Promise.resolve(
+                        getEmptyContact('alice.eth', undefined, false, 0, [
+                            'alice.eth',
+                        ]),
+                    );
+                },
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
                 onNewMessage: (cb: Function) => {
@@ -701,8 +710,7 @@ describe('useMessage hook test cases', () => {
 
             // Filter out the acknowledgment messages
             const sentMsgs = result.current.messages['alice.eth'].filter(
-                (data) =>
-                    data.envelop.message.metadata.type !== 'READ_RECEIVED',
+                (data) => data.envelop.message.metadata.type === 'NEW',
             );
 
             expect(result.current.contactIsLoading('alice.eth')).toBe(false);
@@ -745,8 +753,17 @@ describe('useMessage hook test cases', () => {
                     [],
                 ),
                 contacts: [
-                    getEmptyContact('alice.eth', undefined, false, 0, []),
+                    getEmptyContact('alice.eth', undefined, false, 0, [
+                        'alice.eth',
+                    ]),
                 ],
+                addConversation: () => {
+                    return Promise.resolve(
+                        getEmptyContact('alice.eth', undefined, false, 0, [
+                            'alice.eth',
+                        ]),
+                    );
+                },
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
                 onNewMessage: (cb: Function) => {
@@ -974,11 +991,20 @@ describe('useMessage hook test cases', () => {
                     undefined,
                     false,
                     0,
-                    [],
+                    ['max.eth'],
                 ),
                 contacts: [
-                    getEmptyContact('alice.eth', undefined, false, 0, []),
+                    getEmptyContact('alice.eth', undefined, false, 0, [
+                        'alice.eth',
+                    ]),
                 ],
+                addConversation(ensName) {
+                    return Promise.resolve(
+                        getEmptyContact('alice.eth', undefined, false, 0, [
+                            'alice.eth',
+                        ]),
+                    );
+                },
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
                 onNewMessage: (cb: Function) => {
@@ -1040,8 +1066,7 @@ describe('useMessage hook test cases', () => {
 
             // Filter out the acknowledgment messages
             const sentMsgs = result.current.messages['alice.eth'].filter(
-                (data) =>
-                    data.envelop.message.metadata.type !== 'READ_RECEIVED',
+                (data) => data.envelop.message.metadata.type === 'NEW',
             );
 
             expect(result.current.contactIsLoading('alice.eth')).toBe(false);
@@ -1060,8 +1085,7 @@ describe('useMessage hook test cases', () => {
 
             // Filter out the acknowledgment messages
             const moreSentMsgs = result.current.messages['alice.eth'].filter(
-                (data) =>
-                    data.envelop.message.metadata.type !== 'READ_RECEIVED',
+                (data) => data.envelop.message.metadata.type === 'NEW',
             );
 
             expect(result.current.contactIsLoading('alice.eth')).toBe(false);
