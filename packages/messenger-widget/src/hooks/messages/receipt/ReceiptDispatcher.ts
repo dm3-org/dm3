@@ -6,8 +6,10 @@ import {
 } from '@dm3-org/dm3-lib-messaging';
 import { ContactPreview } from '../../../interfaces/utils';
 
-//Class that takes care of acknowledging messages
-export class AcknowledgmentManager {
+//A receipt is a Dm3 message directed to the sender of the original message
+//It can either indicate that the message has been opened via READ_OPENED or that the message has been received via READ_RECEIVED
+//The ReceiptDispatcher is responsible for checking which type of receipt should be sent and dispatch it via the useMessage hook
+export class ReceiptDispatcher {
     private readonly account: Account;
     private readonly profileKeys: ProfileKeys;
     private readonly addMessage: Function;
@@ -20,11 +22,11 @@ export class AcknowledgmentManager {
         this.profileKeys = profileKeys;
         this.addMessage = addMessage;
     }
-    private ackOpened = async (
+    private sendOpendReceipt = async (
         contactAliasName: string,
         messageModel: MessageModel,
     ) => {
-        const readedMsg = await createReadOpenMessage(
+        const readMsg = await createReadOpenMessage(
             messageModel.envelop.message.metadata.from,
             this.account!.ensName,
             'READ_OPENED',
@@ -33,14 +35,14 @@ export class AcknowledgmentManager {
         );
 
         //add the message to dispatch it via useMessage hook
-        await this.addMessage(contactAliasName, readedMsg);
+        await this.addMessage(contactAliasName, readMsg);
     };
 
-    private ackReceived = async (
+    private sendReceivedReceipte = async (
         contactAliasName: string,
         messageModel: MessageModel,
     ) => {
-        const readedMsg = await createReadReceiveMessage(
+        const readMsg = await createReadReceiveMessage(
             messageModel.envelop.message.metadata.from,
             this.account!.ensName,
             'READ_RECEIVED',
@@ -49,22 +51,22 @@ export class AcknowledgmentManager {
         );
 
         //add the message to dispatch it via useMessage hook
-        await this.addMessage(contactAliasName, readedMsg);
+        await this.addMessage(contactAliasName, readMsg);
     };
 
-    public async ackMultiple(
+    public async sendMultiple(
         selectedContact: ContactPreview | undefined,
         contactAliasName: string,
         messageModel: MessageModel[],
     ) {
         await Promise.all(
             messageModel.map((msg) => {
-                this.ackSingle(selectedContact, contactAliasName, msg);
+                this.sendSingle(selectedContact, contactAliasName, msg);
             }),
         );
     }
 
-    public async ackSingle(
+    public async sendSingle(
         selectedContact: ContactPreview | undefined,
         contactAliasName: string,
         messageModel: MessageModel,
@@ -72,19 +74,19 @@ export class AcknowledgmentManager {
         //We only want to acknowledge messages from type NEW. Every other message type can be neglected for now
         const msgIsNew = messageModel.envelop.message.metadata.type === 'NEW';
         //Check if the selected contact is the sender of the message.
-        // If that is the case we've to acknowledge the message and send a READ_OPENED acknowledgment to the sender
+        // If that is the case we've to acknowledge the message and send a READ_OPENED acknowledgement to the sender
         const selectedContactIsSender =
             selectedContact?.contactDetails.account.ensName ===
             contactAliasName;
 
-        //We acknowledge that we've received the message by sending a READ_RECEIVED acknowledgment to the sender
+        //We acknowledge that we've received the message by sending a READ_RECEIVED acknowledgement to the sender
         if (msgIsNew) {
-            await this.ackOpened(contactAliasName, messageModel);
+            await this.sendOpendReceipt(contactAliasName, messageModel);
         }
 
         if (msgIsNew && selectedContactIsSender) {
-            // if contact is selected then send READ_OPENED acknowledgment to sender for new message received
-            await this.ackReceived(contactAliasName, messageModel);
+            // if contact is selected then send READ_OPENED acknowledgement to sender for new message received
+            await this.sendReceivedReceipte(contactAliasName, messageModel);
         }
     }
 }

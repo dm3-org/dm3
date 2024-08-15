@@ -17,7 +17,7 @@ import { StorageContext } from '../../context/StorageContext';
 import { TLDContext } from '../../context/TLDContext';
 import { submitEnvelopsToReceiversDs } from '../../utils/deliveryService/submitEnvelopsToReceiversDs';
 import { useHaltDelivery } from '../haltDelivery/useHaltDelivery';
-import { AcknowledgmentManager } from './acknowledge/AcklowledgementManager';
+import { ReceiptDispatcher } from './receipt/ReceiptDispatcher';
 import { renderMessage } from './renderer/renderMessage';
 import { checkIfEnvelopAreInSizeLimit } from './sizeLimit/checkIfEnvelopIsInSizeLimit';
 import { handleMessagesFromDeliveryService } from './sources/handleMessagesFromDeliveryService';
@@ -64,8 +64,8 @@ export const useMessage = () => {
     } = useContext(ConversationContext);
     const { account, profileKeys } = useContext(AuthContext);
     const {
-        fetchIncommingMessages,
-        syncAcknowledgment,
+        fetchIncomingMessages,
+        syncAcknowledgement,
         isInitialized: deliveryServiceInitialized,
     } = useContext(DeliveryServiceContext);
 
@@ -109,8 +109,8 @@ export const useMessage = () => {
                 profileKeys!,
                 addConversation,
                 storeMessageBatch,
-                fetchIncommingMessages,
-                syncAcknowledgment,
+                fetchIncomingMessages,
+                syncAcknowledgement,
                 updateConversationList,
                 addMessage,
             );
@@ -139,7 +139,7 @@ export const useMessage = () => {
                 profileKeys!,
                 selectedContact!,
                 encryptedEnvelop,
-                new AcknowledgmentManager(account!, profileKeys!, addMessage),
+                new ReceiptDispatcher(account!, profileKeys!, addMessage),
                 updateConversationList,
             );
         });
@@ -179,14 +179,14 @@ export const useMessage = () => {
                 };
             });
 
-            //For every read message we sent a READ_OPENED acknowledgment to sender using AcknowledgmentManager
-            const acknowledgmentManager = new AcknowledgmentManager(
+            //For every read message we sent a READ_OPENED acknowledgement to sender using acknowledgementManager
+            const receiptDispatcher = new ReceiptDispatcher(
                 account!,
                 profileKeys!,
                 addMessage,
             );
 
-            await acknowledgmentManager.ackMultiple(
+            await receiptDispatcher.sendMultiple(
                 selectedContact,
                 contact,
                 unreadMessages,

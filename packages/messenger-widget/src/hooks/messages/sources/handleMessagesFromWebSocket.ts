@@ -7,7 +7,7 @@ import {
 import { ProfileKeys } from '@dm3-org/dm3-lib-profile';
 import { ContactPreview } from '../../../interfaces/utils';
 import { StoreMessageAsync } from '../../storage/useStorage';
-import { AcknowledgmentManager } from '../acknowledge/AcklowledgementManager';
+import { ReceiptDispatcher } from '../receipt/ReceiptDispatcher';
 import { MessageModel, MessageSource, MessageStorage } from '../useMessage';
 
 export const handleMessagesFromWebSocket = async (
@@ -19,7 +19,7 @@ export const handleMessagesFromWebSocket = async (
     profileKeys: ProfileKeys,
     selectedContact: ContactPreview,
     encryptedEnvelop: EncryptionEnvelop,
-    acknowledgementManager: AcknowledgmentManager,
+    acknowledgementManager: ReceiptDispatcher,
     updateConversationList: (conversation: string, updatedAt: number) => void,
 ) => {
     const decryptedEnvelop: Envelop = {
@@ -77,8 +77,8 @@ export const handleMessagesFromWebSocket = async (
         };
     });
 
-    //Let the acknowledgment manager handle the message acknowledgment
-    await acknowledgementManager.ackSingle(
+    //Let the acknowledgement manager handle the message acknowledgement
+    await acknowledgementManager.sendSingle(
         selectedContact,
         contact,
         messageModel,

@@ -1,5 +1,5 @@
 import {
-    Acknowledgment,
+    Acknowledgement,
     getConversationId,
     schema,
 } from '@dm3-org/dm3-lib-delivery';
@@ -22,12 +22,12 @@ const syncAcknowledgementParamsSchema = {
 const syncAcknowledgementBodySchema = {
     type: 'object',
     properties: {
-        acknowledgments: {
+        Acknowledgements: {
             type: 'array',
-            items: schema.Acknowledgment,
+            items: schema.Acknowledgement,
         },
     },
-    required: ['acknowledgments'],
+    required: ['Acknowledgements'],
     additionalProperties: false,
 };
 
@@ -56,7 +56,7 @@ export default (
         '/messages/:ensName/contact/:contactEnsName',
         async (req: express.Request, res, next) => {
             try {
-                //retrive the address for the contact name since it is used as a key in the db
+                //retrieve the address for the contact name since it is used as a key in the db
                 const receiverAddress = await web3Provider.resolveName(
                     req.params.ensName,
                 );
@@ -112,7 +112,7 @@ export default (
         //@ts-ignore
         async (req: express.Request, res, next) => {
             try {
-                //retrive the address for the contact name since it is used as a key in the db
+                //retrieve the address for the contact name since it is used as a key in the db
                 const receiverAddress = await web3Provider.resolveName(
                     req.params.ensName,
                 );
@@ -143,7 +143,7 @@ export default (
         },
     );
     router.post(
-        '/messages/:ensName/syncAcknowledgments/',
+        '/messages/:ensName/syncAcknowledgements/',
         async (req, res, next) => {
             const hasValidParams = validateSchema(
                 syncAcknowledgementParamsSchema,
@@ -178,8 +178,8 @@ export default (
                 }
 
                 await Promise.all(
-                    req.body.acknowledgments.map(
-                        async (ack: Acknowledgment) => {
+                    req.body.acknowledgements.map(
+                        async (ack: Acknowledgement) => {
                             const contactEnsName = await db.getIdEnsName(
                                 ack.contactAddress,
                             );

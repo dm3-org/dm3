@@ -23,10 +23,8 @@ export const useConversation = (config: DM3Configuration) => {
     const mainnetProvider = useMainnetProvider();
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
     const { account } = useContext(AuthContext);
-    const {
-        fetchIncommingMessages,
-        isInitialized: deliveryServiceInitialized,
-    } = useContext(DeliveryServiceContext);
+    const { fetchIncomingMessages, isInitialized: deliveryServiceInitialized } =
+        useContext(DeliveryServiceContext);
     const {
         getConversations: getConversationsFromStorage,
         addConversationAsync: storeConversationAsync,
@@ -156,17 +154,17 @@ export const useConversation = (config: DM3Configuration) => {
     const getConversationsFromDeliveryService = async (): Promise<
         Conversation[]
     > => {
-        //The DS does not exposes an endpoint to fetch pending conversations. Hence we're using the fetchIncommingMessages method.
-        //We can make some optimizations here if we use the messages fetched from incommingMessages in useMessages aswell.
+        //The DS does not exposes an endpoint to fetch pending conversations. Hence we're using the fetchIncomingMessages method.
+        //We can make some optimizations here if we use the messages fetched from incomingMessages in useMessages aswell.
         //This would require a refactor of the useMessages away from a contact based model.
         //Maybe we decide to to this in the future, for now we're going to keep it simple
-        const incommingMessages: Envelop[] = await fetchIncommingMessages(
+        const incomingMessages: Envelop[] = await fetchIncomingMessages(
             account?.ensName as string,
         );
 
-        //It might be possible that the same contact has sent multiple messages. We only want to retrive the TLDAlias for each contact once
+        //It might be possible that the same contact has sent multiple messages. We only want to retrieve the TLDAlias for each contact once
         const uniqueSenders = new Set(
-            incommingMessages.map(
+            incomingMessages.map(
                 (message) =>
                     (
                         message.metadata!
@@ -190,7 +188,7 @@ export const useConversation = (config: DM3Configuration) => {
 
         //Every pending conversation is going to be added to the conversation list
         const incommingConversations = await Promise.all(
-            incommingMessages.map(async (pendingMessage: Envelop) => {
+            incomingMessages.map(async (pendingMessage: Envelop) => {
                 //TODO might be necessary to resolve alias
                 const contactTldName = (
                     pendingMessage.metadata!

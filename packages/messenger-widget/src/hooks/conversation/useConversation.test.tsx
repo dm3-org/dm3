@@ -102,7 +102,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -172,7 +172,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -247,7 +247,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -314,7 +314,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -398,7 +398,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -468,7 +468,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -533,7 +533,7 @@ describe('useConversation hook test cases', () => {
 
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([envelope]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -625,7 +625,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -705,7 +705,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -798,7 +798,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -898,7 +898,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -987,7 +987,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -1059,7 +1059,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -1140,7 +1140,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -1253,7 +1253,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     isInitialized: true,
@@ -1356,7 +1356,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -1431,7 +1431,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -1508,7 +1508,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {

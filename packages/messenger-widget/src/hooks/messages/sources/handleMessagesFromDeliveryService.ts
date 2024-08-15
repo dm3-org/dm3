@@ -1,8 +1,5 @@
 import { decryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
-import { Acknowledgment } from '@dm3-org/dm3-lib-delivery';
 import {
-    createReadOpenMessage,
-    createReadReceiveMessage,
     EncryptionEnvelop,
     Envelop,
     MessageState,
@@ -15,7 +12,8 @@ import {
 import { ContactPreview } from '../../../interfaces/utils';
 import { StoreMessageBatch } from '../../storage/useStorage';
 import { MessageModel, MessageSource } from '../useMessage';
-import { AcknowledgmentManager } from '../acknowledge/AcklowledgementManager';
+import { ReceiptDispatcher } from '../receipt/ReceiptDispatcher';
+import { Acknowledgement } from '@dm3-org/dm3-lib-delivery';
 
 export const handleMessagesFromDeliveryService = async (
     selectedContact: ContactPreview | undefined,
@@ -23,23 +21,23 @@ export const handleMessagesFromDeliveryService = async (
     profileKeys: ProfileKeys,
     addConversation: (contactEnsName: string) => Promise<ContactPreview | void>,
     storeMessageBatch: StoreMessageBatch,
-    fetchIncommingMessages: (ensName: string) => any,
-    syncAcknowledgment: (
+    fetchIncomingMessages: (ensName: string) => any,
+    syncacknowledgement: (
         ensName: string,
-        acknoledgments: Acknowledgment[],
+        acknoledgments: Acknowledgement[],
     ) => void,
     updateConversationList: (conversation: string, updatedAt: number) => void,
     addMessage: Function,
 ) => {
     //Fetch the messages from the delivery service
-    const encryptedIncommingMessages = await fetchIncommingMessages(
+    const encryptedincomingMessages = await fetchIncomingMessages(
         account.ensName,
     );
 
-    console.log('MSG incommingMessages', encryptedIncommingMessages);
+    console.log('MSG incomingMessages', encryptedincomingMessages);
 
-    const incommingMessages: MessageModel[] = await Promise.all(
-        encryptedIncommingMessages.map(
+    const incomingMessages: MessageModel[] = await Promise.all(
+        encryptedincomingMessages.map(
             async (
                 envelop: EncryptionEnvelop,
             ): Promise<MessageModel | null> => {
@@ -78,7 +76,7 @@ export const handleMessagesFromDeliveryService = async (
         ),
     );
 
-    const messagesSortedASC = incommingMessages
+    const messagesSortedASC = incomingMessages
         //Filter out messages that could not be decrypted to only process and acknowledge the ones that could be decrypted
         .filter((message) => message !== null)
         .sort((a, b) => {
@@ -89,7 +87,7 @@ export const handleMessagesFromDeliveryService = async (
         });
 
     //Filter out messages that could not be decrypted to only process and acknowledge the ones that could be decrypted
-    const decryptedMessages = incommingMessages.filter(
+    const decryptedMessages = incomingMessages.filter(
         (message) => message !== null,
     );
 
@@ -144,21 +142,24 @@ export const handleMessagesFromDeliveryService = async (
                 conversation.messages,
             );
             //acknowledge the messages for the delivery service
-            const acks: Acknowledgment[] = messagesSortedASC.map((message) => ({
-                //Here we use the TLD name because the delivery service uses the TLD name to identify the contact
-                //We cannot just use teh messageId because redis prevents us from finding messages by ID
-                contactAddress: conversation.tldName,
-                messageHash: message.envelop.metadata?.encryptedMessageHash!,
-            }));
-            await syncAcknowledgment(account.ensName, acks);
+            const acks: Acknowledgement[] = messagesSortedASC.map(
+                (message) => ({
+                    //Here we use the TLD name because the delivery service uses the TLD name to identify the contact
+                    //We cannot just use teh messageId because redis prevents us from finding messages by ID
+                    contactAddress: conversation.tldName,
+                    messageHash:
+                        message.envelop.metadata?.encryptedMessageHash!,
+                }),
+            );
+            await syncacknowledgement(account.ensName, acks);
 
             //acknowledge the messages for the sender
-            const acknowledgementManager = new AcknowledgmentManager(
+            const receiptDispatcher = new ReceiptDispatcher(
                 account,
                 profileKeys,
                 addMessage,
             );
-            acknowledgementManager.ackMultiple(
+            receiptDispatcher.sendMultiple(
                 selectedContact,
                 conversation.aliasName,
                 messagesSortedASC,

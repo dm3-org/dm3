@@ -1,7 +1,7 @@
 import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
 import React from 'react';
 import { useDeliveryService } from '../hooks/server-side/useDeliveryService';
-import { Acknowledgment } from '@dm3-org/dm3-lib-delivery';
+import { Acknowledgement } from '@dm3-org/dm3-lib-delivery';
 
 export type DeliveryServiceContextType = {
     getDeliveryServiceProperties: () => Promise<any[]>;
@@ -20,10 +20,10 @@ export type DeliveryServiceContextType = {
         otp: string,
         notificationChannelType: NotificationChannelType,
     ) => any;
-    fetchIncommingMessages: (ensName: string) => any;
-    syncAcknowledgment: (
+    fetchIncomingMessages: (ensName: string) => any;
+    syncAcknowledgement: (
         ensName: string,
-        acknowledgments: Acknowledgment[],
+        acknowledgements: Acknowledgement[],
     ) => void;
     getGlobalNotification: (ensName: string) => any;
     getAllNotificationChannels: (ensName: string) => any;
@@ -59,10 +59,10 @@ export const DeliveryServiceContext =
             otp: string,
             notificationChannelType: NotificationChannelType,
         ) => {},
-        fetchIncommingMessages: (ensName: string) => {},
-        syncAcknowledgment: (
+        fetchIncomingMessages: (ensName: string) => {},
+        syncAcknowledgement: (
             ensName: string,
-            acknowledgments: Acknowledgment[],
+            acknowledgements: Acknowledgement[],
         ) => {},
         getGlobalNotification: (ensName: string) => {},
         getAllNotificationChannels: (ensName: string) => {},
@@ -91,8 +91,8 @@ export const DeliveryServiceContextProvider = ({
         addNotificationChannel,
         sendOtp,
         verifyOtp,
-        fetchIncommingMessages,
-        syncAcknowledgment,
+        fetchIncomingMessages,
+        syncAcknowledgement,
         getGlobalNotification,
         getAllNotificationChannels,
         toggleGlobalNotifications,
@@ -110,8 +110,8 @@ export const DeliveryServiceContextProvider = ({
                 addNotificationChannel,
                 sendOtp,
                 verifyOtp,
-                fetchIncommingMessages,
-                syncAcknowledgment,
+                fetchIncomingMessages,
+                syncAcknowledgement,
                 getGlobalNotification,
                 getAllNotificationChannels,
                 toggleGlobalNotifications,
