@@ -10,6 +10,7 @@ import Account from './account';
 import { getIdEnsName } from './getIdEnsName';
 import Messages from './messages';
 import Metrics from './metrics';
+import type { MetricsMap, IntervalMetric } from './metrics';
 import { syncAcknowledge } from './messages/syncAcknowledge';
 import Notification from './notification';
 import Otp from './otp';
@@ -23,6 +24,7 @@ export enum RedisPrefix {
     NotificationChannel = 'notificationChannel:',
     GlobalNotification = 'globalNotification:',
     Otp = 'otp:',
+    Metrics = 'metrics:',
 }
 
 export async function getRedisClient() {
@@ -158,7 +160,7 @@ export interface IDatabase extends IAccountDatabase {
         ensName: string,
         channelType: NotificationChannelType,
     ) => Promise<void>;
-    getMetrics: () => Promise<string>;
+    getMetrics: () => Promise<MetricsMap>;
 }
 
 export type Redis = Awaited<ReturnType<typeof getRedisClient>>;
