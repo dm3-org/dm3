@@ -1,22 +1,16 @@
 import { decryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
 import {
-    createReadOpenMessage,
-    createReadReceiveMessage,
     EncryptionEnvelop,
     Envelop,
     MessageState,
 } from '@dm3-org/dm3-lib-messaging';
-import {
-    Account,
-    normalizeEnsName,
-    ProfileKeys,
-} from '@dm3-org/dm3-lib-profile';
+import { ProfileKeys } from '@dm3-org/dm3-lib-profile';
 import { ContactPreview } from '../../../interfaces/utils';
 import { StoreMessageAsync } from '../../storage/useStorage';
+import { AcknowledgmentManager } from '../acknowledge/AcklowledgementManager';
 import { MessageModel, MessageSource, MessageStorage } from '../useMessage';
 
 export const handleMessagesFromWebSocket = async (
-    account: Account,
     addConversation: (
         contactEnsName: string,
     ) => Promise<ContactPreview | undefined>,
@@ -25,9 +19,8 @@ export const handleMessagesFromWebSocket = async (
     profileKeys: ProfileKeys,
     selectedContact: ContactPreview,
     encryptedEnvelop: EncryptionEnvelop,
-    resolveTLDtoAlias: Function,
+    acknowledgementManager: AcknowledgmentManager,
     updateConversationList: (conversation: string, updatedAt: number) => void,
-    addMessage: Function,
 ) => {
     const decryptedEnvelop: Envelop = {
         message: JSON.parse(
@@ -84,35 +77,12 @@ export const handleMessagesFromWebSocket = async (
         };
     });
 
-    // if contact is selected then send READ_OPENED acknowledgment to sender for new message received
-    if (
-        selectedContact &&
-        selectedContact.contactDetails.account.ensName === contact
-    ) {
-        const readedMsg = await createReadOpenMessage(
-            messageModel.envelop.message.metadata.from,
-            account!.ensName,
-            'READ_OPENED',
-            profileKeys?.signingKeyPair.privateKey!,
-            messageModel.envelop.metadata?.encryptedMessageHash as string,
-        );
-
-        await addMessage(contact, readedMsg);
-    } else if (
-        messageModel.envelop.message.metadata.type !== 'READ_RECEIVED' &&
-        messageModel.envelop.message.metadata.type !== 'READ_OPENED'
-    ) {
-        // send READ_RECEIVED acknowledgment to sender for new message received
-        const readedMsg = await createReadReceiveMessage(
-            messageModel.envelop.message.metadata.from,
-            account!.ensName,
-            'READ_RECEIVED',
-            profileKeys?.signingKeyPair.privateKey!,
-            messageModel.envelop.metadata?.encryptedMessageHash as string,
-        );
-
-        await addMessage(contact, readedMsg);
-    }
+    //Let the acknowledgment manager handle the message acknowledgment
+    await acknowledgementManager.ackSingle(
+        selectedContact,
+        contact,
+        messageModel,
+    );
 
     // Update the conversation with the latest message timestamp
     updateConversationList(
