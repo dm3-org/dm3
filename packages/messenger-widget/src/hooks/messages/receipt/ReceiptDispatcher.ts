@@ -81,12 +81,12 @@ export class ReceiptDispatcher {
 
         //We acknowledge that we've received the message by sending a READ_RECEIVED acknowledgement to the sender
         if (msgIsNew) {
-            await this.sendOpendReceipt(contactAliasName, messageModel);
+            await this.sendReceivedReceipte(contactAliasName, messageModel);
         }
 
         if (msgIsNew && selectedContactIsSender) {
             // if contact is selected then send READ_OPENED acknowledgement to sender for new message received
-            await this.sendReceivedReceipte(contactAliasName, messageModel);
+            await this.sendOpendReceipt(contactAliasName, messageModel);
         }
     }
 }
