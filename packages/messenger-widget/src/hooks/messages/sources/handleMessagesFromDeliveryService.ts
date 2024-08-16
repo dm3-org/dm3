@@ -22,7 +22,7 @@ export const handleMessagesFromDeliveryService = async (
     addConversation: (contactEnsName: string) => Promise<ContactPreview | void>,
     storeMessageBatch: StoreMessageBatch,
     fetchIncomingMessages: (ensName: string) => any,
-    syncacknowledgement: (
+    syncAcknowledgement: (
         ensName: string,
         acknoledgments: Acknowledgement[],
     ) => void,
@@ -151,7 +151,7 @@ export const handleMessagesFromDeliveryService = async (
                         message.envelop.metadata?.encryptedMessageHash!,
                 }),
             );
-            await syncacknowledgement(account.ensName, acks);
+            await syncAcknowledgement(account.ensName, acks);
 
             //acknowledge the messages for the sender
             const receiptDispatcher = new ReceiptDispatcher(
