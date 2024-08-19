@@ -305,12 +305,11 @@ export const useMessage = () => {
             (c) => c.contactDetails.account.ensName === contact,
         );
 
+        //This should normally not happen, since the contact should be already in the contact list
         if (!potentialReceiver) {
             return await haltMessage(contact, message);
         }
         const hydratedC = await hydrateExistingContactAsync(potentialReceiver);
-
-        console.log('hydratedC', hydratedC);
 
         //If the user is a DM3 user we can send the message to the delivery service
         if (hydratedC.contactDetails.account.profile?.publicEncryptionKey) {
