@@ -288,6 +288,7 @@ export const useConversation = (config: DM3Configuration) => {
                 return existingContact;
             });
         });
+        return hydratedContact;
     };
 
     const hideContact = (_ensName: string) => {
@@ -389,6 +390,7 @@ export const useConversation = (config: DM3Configuration) => {
         contacts,
         conversationCount,
         addConversation,
+        hydrateExistingContactAsync,
         loadMoreConversations,
         initialized: conversationsInitialized,
         setSelectedContactName,
