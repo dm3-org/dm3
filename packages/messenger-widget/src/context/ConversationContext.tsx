@@ -12,6 +12,9 @@ export type ConversationContextType = {
     setSelectedContactName: (contactEnsName: string | undefined) => void;
     initialized: boolean;
     addConversation: (ensName: string) => Promise<ContactPreview | undefined>;
+    hydrateExistingContactAsync: (
+        contact: ContactPreview,
+    ) => Promise<ContactPreview>;
     loadMoreConversations: () => Promise<number>;
     hideContact: (ensName: string) => void;
     updateConversationList: (conversation: string, updatedAt: number) => void;
@@ -26,6 +29,9 @@ export const ConversationContext = React.createContext<ConversationContextType>(
         selectedContactName: undefined,
         selectedContact: undefined,
         addConversation: (ensName: string) => {
+            return Promise.resolve({} as ContactPreview);
+        },
+        hydrateExistingContactAsync: (contact: ContactPreview) => {
             return Promise.resolve({} as ContactPreview);
         },
         loadMoreConversations: () => {
@@ -45,6 +51,7 @@ export const ConversationContextProvider = ({
 }) => {
     const {
         addConversation,
+        hydrateExistingContactAsync,
         contacts,
         conversationCount,
         initialized,
@@ -60,6 +67,7 @@ export const ConversationContextProvider = ({
         <ConversationContext.Provider
             value={{
                 addConversation,
+                hydrateExistingContactAsync,
                 loadMoreConversations,
                 contacts,
                 conversationCount,

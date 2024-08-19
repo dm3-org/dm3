@@ -628,13 +628,16 @@ describe('useMessage hook test cases', () => {
             );
 
             const storageContext = getMockedStorageContext({
+                getHaltedMessages: jest.fn().mockResolvedValue([]),
                 editMessageBatchAsync: jest.fn(),
                 storeMessageBatch: jest.fn(),
                 storeMessage: jest.fn(),
                 getMessages: jest.fn().mockResolvedValue([]),
                 getNumberOfMessages: jest.fn().mockResolvedValue(0),
+                initialized: true,
             });
             const conversationContext = getMockedConversationContext({
+                initialized: true,
                 selectedContact: getEmptyContact(
                     'max.eth',
                     undefined,
@@ -654,8 +657,22 @@ describe('useMessage hook test cases', () => {
                         ]),
                     );
                 },
+                hydrateExistingContactAsync: () => {
+                    return Promise.resolve({
+                        ...getEmptyContact('alice.eth', undefined, false, 0, [
+                            'alice.eth',
+                        ]),
+                        contactDetails: {
+                            account: sender.account,
+                            deliveryServiceProfiles: [
+                                ds.deliveryServiceProfile,
+                            ],
+                        },
+                    });
+                },
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
+                isInitialized: true,
                 onNewMessage: (cb: Function) => {
                     console.log('on new message');
                 },
@@ -708,6 +725,8 @@ describe('useMessage hook test cases', () => {
                     result.current.messages['alice.eth'].length > 0,
             );
 
+            console.log(result.current.messages);
+
             // Filter out the acknowledgement messages
             const sentMsgs = result.current.messages['alice.eth'].filter(
                 (data) => data.envelop.message.metadata.type === 'NEW',
@@ -738,11 +757,13 @@ describe('useMessage hook test cases', () => {
             const syncAcknowledgementMock = jest.fn();
 
             const storageContext = getMockedStorageContext({
+                getHaltedMessages: jest.fn().mockResolvedValue([]),
                 editMessageBatchAsync: jest.fn(),
                 storeMessageBatch: jest.fn(),
                 storeMessage: jest.fn(),
                 getMessages: jest.fn().mockResolvedValue([]),
                 getNumberOfMessages: jest.fn().mockResolvedValue(0),
+                initialized: true,
             });
             const conversationContext = getMockedConversationContext({
                 selectedContact: getEmptyContact(
@@ -764,6 +785,20 @@ describe('useMessage hook test cases', () => {
                         ]),
                     );
                 },
+                hydrateExistingContactAsync: () => {
+                    return Promise.resolve({
+                        ...getEmptyContact('alice.eth', undefined, false, 0, [
+                            'alice.eth',
+                        ]),
+                        contactDetails: {
+                            account: sender.account,
+                            deliveryServiceProfiles: [
+                                ds.deliveryServiceProfile,
+                            ],
+                        },
+                    });
+                },
+                initialized: true,
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
                 onNewMessage: (cb: Function) => {
@@ -779,6 +814,7 @@ describe('useMessage hook test cases', () => {
                     ]),
                 syncAcknowledgement: syncAcknowledgementMock,
                 removeOnNewMessageListener: jest.fn(),
+                isInitialized: true,
             });
             const authContext = getMockedAuthContext({
                 profileKeys: receiver.profileKeys,
@@ -969,6 +1005,8 @@ describe('useMessage hook test cases', () => {
             const messageFactory = MockMessageFactory(sender, receiver, ds);
             //const messages
             const storageContext = getMockedStorageContext({
+                initialized: true,
+                getHaltedMessages: jest.fn().mockResolvedValue([]),
                 editMessageBatchAsync: jest.fn(),
                 storeMessageBatch: jest.fn(),
                 storeMessage: jest.fn(),
@@ -986,6 +1024,7 @@ describe('useMessage hook test cases', () => {
                     ),
             });
             const conversationContext = getMockedConversationContext({
+                initialized: true,
                 selectedContact: getEmptyContact(
                     'max.eth',
                     undefined,
@@ -1005,8 +1044,22 @@ describe('useMessage hook test cases', () => {
                         ]),
                     );
                 },
+                hydrateExistingContactAsync: () => {
+                    return Promise.resolve({
+                        ...getEmptyContact('alice.eth', undefined, false, 0, [
+                            'alice.eth',
+                        ]),
+                        contactDetails: {
+                            account: sender.account,
+                            deliveryServiceProfiles: [
+                                ds.deliveryServiceProfile,
+                            ],
+                        },
+                    });
+                },
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
+                isInitialized: true,
                 onNewMessage: (cb: Function) => {
                     console.log('on new message');
                 },
@@ -1092,7 +1145,7 @@ describe('useMessage hook test cases', () => {
             expect(moreSentMsgs.length).toBe(213);
             //991 = 99 message 100(since pageSize starts from 0) = 1 offset
             expect(
-                result.current.messages['alice.eth'][225].envelop.message
+                result.current.messages['alice.eth'][212].envelop.message
                     .message,
             ).toBe('hello dm3 991');
         });

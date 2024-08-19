@@ -151,6 +151,7 @@ export const handleMessagesFromDeliveryService = async (
                         message.envelop.metadata?.encryptedMessageHash!,
                 }),
             );
+            //sync acknowledgements with the delivery serviceƒƒ
             await syncAcknowledgement(account.ensName, acks);
 
             //acknowledge the messages for the sender
@@ -159,7 +160,7 @@ export const handleMessagesFromDeliveryService = async (
                 profileKeys,
                 addMessage,
             );
-            receiptDispatcher.sendMultiple(
+            await receiptDispatcher.sendMultiple(
                 selectedContact,
                 conversation.aliasName,
                 messagesSortedASC,
