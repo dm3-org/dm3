@@ -1,3 +1,4 @@
+import { Session } from '@dm3-org/dm3-lib-delivery';
 import {
     Auth,
     errorHandler,
@@ -6,27 +7,28 @@ import {
     logError,
     logRequest,
     readKeysFromEnv,
-    socketAuth,
 } from '@dm3-org/dm3-lib-server-side';
 import { NotificationChannelType, logInfo } from '@dm3-org/dm3-lib-shared';
 import { Axios } from 'axios';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import 'dotenv/config';
+import { ethers } from 'ethers';
 import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
+import webpush from 'web-push';
 import winston from 'winston';
 import { startCleanUpPendingMessagesJob } from './cleanup/cleanUpPendingMessages';
 import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
 import Delivery from './delivery';
 import { onConnection } from './messaging';
 import Notifications from './notifications';
-import { getDatabase } from './persistence/getDatabase';
-import Profile from './profile';
+import { IDatabase, getDatabase } from './persistence/getDatabase';
+import { Profile } from './profile/profile';
 import RpcProxy from './rpc/rpc-proxy';
 import { WebSocketManager } from './ws/WebSocketManager';
-import webpush from 'web-push';
+import { socketAuth } from './socketAuth';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -34,6 +36,58 @@ app.use(express.urlencoded({ limit: '50mb' }));
 
 const server = http.createServer(app);
 
+// On the delivery-service side the address functions as an identifier for the account.
+// The reason for that is that the DS should accept all messages directet to the address. Regardless of its ENS name.
+// To use as much shared code as possible from lib/server-side the address is resolved to the account before each database call.
+// using this wrapper around the IDatabase
+const getDbWithAddressResolvedGetAccount = (
+    db: IDatabase,
+    web3Provider: ethers.providers.JsonRpcProvider,
+): IDatabase => {
+    const getAccountForEnsName = (
+        web3Provider: ethers.providers.JsonRpcProvider,
+        getAccount: (ensName: string) => Promise<Session | null>,
+    ) => {
+        return async (ensName: string) => {
+            const address = await web3Provider.resolveName(ensName);
+            console.debug(
+                'getDbWithAddressResolvedGetAccount resolved address for ens name: ',
+                ensName,
+                address,
+            );
+            if (!address) {
+                console.info('no address found for ens name: ', ensName);
+                return null;
+            }
+            return getAccount(address);
+        };
+    };
+
+    const hasAccountForEnsName = (
+        web3Provider: ethers.providers.JsonRpcProvider,
+        hasAccount: (ensName: string) => Promise<boolean>,
+    ) => {
+        return async (ensName: string) => {
+            const address = await web3Provider.resolveName(ensName);
+            console.debug(
+                'getDbWithAddressResolvedHasAccount resolved address for ens name: ',
+                ensName,
+                address,
+            );
+            if (!address) {
+                console.info('no address found for ens name: ', ensName);
+                return false;
+            }
+            return hasAccount(address);
+        };
+    };
+
+    return {
+        ...db,
+        getAccount: getAccountForEnsName(web3Provider, db.getAccount),
+        hasAccount: hasAccountForEnsName(web3Provider, db.hasAccount),
+    };
+};
 //TODO remove
 app.use(cors());
 app.use(bodyParser.json());
@@ -50,8 +104,12 @@ global.logger = winston.createLogger({
 (async () => {
     // load environment
     const deliveryServiceProperties = getDeliveryServiceProperties();
-    const db = await getDatabase();
     const web3Provider = await getCachedWebProvider(process.env);
+
+    const db = getDbWithAddressResolvedGetAccount(
+        await getDatabase(),
+        web3Provider,
+    );
     const keys = readKeysFromEnv(process.env);
     const serverSecret = getServerSecret(process.env);
 
@@ -88,12 +146,16 @@ global.logger = winston.createLogger({
     app.use(logRequest);
 
     app.get('/hello', (req, res) => {
-        return res.send('Hello DM3');
+        return res.status(200).send('Hello DM3');
     });
 
-    app.use('/auth', Auth(db.getAccount as any, serverSecret));
-    app.use('/profile', Profile(db, web3Provider, io, serverSecret));
-    app.use('/delivery', Delivery(web3Provider, db, keys, serverSecret));
+    //Auth
+    //socketAuth
+    //restAuth
+
+    app.use('/auth', Auth(db, serverSecret, web3Provider));
+    app.use('/profile', Profile(db, web3Provider, serverSecret));
+    app.use('/delivery', Delivery(web3Provider, db, serverSecret));
     app.use(
         '/notifications',
         Notifications(

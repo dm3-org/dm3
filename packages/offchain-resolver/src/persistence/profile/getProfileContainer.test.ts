@@ -47,8 +47,8 @@ describe('getUserProfile', () => {
         };
 
         await setUserProfile(prismaClient)(name, profile, address);
-        const retrivedProfile = await getProfileContainer(prismaClient)(name);
+        const retrievedProfile = await getProfileContainer(prismaClient)(name);
 
-        expect(retrivedProfile?.profile).to.eql(profile);
+        expect(retrievedProfile?.profile).to.eql(profile);
     });
 });

@@ -4,6 +4,7 @@ import {
 } from '@dm3-org/dm3-lib-storage';
 import {
     MockDeliveryServiceProfile,
+    MockMessageFactory,
     MockedUserProfile,
     getMockDeliveryServiceProfile,
     mockUserProfile,
@@ -26,7 +27,7 @@ import {
     StorageContext,
     StorageContextType,
 } from '../../context/StorageContext';
-import { TLDContext } from '../../context/TLDContext';
+import { TLDContext, TLDContextProvider } from '../../context/TLDContext';
 import { getMockedAuthContext } from '../../context/testHelper/getMockedAuthContext';
 import { getMockedDeliveryServiceContext } from '../../context/testHelper/getMockedDeliveryServiceContext';
 import {
@@ -101,7 +102,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -110,16 +111,24 @@ describe('useConversation hook test cases', () => {
                     isInitialized: true,
                 });
 
+            const tldContext = getMockedTldContext({
+                resolveTLDtoAlias: async (alias: string) => {
+                    return CONTACT_NAME;
+                },
+            });
+
             const wrapper = ({ children }: { children: any }) => (
                 <>
                     <AuthContext.Provider value={authContext}>
-                        <StorageContext.Provider value={storageContext}>
-                            <DeliveryServiceContext.Provider
-                                value={deliveryServiceContext}
-                            >
-                                {children}
-                            </DeliveryServiceContext.Provider>
-                        </StorageContext.Provider>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <DeliveryServiceContext.Provider
+                                    value={deliveryServiceContext}
+                                >
+                                    {children}
+                                </DeliveryServiceContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
                     </AuthContext.Provider>
                 </>
             );
@@ -163,7 +172,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -172,16 +181,24 @@ describe('useConversation hook test cases', () => {
                     isInitialized: true,
                 });
 
+            const tldContext = getMockedTldContext({
+                resolveTLDtoAlias: async (alias: string) => {
+                    return CONTACT_NAME;
+                },
+            });
+
             const wrapper = ({ children }: { children: any }) => (
                 <>
                     <AuthContext.Provider value={authContext}>
-                        <StorageContext.Provider value={storageContext}>
-                            <DeliveryServiceContext.Provider
-                                value={deliveryServiceContext}
-                            >
-                                {children}
-                            </DeliveryServiceContext.Provider>
-                        </StorageContext.Provider>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <DeliveryServiceContext.Provider
+                                    value={deliveryServiceContext}
+                                >
+                                    {children}
+                                </DeliveryServiceContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
                     </AuthContext.Provider>
                 </>
             );
@@ -230,7 +247,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -239,16 +256,24 @@ describe('useConversation hook test cases', () => {
                     isInitialized: true,
                 });
 
+            const tldContext = getMockedTldContext({
+                resolveTLDtoAlias: async (alias: string) => {
+                    return CONTACT_NAME;
+                },
+            });
+
             const wrapper = ({ children }: { children: any }) => (
                 <>
                     <AuthContext.Provider value={authContext}>
-                        <StorageContext.Provider value={storageContext}>
-                            <DeliveryServiceContext.Provider
-                                value={deliveryServiceContext}
-                            >
-                                {children}
-                            </DeliveryServiceContext.Provider>
-                        </StorageContext.Provider>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <DeliveryServiceContext.Provider
+                                    value={deliveryServiceContext}
+                                >
+                                    {children}
+                                </DeliveryServiceContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
                     </AuthContext.Provider>
                 </>
             );
@@ -289,7 +314,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -298,16 +323,24 @@ describe('useConversation hook test cases', () => {
                     isInitialized: true,
                 });
 
+            const tldContext = getMockedTldContext({
+                resolveTLDtoAlias: async (alias: string) => {
+                    return CONTACT_NAME;
+                },
+            });
+
             const wrapper = ({ children }: { children: any }) => (
                 <>
                     <AuthContext.Provider value={authContext}>
-                        <StorageContext.Provider value={storageContext}>
-                            <DeliveryServiceContext.Provider
-                                value={deliveryServiceContext}
-                            >
-                                {children}
-                            </DeliveryServiceContext.Provider>
-                        </StorageContext.Provider>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <DeliveryServiceContext.Provider
+                                    value={deliveryServiceContext}
+                                >
+                                    {children}
+                                </DeliveryServiceContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
                     </AuthContext.Provider>
                 </>
             );
@@ -352,6 +385,7 @@ describe('useConversation hook test cases', () => {
                             return {
                                 //Use offset here to create a distinct contactEnsName
                                 contactEnsName: 'contact ' + i + offset,
+                                contactProfileLocation: [],
                                 isHidden: false,
                                 previewMessage: undefined,
                                 updatedAt: 0,
@@ -364,7 +398,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -422,6 +456,7 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: 'max.eth',
+                            contactProfileLocation: [],
                             previewMessage: undefined,
                             isHidden: false,
                             updatedAt: 0,
@@ -433,7 +468,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -468,6 +503,82 @@ describe('useConversation hook test cases', () => {
                 'max.eth',
             );
         });
+        it('use resolved tld alias name to store contact', async () => {
+            const authContext: AuthContextType = getMockedAuthContext({
+                account: {
+                    ensName: receiver.account.ensName,
+                    profile: {
+                        deliveryServices: [ds1.address],
+                        publicEncryptionKey: '',
+                        publicSigningKey: '',
+                    },
+                },
+            });
+
+            const storageContext: StorageContextType = getMockedStorageContext({
+                getConversations: function (
+                    page: number,
+                    offset: number,
+                ): Promise<Conversation[]> {
+                    return Promise.resolve([]);
+                },
+                addConversationAsync: jest.fn(),
+                initialized: true,
+            });
+
+            const messageFactory = MockMessageFactory(sender, receiver, ds1);
+            const envelope = await messageFactory.createEnvelop(
+                'Hello from sender',
+            );
+
+            const deliveryServiceContext: DeliveryServiceContextType =
+                getMockedDeliveryServiceContext({
+                    fetchIncomingMessages: function (ensName: string) {
+                        return Promise.resolve([envelope]);
+                    },
+                    getDeliveryServiceProperties: function (): Promise<any[]> {
+                        return Promise.resolve([{ sizeLimit: 0 }]);
+                    },
+                    isInitialized: true,
+                });
+
+            const tldContext = getMockedTldContext({
+                resolveTLDtoAlias: async (alias: string) => {
+                    if (alias === sender.account.ensName) {
+                        return 'alias.name.eth';
+                    }
+                    return alias;
+                },
+            });
+
+            const wrapper = ({ children }: { children: any }) => (
+                <>
+                    <AuthContext.Provider value={authContext}>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <DeliveryServiceContext.Provider
+                                    value={deliveryServiceContext}
+                                >
+                                    {children}
+                                </DeliveryServiceContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
+                    </AuthContext.Provider>
+                </>
+            );
+
+            const { result } = renderHook(() => useConversation(config), {
+                wrapper,
+            });
+            await waitFor(() => expect(result.current.initialized).toBe(true));
+
+            const conversations = result.current.contacts;
+
+            expect(conversations.length).toBe(1);
+            expect(conversations[0].contactDetails.account.ensName).toBe(
+                'alias.name.eth',
+            );
+        });
         it('has last message attached as previewMessage', async () => {
             const authContext: AuthContextType = getMockedAuthContext({
                 account: {
@@ -488,12 +599,14 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: 'max.eth',
+                            contactProfileLocation: [],
                             isHidden: false,
                             previewMessage: undefined,
                             updatedAt: 0,
                         },
                         {
                             contactEnsName: 'bob.eth',
+                            contactProfileLocation: [],
                             previewMessage: {
                                 envelop: {
                                     message: {
@@ -512,7 +625,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -580,6 +693,7 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: 'max.eth',
+                            contactProfileLocation: [],
                             isHidden: false,
                             previewMessage: undefined,
                             updatedAt: 0,
@@ -591,7 +705,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -665,12 +779,14 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: 'max.eth',
+                            contactProfileLocation: [],
                             isHidden: false,
                             previewMessage: undefined,
                             updatedAt: 0,
                         },
                         {
                             contactEnsName: 'mydefaultcontract.eth',
+                            contactProfileLocation: [],
                             isHidden: false,
                             previewMessage: undefined,
                             updatedAt: 0,
@@ -682,7 +798,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -756,18 +872,21 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: 'ron.eth',
+                            contactProfileLocation: [],
                             isHidden: true,
                             previewMessage: undefined,
                             updatedAt: 0,
                         },
                         {
                             contactEnsName: 'max.eth',
+                            contactProfileLocation: [],
                             isHidden: false,
                             previewMessage: undefined,
                             updatedAt: 0,
                         },
                         {
                             contactEnsName: 'mydefaultcontract.eth',
+                            contactProfileLocation: [],
                             isHidden: false,
                             previewMessage: undefined,
                             updatedAt: 0,
@@ -779,7 +898,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -856,6 +975,7 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: 'max.eth',
+                            contactProfileLocation: [],
                             isHidden: false,
                             previewMessage: undefined,
                             updatedAt: 0,
@@ -867,7 +987,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -876,16 +996,24 @@ describe('useConversation hook test cases', () => {
                     isInitialized: true,
                 });
 
+            const tldContext = getMockedTldContext({
+                resolveTLDtoAlias: async (alias: string) => {
+                    return alias;
+                },
+            });
+
             const wrapper = ({ children }: { children: any }) => (
                 <>
                     <AuthContext.Provider value={authContext}>
-                        <StorageContext.Provider value={storageContext}>
-                            <DeliveryServiceContext.Provider
-                                value={deliveryServiceContext}
-                            >
-                                {children}
-                            </DeliveryServiceContext.Provider>
-                        </StorageContext.Provider>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <DeliveryServiceContext.Provider
+                                    value={deliveryServiceContext}
+                                >
+                                    {children}
+                                </DeliveryServiceContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
                     </AuthContext.Provider>
                 </>
             );
@@ -931,7 +1059,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -940,16 +1068,36 @@ describe('useConversation hook test cases', () => {
                     isInitialized: true,
                 });
 
+            const tldContext = getMockedTldContext({
+                resolveTLDtoAlias: async (alias: string) => {
+                    if (alias === 'bob.eth') {
+                        return 'bob.eth';
+                    }
+                    if (alias === 'liza.eth') {
+                        return 'liza.eth';
+                    }
+                    if (alias === 'heroku.eth') {
+                        return 'heroku.eth';
+                    }
+                    if (alias === 'samar.eth') {
+                        return 'samar.eth';
+                    }
+                    return alias;
+                },
+            });
+
             const wrapper = ({ children }: { children: any }) => (
                 <>
                     <AuthContext.Provider value={authContext}>
-                        <StorageContext.Provider value={storageContext}>
-                            <DeliveryServiceContext.Provider
-                                value={deliveryServiceContext}
-                            >
-                                {children}
-                            </DeliveryServiceContext.Provider>
-                        </StorageContext.Provider>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <DeliveryServiceContext.Provider
+                                    value={deliveryServiceContext}
+                                >
+                                    {children}
+                                </DeliveryServiceContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
                     </AuthContext.Provider>
                 </>
             );
@@ -981,6 +1129,7 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: sender.account.ensName,
+                            contactProfileLocation: [],
                             isHidden: false,
                             previewMessage: undefined,
                             updatedAt: 0,
@@ -991,7 +1140,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -1093,6 +1242,7 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: sender.account.ensName,
+                            contactProfileLocation: [],
                             isHidden: false,
                             previewMessage: undefined,
                             updatedAt: 0,
@@ -1103,7 +1253,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     isInitialized: true,
@@ -1187,12 +1337,14 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: 'max.eth',
+                            contactProfileLocation: [],
                             previewMessage: undefined,
                             isHidden: false,
                             updatedAt: new Date().getTime(),
                         },
                         {
                             contactEnsName: 'horo.eth',
+                            contactProfileLocation: [],
                             previewMessage: undefined,
                             isHidden: false,
                             updatedAt: new Date().getTime() + 2000,
@@ -1204,7 +1356,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -1260,12 +1412,14 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: 'max.eth',
+                            contactProfileLocation: [],
                             previewMessage: undefined,
                             isHidden: false,
                             updatedAt: 0,
                         },
                         {
                             contactEnsName: 'horo.eth',
+                            contactProfileLocation: [],
                             previewMessage: undefined,
                             isHidden: false,
                             updatedAt: 0,
@@ -1277,7 +1431,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -1342,6 +1496,7 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve([
                         {
                             contactEnsName: 'max.eth',
+                            contactProfileLocation: [],
                             previewMessage: undefined,
                             isHidden: false,
                             updatedAt: 0,
@@ -1353,7 +1508,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {
@@ -1362,16 +1517,24 @@ describe('useConversation hook test cases', () => {
                     isInitialized: true,
                 });
 
+            const tldContext = getMockedTldContext({
+                resolveTLDtoAlias: async (alias: string) => {
+                    return 'bob.eth';
+                },
+            });
+
             const wrapper = ({ children }: { children: any }) => (
                 <>
                     <AuthContext.Provider value={authContext}>
-                        <StorageContext.Provider value={storageContext}>
-                            <DeliveryServiceContext.Provider
-                                value={deliveryServiceContext}
-                            >
-                                {children}
-                            </DeliveryServiceContext.Provider>
-                        </StorageContext.Provider>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <DeliveryServiceContext.Provider
+                                    value={deliveryServiceContext}
+                                >
+                                    {children}
+                                </DeliveryServiceContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
                     </AuthContext.Provider>
                 </>
             );

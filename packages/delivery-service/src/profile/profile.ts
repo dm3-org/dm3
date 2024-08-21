@@ -1,15 +1,13 @@
 import { getUserProfile, submitUserProfile } from '@dm3-org/dm3-lib-delivery';
 import { normalizeEnsName, schema } from '@dm3-org/dm3-lib-profile';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
-import express from 'express';
 import { ethers } from 'ethers';
-import { Server } from 'socket.io';
-import { IDatabase } from './persistence/getDatabase';
+import express from 'express';
+import { IDatabase } from '../persistence/getDatabase';
 
-export default (
+export const Profile = (
     db: IDatabase,
     web3Provider: ethers.providers.JsonRpcProvider,
-    io: Server,
     serverSecret: string,
 ) => {
     const router = express.Router();
@@ -18,7 +16,18 @@ export default (
         try {
             const ensName = normalizeEnsName(req.params.ensName);
 
-            const profile = await getUserProfile(db.getAccount, ensName);
+            //use the webProvider to resolve the address here
+            const address = await web3Provider.resolveName(ensName);
+            if (!address) {
+                const message = `could not get profile for ${ensName}. Unable to resolve address`;
+                console.error(message);
+                return res.status(400).send({ message });
+            }
+
+            const profile = await getUserProfile(
+                db.getAccount,
+                ethers.utils.getAddress(address),
+            );
             if (profile) {
                 res.json(profile);
             } else {
@@ -29,6 +38,11 @@ export default (
         }
     });
 
+    /**
+     * Creates a new profile for the given ensName
+     * @param ensName ens id of the account
+     * @param signedUserProfile signed user profile
+     */
     router.post('/:ensName', async (req: express.Request, res, next) => {
         try {
             const schemaIsValid = validateSchema(
@@ -37,27 +51,32 @@ export default (
             );
 
             if (!schemaIsValid) {
-                global.logger.error({ message: 'invalid schema' });
+                console.error({ message: 'invalid schema' });
                 return res.status(400).send({ error: 'invalid schema' });
             }
+
             const ensName = normalizeEnsName(req.params.ensName);
-            global.logger.debug({
-                method: 'POST',
-                url: req.url,
-                ensName,
-                disableSessionCheck:
-                    process.env.DISABLE_SESSION_CHECK === 'true',
-            });
+            //use the webProvider to resolve the address here
+            const address = await web3Provider.resolveName(ensName);
+            if (!address) {
+                const message = `could not submit profile for ${ensName}. Unable to resolve address`;
+                console.error(message);
+                return res.status(400).send({ message });
+            }
+
+            console.debug(
+                `create profile for ${ensName} with address ${address}`,
+            );
 
             const data = await submitUserProfile(
-                web3Provider,
                 db.getAccount,
                 db.setAccount,
-                ensName,
+                //use normalized address
+                ethers.utils.getAddress(address),
                 req.body,
                 serverSecret,
             );
-            global.logger.debug({
+            console.debug({
                 message: 'POST profile',
                 ensName,
                 data,
@@ -65,7 +84,7 @@ export default (
 
             res.json(data);
         } catch (e) {
-            global.logger.warn({
+            console.warn({
                 message: 'POST profile',
                 error: JSON.stringify(e),
             });

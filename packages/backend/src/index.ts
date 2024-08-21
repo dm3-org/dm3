@@ -14,8 +14,8 @@ import express from 'express';
 import http from 'http';
 import path from 'path';
 import { getDatabase } from './persistence/getDatabase';
-import Profile from './profile';
 import Storage from './storage';
+import Profile from './profile/profile';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -35,11 +35,11 @@ app.use(bodyParser.json());
     app.use(logRequest);
 
     app.get('/hello', (req, res) => {
-        return res.send('Hello DM3');
+        return res.status(200).send('Hello DM3');
     });
     app.use('/profile', Profile(db, web3Provider, serverSecret));
     app.use('/storage', Storage(db, web3Provider, serverSecret));
-    app.use('/auth', Auth(db.getAccount as any, serverSecret));
+    app.use('/auth', Auth(db, serverSecret, web3Provider));
     app.use(logError);
     app.use(errorHandler);
 })();

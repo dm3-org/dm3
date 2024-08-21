@@ -1,45 +1,46 @@
 import {
     SignedUserProfile,
-    checkUserProfile,
+    checkUserProfileWithAddress,
     getDefaultProfileExtension,
     normalizeEnsName,
 } from '@dm3-org/dm3-lib-profile';
 import { logDebug } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
-import { generateAuthJWT } from './Keys';
+import { generateAuthJWT } from '@dm3-org/dm3-lib-server-side';
 import { Session } from './Session';
 
 export async function submitUserProfile(
-    provider: ethers.providers.JsonRpcProvider,
     getAccount: (accountAddress: string) => Promise<Session | null>,
     setAccount: (accountAddress: string, session: Session) => Promise<void>,
-    ensName: string,
+    address: string,
     signedUserProfile: SignedUserProfile,
     serverSecret: string,
 ): Promise<string> {
-    const account = normalizeEnsName(ensName);
-
-    if (!(await checkUserProfile(provider, signedUserProfile, account))) {
+    if (!ethers.utils.isAddress(address)) {
+        logDebug('submitUserProfile - Invalid address');
+        throw Error('Invalid address');
+    }
+    //normalize the address
+    const _address = ethers.utils.getAddress(address);
+    //     check if the submitted profile is has been signed by the adddress that want's to submit the profile
+    if (!(await checkUserProfileWithAddress(signedUserProfile, _address))) {
         logDebug('submitUserProfile - Signature invalid');
         throw Error('Signature invalid.');
     }
-    if (await getAccount(account)) {
-        logDebug('submitUserProfile - Profile exists already');
-        throw Error('Profile exists already');
-    }
     const session: Session = {
-        account,
+        account: _address,
         signedUserProfile,
-        token: generateAuthJWT(ensName, serverSecret),
+        token: generateAuthJWT(_address, serverSecret),
         createdAt: new Date().getTime(),
         profileExtension: getDefaultProfileExtension(),
     };
     logDebug({ text: 'submitUserProfile', session });
-    await setAccount(account.toLocaleLowerCase(), session);
+    await setAccount(_address, session);
 
     return session.token;
 }
 
+// todo: remove this function (profiles should be loaded from chain and possibly cached)
 export async function getUserProfile(
     getAccount: (accountAddress: string) => Promise<Session | null>,
     ensName: string,

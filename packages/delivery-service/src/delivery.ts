@@ -1,12 +1,15 @@
-import { Acknowledgment, getMessages, schema } from '@dm3-org/dm3-lib-delivery';
-import { auth } from '@dm3-org/dm3-lib-server-side';
+import {
+    Acknowledgement,
+    getConversationId,
+    schema,
+} from '@dm3-org/dm3-lib-delivery';
+import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
+import { authorize } from '@dm3-org/dm3-lib-server-side';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
-import { getConversationId } from '@dm3-org/dm3-lib-delivery';
 import cors from 'cors';
 import { ethers } from 'ethers';
 import express from 'express';
 import { IDatabase } from './persistence/getDatabase';
-import { DeliveryServiceProfileKeys } from '@dm3-org/dm3-lib-profile';
 
 const syncAcknowledgementParamsSchema = {
     type: 'object',
@@ -19,46 +22,72 @@ const syncAcknowledgementParamsSchema = {
 const syncAcknowledgementBodySchema = {
     type: 'object',
     properties: {
-        acknowledgments: {
+        acknowledgements: {
             type: 'array',
-            items: schema.Acknowledgment,
+            items: schema.Acknowledgement,
         },
     },
-    required: ['acknowledgments'],
+    required: ['acknowledgements'],
     additionalProperties: false,
 };
 
 export default (
     web3Provider: ethers.providers.JsonRpcProvider,
     db: IDatabase,
-    keys: DeliveryServiceProfileKeys,
     serverSecret: string,
 ) => {
     const router = express.Router();
     //TODO remove
     router.use(cors());
     router.param('ensName', async (req, res, next, ensName: string) => {
-        auth(req, res, next, ensName, db, web3Provider, serverSecret);
+        authorize(
+            req,
+            res,
+            next,
+            ensName,
+            db.hasAccount,
+            web3Provider,
+            serverSecret,
+        );
     });
     //Returns all incoming messages for a specific contact name
+    //TODO deprecated. remove in the future
     router.get(
         '/messages/:ensName/contact/:contactEnsName',
         async (req: express.Request, res, next) => {
             try {
-                const idEnsName = await db.getIdEnsName(req.params.ensName);
+                //retrieve the address for the contact name since it is used as a key in the db
+                const receiverAddress = await web3Provider.resolveName(
+                    req.params.ensName,
+                );
 
-                const idContactEnsName = await db.getIdEnsName(
+                //If the address is not found we return a 404. This should normally not happen since the receiver always is known to the delivery service
+                if (!receiverAddress) {
+                    console.error(
+                        'receiver address not found for name ',
+                        req.params.ensName,
+                    );
+                    return res.status(404).send({
+                        error:
+                            'receiver address not found for name ' +
+                            req.params.ensName,
+                    });
+                }
+
+                //normalize the contact name
+                const contactEnsName = await normalizeEnsName(
                     req.params.contactEnsName,
                 );
 
-                const newMessages = await getMessages(
-                    db.getMessages,
-                    keys.encryptionKeyPair,
-                    idEnsName,
-                    idContactEnsName,
+                //The new layout resolves conversations using a conversation id [addr(reiceiver),ensName(sender)]
+                const conversationId = getConversationId(
+                    receiverAddress,
+                    contactEnsName,
                 );
 
-                res.json(newMessages);
+                //Better 1000 than the previous fifty. This is a temporary solution until we implement pagination
+                const messages = await db.getMessages(conversationId, 0, 1000);
+                res.json(messages);
             } catch (e) {
                 next(e);
             }
@@ -83,8 +112,26 @@ export default (
         //@ts-ignore
         async (req: express.Request, res, next) => {
             try {
-                const incomingMessages = await db.getIncomingMessages(
+                //retrieve the address for the contact name since it is used as a key in the db
+                const receiverAddress = await web3Provider.resolveName(
                     req.params.ensName,
+                );
+                //If the address is not found we return a 404. This should normally not happen since the receiver always is known to the delivery service
+                if (!receiverAddress) {
+                    console.error(
+                        'receiver address not found for name ',
+                        req.params.ensName,
+                    );
+                    return res.status(404).send({
+                        error:
+                            'receiver address not found for name ' +
+                            req.params.ensName,
+                    });
+                }
+                console.debug('get incoming messages for ', receiverAddress);
+                //TODO use address
+                const incomingMessages = await db.getIncomingMessages(
+                    receiverAddress,
                     //Fetch the last 10 messages per conversation
                     //If we decide to add pagination for that endpoint we can pass this value as a param
                     1000,
@@ -96,7 +143,7 @@ export default (
         },
     );
     router.post(
-        '/messages/:ensName/syncAcknowledgments/',
+        '/messages/:ensName/syncAcknowledgements/',
         async (req, res, next) => {
             const hasValidParams = validateSchema(
                 syncAcknowledgementParamsSchema,
@@ -113,17 +160,31 @@ export default (
             }
 
             try {
-                const ensName = await db.getIdEnsName(req.params.ensName);
-                console.log('lets go');
+                const receiverAddress = await web3Provider.resolveName(
+                    req.params.ensName,
+                );
+
+                //If the address is not found we return a 404. This should normally not happen since the receiver always is known to the delivery service
+                if (!receiverAddress) {
+                    console.error(
+                        'receiver address not found for name ',
+                        req.params.ensName,
+                    );
+                    return res.status(404).send({
+                        error:
+                            'receiver address not found for name ' +
+                            req.params.ensName,
+                    });
+                }
 
                 await Promise.all(
-                    req.body.acknowledgments.map(
-                        async (ack: Acknowledgment) => {
+                    req.body.acknowledgements.map(
+                        async (ack: Acknowledgement) => {
                             const contactEnsName = await db.getIdEnsName(
                                 ack.contactAddress,
                             );
                             const conversationId = getConversationId(
-                                ensName,
+                                receiverAddress,
                                 contactEnsName,
                             );
 

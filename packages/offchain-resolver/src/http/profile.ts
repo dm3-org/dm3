@@ -325,12 +325,12 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                 ));
 
             if (!hasAddressProfile) {
-                return res.send(404);
+                return res.sendStatus(404);
             }
             const profileContainer =
                 await req.app.locals.db.getProfileContainerByAddress(address);
             if (!profileContainer) {
-                return res.send(404);
+                return res.sendStatus(404);
             }
 
             return res.status(200).send(profileContainer.profile);

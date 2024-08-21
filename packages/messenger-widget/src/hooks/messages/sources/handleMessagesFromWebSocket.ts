@@ -4,19 +4,22 @@ import {
     Envelop,
     MessageState,
 } from '@dm3-org/dm3-lib-messaging';
-import { ProfileKeys, normalizeEnsName } from '@dm3-org/dm3-lib-profile';
+import { ProfileKeys } from '@dm3-org/dm3-lib-profile';
 import { ContactPreview } from '../../../interfaces/utils';
-import { AddConversation, StoreMessageAsync } from '../../storage/useStorage';
+import { StoreMessageAsync } from '../../storage/useStorage';
+import { ReceiptDispatcher } from '../receipt/ReceiptDispatcher';
 import { MessageModel, MessageSource, MessageStorage } from '../useMessage';
 
 export const handleMessagesFromWebSocket = async (
-    addConversation: AddConversation,
+    addConversation: (
+        contactEnsName: string,
+    ) => Promise<ContactPreview | undefined>,
     setMessages: Function,
     storeMessage: StoreMessageAsync,
     profileKeys: ProfileKeys,
     selectedContact: ContactPreview,
     encryptedEnvelop: EncryptionEnvelop,
-    resolveTLDtoAlias: Function,
+    acknowledgementManager: ReceiptDispatcher,
     updateConversationList: (conversation: string, updatedAt: number) => void,
 ) => {
     const decryptedEnvelop: Envelop = {
@@ -35,12 +38,15 @@ export const handleMessagesFromWebSocket = async (
         metadata: encryptedEnvelop.metadata,
     };
 
-    const contact = normalizeEnsName(
-        await resolveTLDtoAlias(decryptedEnvelop.message.metadata.from),
+    //we wait for the contact to be added to resolve TLD to alias
+    const contactPreview = await addConversation(
+        decryptedEnvelop.message.metadata.from,
     );
 
-    decryptedEnvelop.message.metadata.from = contact;
-    await addConversation(contact);
+    // Resolve TLD to alias
+    const contact = contactPreview?.contactDetails.account.ensName!;
+
+    console.log('contactPreview MSGWS', contactPreview);
 
     const messageState =
         selectedContact?.contactDetails.account.ensName === contact
@@ -70,6 +76,13 @@ export const handleMessagesFromWebSocket = async (
             [contact]: [...(prev[contact] ?? []), messageModel],
         };
     });
+
+    //Let the acknowledgement manager handle the message acknowledgement
+    await acknowledgementManager.sendSingle(
+        selectedContact,
+        contact,
+        messageModel,
+    );
 
     // Update the conversation with the latest message timestamp
     updateConversationList(

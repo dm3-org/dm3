@@ -1,9 +1,4 @@
-import {
-    Session,
-    generateAuthJWT,
-    spamFilter,
-} from '@dm3-org/dm3-lib-delivery';
-import { SignedUserProfile, schema } from '@dm3-org/dm3-lib-profile';
+import { generateAuthJWT } from '@dm3-org/dm3-lib-server-side';
 import { sha256 } from '@dm3-org/dm3-lib-shared';
 import {
     MockDeliveryServiceProfile,
@@ -17,16 +12,9 @@ import bodyParser from 'body-parser';
 import { ethers } from 'ethers';
 import express from 'express';
 import request from 'supertest';
-import {
-    IDatabase,
-    Redis,
-    getDatabase,
-    getRedisClient,
-} from './persistence/getDatabase';
+import { IBackendDatabase, getDatabase } from './persistence/getDatabase';
 import { MessageRecord } from './persistence/storage/postgres/dto/MessageRecord';
 import storage from './storage';
-
-import fs from 'fs';
 
 const keysA = {
     encryptionKeyPair: {
@@ -51,13 +39,10 @@ describe('Storage', () => {
     let sender: MockedUserProfile;
     let receiver: MockedUserProfile;
     let deliveryService: MockDeliveryServiceProfile;
-    let redisClient: Redis;
 
     beforeEach(async () => {
         prisma = new PrismaClient();
-        redisClient = await getRedisClient();
 
-        await redisClient.flushDb();
         app = express();
         app.use(bodyParser.json());
 
@@ -78,29 +63,12 @@ describe('Storage', () => {
             'http://localhost:3000',
         );
 
-        const db = await getDatabase(redisClient, prisma);
-
-        const sessionMocked = {
-            challenge: '123',
-            token,
-            signedUserProfile: {
-                profile: {
-                    publicSigningKey: keysA.signingKeyPair.publicKey,
-                },
-            } as SignedUserProfile,
-        } as Session & { spamFilterRules: spamFilter.SpamFilterRules };
+        const db = await getDatabase(prisma);
 
         const dbMocked = {
-            getAccount: async (ensName: string) =>
-                Promise.resolve<
-                    Session & {
-                        spamFilterRules: spamFilter.SpamFilterRules;
-                    }
-                >(sessionMocked),
-            setAccount: async (_: string, __: Session) => {},
-            getIdEnsName: async (ensName: string) => ensName,
+            hasAccount: (ensName: string) => true,
         };
-        const dbFinal: IDatabase = { ...db, ...dbMocked };
+        const dbFinal: IBackendDatabase = { ...db, ...dbMocked };
 
         //const web3ProviderBase = getWeb3Provider(process.env);
 
@@ -121,8 +89,6 @@ describe('Storage', () => {
         await prisma.encryptedMessage.deleteMany();
         await prisma.conversation.deleteMany();
         await prisma.account.deleteMany();
-        await redisClient.flushDb();
-        await redisClient.disconnect();
     });
 
     describe('addConversation', () => {
@@ -149,6 +115,78 @@ describe('Storage', () => {
             expect(status).toBe(200);
             expect(body[0].contact).toEqual(aliceId);
             expect(body.length).toBe(1);
+        });
+        it('can add conversation with encryptedProfileLocation', async () => {
+            const aliceId = 'alice.eth';
+
+            const { status } = await request(app)
+                .post(`/new/bob.eth/addConversation`)
+                .set({
+                    authorization: 'Bearer ' + token,
+                })
+                .send({
+                    encryptedContactName: aliceId,
+                    encryptedProfileLocation: '123',
+                });
+            expect(status).toBe(200);
+
+            const { body } = await request(app)
+                .get(`/new/bob.eth/getConversations`)
+                .set({
+                    authorization: 'Bearer ' + token,
+                })
+                .send();
+
+            expect(status).toBe(200);
+            expect(body[0].contact).toEqual(aliceId);
+            expect(body[0].encryptedProfileLocation).toEqual('123');
+            expect(body.length).toBe(1);
+        });
+        it('can update existing conversation with encryptedProfileLocation', async () => {
+            const aliceId = 'alice.eth';
+
+            const { status } = await request(app)
+                .post(`/new/bob.eth/addConversation`)
+                .set({
+                    authorization: 'Bearer ' + token,
+                })
+                .send({
+                    encryptedContactName: aliceId,
+                    encryptedProfileLocation: '123',
+                });
+            expect(status).toBe(200);
+
+            const { body } = await request(app)
+                .get(`/new/bob.eth/getConversations`)
+                .set({
+                    authorization: 'Bearer ' + token,
+                })
+                .send();
+
+            expect(status).toBe(200);
+            expect(body[0].contact).toEqual(aliceId);
+            expect(body[0].encryptedProfileLocation).toEqual('123');
+            expect(body.length).toBe(1);
+
+            const { status: updateStatus } = await request(app)
+                .post(`/new/bob.eth/addConversation`)
+                .set({
+                    authorization: 'Bearer ' + token,
+                })
+                .send({
+                    encryptedContactName: aliceId,
+                    encryptedProfileLocation: '123456',
+                });
+            expect(updateStatus).toBe(200);
+
+            const { body: updatedBody } = await request(app)
+                .get(`/new/bob.eth/getConversations`)
+                .set({
+                    authorization: 'Bearer ' + token,
+                });
+
+            expect(updatedBody[0].contact).toEqual(aliceId);
+            expect(updatedBody[0].encryptedProfileLocation).toEqual('123456');
         });
         it('handle duplicates add conversation', async () => {
             const aliceId = 'alice.eth';

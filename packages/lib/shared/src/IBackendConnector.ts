@@ -1,5 +1,9 @@
 export interface IBackendConnector {
-    addConversation(ensName: string, encryptedContactName: string): void;
+    addConversation(
+        ensName: string,
+        encryptedContactName: string,
+        encryptedProfileLocation: string,
+    ): void;
     getConversations(
         ensName: string,
         size: number,
@@ -7,6 +11,7 @@ export interface IBackendConnector {
     ): Promise<
         {
             contact: string;
+            encryptedProfileLocation: string;
             previewMessage: string;
             updatedAt: Date;
         }[]

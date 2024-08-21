@@ -1,10 +1,10 @@
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
-import { auth } from '@dm3-org/dm3-lib-server-side';
+import { authorize } from '@dm3-org/dm3-lib-server-side';
 import { sha256, validateSchema } from '@dm3-org/dm3-lib-shared';
 import cors from 'cors';
 import { ethers } from 'ethers';
 import express, { NextFunction, Request, Response } from 'express';
-import { IDatabase } from './persistence/getDatabase';
+import { IBackendDatabase } from './persistence/getDatabase';
 import { MessageRecord } from './persistence/storage';
 import { AddMessageBatchRequest } from './schema/storage/AddMessageBatchRequest';
 import { AddMessageRequest } from './schema/storage/AddMesssageRequest';
@@ -15,7 +15,7 @@ const DEFAULT_CONVERSATION_PAGE_SIZE = 10;
 const DEFAULT_MESSAGE_PAGE_SIZE = 100;
 
 export default (
-    db: IDatabase,
+    db: IBackendDatabase,
     web3Provider: ethers.providers.JsonRpcProvider,
     serverSecret: string,
 ) => {
@@ -32,7 +32,15 @@ export default (
             next: NextFunction,
             ensName: string,
         ) => {
-            auth(req, res, next, ensName, db, web3Provider, serverSecret);
+            authorize(
+                req,
+                res,
+                next,
+                ensName,
+                db.hasAccount,
+                web3Provider,
+                serverSecret,
+            );
         },
     );
 
@@ -60,7 +68,7 @@ export default (
                         message.encryptedEnvelopContainer,
                 })),
             );
-            return res.send();
+            return res.sendStatus(200);
         } catch (e) {
             next(e);
         }
@@ -100,7 +108,7 @@ export default (
                 ],
             );
             if (success) {
-                return res.send();
+                return res.sendStatus(200);
             }
             res.status(400).send('unable to add message');
         } catch (e) {
@@ -133,7 +141,7 @@ export default (
                     isHalted: message.isHalted,
                 })),
             );
-            return res.send();
+            return res.sendStatus(200);
         } catch (e) {
             return res.status(400).send('unable to add message batch');
         }
@@ -196,19 +204,23 @@ export default (
     );
 
     router.post('/new/:ensName/addConversation', async (req, res, next) => {
-        const { encryptedContactName } = req.body;
+        const { encryptedContactName, encryptedProfileLocation } = req.body;
         if (!encryptedContactName) {
             res.status(400).send('invalid schema');
             return;
         }
+
+        //Param encryptedProfileLocation is optional, hence the default value is an empty string
+        const _encryptedProfileLocation = encryptedProfileLocation || '';
         try {
             const ensName = normalizeEnsName(req.params.ensName);
             const success = await db.addConversation(
                 ensName,
                 encryptedContactName,
+                _encryptedProfileLocation,
             );
             if (success) {
-                return res.send();
+                return res.sendStatus(200);
             }
             res.status(400).send('unable to add conversation');
         } catch (e) {
@@ -286,7 +298,7 @@ export default (
             );
 
             if (success) {
-                return res.send();
+                return res.sendStatus(200);
             }
             res.status(400).send('unable to clear halted message');
         } catch (err) {
@@ -312,7 +324,7 @@ export default (
                     encryptedContactName,
                     hide,
                 );
-                return res.send();
+                return res.sendStatus(200);
             } catch (e) {
                 return res
                     .status(400)

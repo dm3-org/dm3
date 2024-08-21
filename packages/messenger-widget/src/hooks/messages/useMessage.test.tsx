@@ -27,6 +27,7 @@ import { getMockedTldContext } from '../../context/testHelper/getMockedTldContex
 import { getEmptyContact } from '../../interfaces/utils';
 import { DM3Configuration } from '../../widget';
 import { useMessage } from './useMessage';
+import { stringify } from '@dm3-org/dm3-lib-shared';
 
 describe('useMessage hook test cases', () => {
     const CONTACT_NAME = 'user.dm3.eth';
@@ -103,6 +104,7 @@ describe('useMessage hook test cases', () => {
                     undefined,
                     false,
                     0,
+                    [],
                 ),
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
@@ -165,6 +167,7 @@ describe('useMessage hook test cases', () => {
                     undefined,
                     false,
                     0,
+                    [],
                 ),
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
@@ -227,6 +230,7 @@ describe('useMessage hook test cases', () => {
                     undefined,
                     false,
                     0,
+                    [],
                 ),
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
@@ -299,10 +303,12 @@ describe('useMessage hook test cases', () => {
                     undefined,
                     false,
                     0,
+                    [],
                 ),
                 contacts: [
                     {
                         name: '',
+                        contactProfileLocation: [],
                         message: '',
                         image: 'human.svg',
                         contactDetails: {
@@ -328,9 +334,9 @@ describe('useMessage hook test cases', () => {
                 onNewMessage: (cb: Function) => {
                     console.log('on new message');
                 },
-                fetchNewMessages: jest.fn().mockResolvedValue([]),
+                fetchIncomingMessages: jest.fn().mockResolvedValue([]),
                 removeOnNewMessageListener: jest.fn(),
-                syncAcknowledgment: jest.fn(),
+                syncAcknowledgement: jest.fn(),
             });
 
             const authContext = getMockedAuthContext({
@@ -406,10 +412,12 @@ describe('useMessage hook test cases', () => {
                     undefined,
                     false,
                     0,
+                    [],
                 ),
                 contacts: [
                     {
                         name: '',
+                        contactProfileLocation: [],
                         message: '',
                         image: 'human.svg',
                         contactDetails: {
@@ -435,9 +443,9 @@ describe('useMessage hook test cases', () => {
                 onNewMessage: (cb: Function) => {
                     console.log('on new message');
                 },
-                fetchNewMessages: jest.fn().mockResolvedValue([]),
+                fetchIncomingMessages: jest.fn().mockResolvedValue([]),
                 removeOnNewMessageListener: jest.fn(),
-                syncAcknowledgment: jest.fn(),
+                syncAcknowledgement: jest.fn(),
             });
 
             const authContext = getMockedAuthContext({
@@ -494,6 +502,8 @@ describe('useMessage hook test cases', () => {
     describe('initialize message', () => {
         let sender: MockedUserProfile;
         let receiver: MockedUserProfile;
+        let rando: MockedUserProfile;
+
         let ds: any;
 
         beforeEach(async () => {
@@ -506,6 +516,11 @@ describe('useMessage hook test cases', () => {
                 ethers.Wallet.createRandom(),
                 'bob.eth',
                 ['https://example.com'],
+            );
+            rando = await mockUserProfile(
+                ethers.Wallet.createRandom(),
+                'rando.eth',
+                ['ds1.eth'],
             );
             ds = await getMockDeliveryServiceProfile(
                 ethers.Wallet.createRandom(),
@@ -540,15 +555,18 @@ describe('useMessage hook test cases', () => {
                     undefined,
                     false,
                     0,
+                    [],
                 ),
-                contacts: [getEmptyContact('alice.eth', undefined, false, 0)],
+                contacts: [
+                    getEmptyContact('alice.eth', undefined, false, 0, []),
+                ],
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
                 onNewMessage: (cb: Function) => {
                     console.log('on new message');
                 },
-                fetchNewMessages: jest.fn().mockResolvedValue([]),
-                syncAcknowledgment: jest.fn(),
+                fetchIncomingMessages: jest.fn().mockResolvedValue([]),
+                syncAcknowledgement: jest.fn(),
                 removeOnNewMessageListener: jest.fn(),
             });
             const authContext = getMockedAuthContext({
@@ -610,29 +628,58 @@ describe('useMessage hook test cases', () => {
             );
 
             const storageContext = getMockedStorageContext({
+                getHaltedMessages: jest.fn().mockResolvedValue([]),
                 editMessageBatchAsync: jest.fn(),
                 storeMessageBatch: jest.fn(),
                 storeMessage: jest.fn(),
                 getMessages: jest.fn().mockResolvedValue([]),
                 getNumberOfMessages: jest.fn().mockResolvedValue(0),
+                initialized: true,
             });
             const conversationContext = getMockedConversationContext({
+                initialized: true,
                 selectedContact: getEmptyContact(
                     'max.eth',
                     undefined,
                     false,
                     0,
+                    ['alice.eth'],
                 ),
-                contacts: [getEmptyContact('alice.eth', undefined, false, 0)],
+                contacts: [
+                    getEmptyContact('alice.eth', undefined, false, 0, [
+                        'alice.eth',
+                    ]),
+                ],
+                addConversation: () => {
+                    return Promise.resolve(
+                        getEmptyContact('alice.eth', undefined, false, 0, [
+                            'alice.eth',
+                        ]),
+                    );
+                },
+                hydrateExistingContactAsync: () => {
+                    return Promise.resolve({
+                        ...getEmptyContact('alice.eth', undefined, false, 0, [
+                            'alice.eth',
+                        ]),
+                        contactDetails: {
+                            account: sender.account,
+                            deliveryServiceProfiles: [
+                                ds.deliveryServiceProfile,
+                            ],
+                        },
+                    });
+                },
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
+                isInitialized: true,
                 onNewMessage: (cb: Function) => {
                     console.log('on new message');
                 },
-                fetchNewMessages: jest
+                fetchIncomingMessages: jest
                     .fn()
                     .mockResolvedValue([message1, message2, message3]),
-                syncAcknowledgment: jest.fn(),
+                syncAcknowledgement: jest.fn(),
                 removeOnNewMessageListener: jest.fn(),
             });
             const authContext = getMockedAuthContext({
@@ -678,8 +725,161 @@ describe('useMessage hook test cases', () => {
                     result.current.messages['alice.eth'].length > 0,
             );
 
+            console.log(result.current.messages);
+
+            // Filter out the acknowledgement messages
+            const sentMsgs = result.current.messages['alice.eth'].filter(
+                (data) => data.envelop.message.metadata.type === 'NEW',
+            );
+
             expect(result.current.contactIsLoading('alice.eth')).toBe(false);
-            expect(result.current.messages['alice.eth'].length).toBe(3);
+            expect(sentMsgs.length).toBe(3);
+        });
+        it('should only ackknowledge messages the client was able to decrypt ', async () => {
+            const messageFactory = MockMessageFactory(sender, receiver, ds);
+            const message1 = await messageFactory.createEncryptedEnvelop(
+                'hello dm3',
+            );
+            const message2 = await messageFactory.createEncryptedEnvelop(
+                'hello world',
+            );
+            const message3 = await messageFactory.createEncryptedEnvelop(
+                'hello bob',
+            );
+            //use this to create a message that the client can't decrypt
+            const foreignMessageFactory = MockMessageFactory(sender, rando, ds);
+
+            const foreignMessage =
+                await foreignMessageFactory.createEncryptedEnvelop(
+                    'this message is not encryptable',
+                );
+
+            const syncAcknowledgementMock = jest.fn();
+
+            const storageContext = getMockedStorageContext({
+                getHaltedMessages: jest.fn().mockResolvedValue([]),
+                editMessageBatchAsync: jest.fn(),
+                storeMessageBatch: jest.fn(),
+                storeMessage: jest.fn(),
+                getMessages: jest.fn().mockResolvedValue([]),
+                getNumberOfMessages: jest.fn().mockResolvedValue(0),
+                initialized: true,
+            });
+            const conversationContext = getMockedConversationContext({
+                selectedContact: getEmptyContact(
+                    'max.eth',
+                    undefined,
+                    false,
+                    0,
+                    [],
+                ),
+                contacts: [
+                    getEmptyContact('alice.eth', undefined, false, 0, [
+                        'alice.eth',
+                    ]),
+                ],
+                addConversation: () => {
+                    return Promise.resolve(
+                        getEmptyContact('alice.eth', undefined, false, 0, [
+                            'alice.eth',
+                        ]),
+                    );
+                },
+                hydrateExistingContactAsync: () => {
+                    return Promise.resolve({
+                        ...getEmptyContact('alice.eth', undefined, false, 0, [
+                            'alice.eth',
+                        ]),
+                        contactDetails: {
+                            account: sender.account,
+                            deliveryServiceProfiles: [
+                                ds.deliveryServiceProfile,
+                            ],
+                        },
+                    });
+                },
+                initialized: true,
+            });
+            const deliveryServiceContext = getMockedDeliveryServiceContext({
+                onNewMessage: (cb: Function) => {
+                    console.log('on new message');
+                },
+                fetchIncomingMessages: jest
+                    .fn()
+                    .mockResolvedValue([
+                        message1,
+                        foreignMessage,
+                        message2,
+                        message3,
+                    ]),
+                syncAcknowledgement: syncAcknowledgementMock,
+                removeOnNewMessageListener: jest.fn(),
+                isInitialized: true,
+            });
+            const authContext = getMockedAuthContext({
+                profileKeys: receiver.profileKeys,
+                account: {
+                    ensName: 'bob.eth',
+                    profile: {
+                        deliveryServices: ['ds.eth'],
+                        publicEncryptionKey: '',
+                        publicSigningKey: '',
+                    },
+                },
+            });
+            const tldContext = getMockedTldContext({});
+
+            const wrapper = ({ children }: { children: any }) => (
+                <>
+                    <AuthContext.Provider value={authContext}>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <ConversationContext.Provider
+                                    value={conversationContext}
+                                >
+                                    <DeliveryServiceContext.Provider
+                                        value={deliveryServiceContext}
+                                    >
+                                        {children}
+                                    </DeliveryServiceContext.Provider>
+                                </ConversationContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
+                    </AuthContext.Provider>
+                </>
+            );
+
+            const { result } = renderHook(() => useMessage(), {
+                wrapper,
+            });
+            //Wait until bobs messages have been initialized
+            await waitFor(
+                () =>
+                    result.current.contactIsLoading('alice.eth') === false &&
+                    result.current.messages['alice.eth'].length > 0,
+            );
+
+            console.log(stringify(result.current.messages['alice.eth']));
+            expect(result.current.contactIsLoading('alice.eth')).toBe(false);
+
+            expect(syncAcknowledgementMock).toBeCalledTimes(1);
+            expect(syncAcknowledgementMock).toBeCalledWith(
+                receiver.account.ensName,
+                [
+                    {
+                        contactAddress: sender.account.ensName,
+                        messageHash: message1.metadata.encryptedMessageHash,
+                    },
+                    {
+                        contactAddress: sender.account.ensName,
+                        messageHash: message2.metadata.encryptedMessageHash,
+                    },
+                    {
+                        contactAddress: sender.account.ensName,
+                        messageHash: message3.metadata.encryptedMessageHash,
+                    },
+                ],
+            );
         });
     });
     describe('message pagination', () => {
@@ -729,15 +929,18 @@ describe('useMessage hook test cases', () => {
                     undefined,
                     false,
                     0,
+                    [],
                 ),
-                contacts: [getEmptyContact('alice.eth', undefined, false, 0)],
+                contacts: [
+                    getEmptyContact('alice.eth', undefined, false, 0, []),
+                ],
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
                 onNewMessage: (cb: Function) => {
                     console.log('on new message');
                 },
-                fetchNewMessages: jest.fn().mockResolvedValue([]),
-                syncAcknowledgment: jest.fn(),
+                fetchIncomingMessages: jest.fn().mockResolvedValue([]),
+                syncAcknowledgement: jest.fn(),
                 removeOnNewMessageListener: jest.fn(),
             });
             const authContext = getMockedAuthContext({
@@ -802,6 +1005,8 @@ describe('useMessage hook test cases', () => {
             const messageFactory = MockMessageFactory(sender, receiver, ds);
             //const messages
             const storageContext = getMockedStorageContext({
+                initialized: true,
+                getHaltedMessages: jest.fn().mockResolvedValue([]),
                 editMessageBatchAsync: jest.fn(),
                 storeMessageBatch: jest.fn(),
                 storeMessage: jest.fn(),
@@ -819,19 +1024,46 @@ describe('useMessage hook test cases', () => {
                     ),
             });
             const conversationContext = getMockedConversationContext({
+                initialized: true,
                 selectedContact: getEmptyContact(
                     'max.eth',
                     undefined,
                     false,
                     0,
+                    ['max.eth'],
                 ),
-                contacts: [getEmptyContact('alice.eth', undefined, false, 0)],
+                contacts: [
+                    getEmptyContact('alice.eth', undefined, false, 0, [
+                        'alice.eth',
+                    ]),
+                ],
+                addConversation(ensName) {
+                    return Promise.resolve(
+                        getEmptyContact('alice.eth', undefined, false, 0, [
+                            'alice.eth',
+                        ]),
+                    );
+                },
+                hydrateExistingContactAsync: () => {
+                    return Promise.resolve({
+                        ...getEmptyContact('alice.eth', undefined, false, 0, [
+                            'alice.eth',
+                        ]),
+                        contactDetails: {
+                            account: sender.account,
+                            deliveryServiceProfiles: [
+                                ds.deliveryServiceProfile,
+                            ],
+                        },
+                    });
+                },
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
+                isInitialized: true,
                 onNewMessage: (cb: Function) => {
                     console.log('on new message');
                 },
-                fetchNewMessages: async (_: string) =>
+                fetchIncomingMessages: async (_: string) =>
                     Promise.all(
                         Array.from({ length: 13 }, (_, i) =>
                             messageFactory.createEncryptedEnvelop(
@@ -839,7 +1071,7 @@ describe('useMessage hook test cases', () => {
                             ),
                         ),
                     ),
-                syncAcknowledgment: jest.fn(),
+                syncAcknowledgement: jest.fn(),
                 removeOnNewMessageListener: jest.fn(),
             });
             const authContext = getMockedAuthContext({
@@ -885,9 +1117,15 @@ describe('useMessage hook test cases', () => {
                     result.current.messages['alice.eth'].length > 0,
             );
 
+            // Filter out the acknowledgement messages
+            const sentMsgs = result.current.messages['alice.eth'].filter(
+                (data) => data.envelop.message.metadata.type === 'NEW',
+            );
+
             expect(result.current.contactIsLoading('alice.eth')).toBe(false);
+
             //Initial message number would be storage(100) = Ds (13) == 113
-            expect(result.current.messages['alice.eth'].length).toBe(113);
+            expect(sentMsgs.length).toBe(113);
 
             await act(async () => result.current.loadMoreMessages('alice.eth'));
 
@@ -898,8 +1136,13 @@ describe('useMessage hook test cases', () => {
                     result.current.messages['alice.eth'].length > 133,
             );
 
+            // Filter out the acknowledgement messages
+            const moreSentMsgs = result.current.messages['alice.eth'].filter(
+                (data) => data.envelop.message.metadata.type === 'NEW',
+            );
+
             expect(result.current.contactIsLoading('alice.eth')).toBe(false);
-            expect(result.current.messages['alice.eth'].length).toBe(213);
+            expect(moreSentMsgs.length).toBe(213);
             //991 = 99 message 100(since pageSize starts from 0) = 1 offset
             expect(
                 result.current.messages['alice.eth'][212].envelop.message

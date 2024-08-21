@@ -1,6 +1,7 @@
 import { Envelop, MessageState } from '@dm3-org/dm3-lib-messaging';
 import { MessageActionType } from '../utils/enum-type-utils';
 import { IAttachmentPreview, ContactPreview } from './utils';
+import { MessageIndicator } from '../hooks/messages/useMessage';
 
 export interface IEnsDetails {
     propertyKey: string;
@@ -23,6 +24,7 @@ export interface MessageProps {
     reactions: Envelop[];
     isLastMessage?: boolean;
     hideFunction?: string;
+    indicator?: MessageIndicator;
 }
 
 export interface MessageAction {

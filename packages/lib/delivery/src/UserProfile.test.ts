@@ -49,10 +49,9 @@ describe('UserProfile', () => {
 
             await expect(async () => {
                 await submitUserProfile(
-                    { resolveName: () => RANDO_ADDRESS } as any,
                     getAccount,
                     setAccount,
-                    RANDO_NAME,
+                    RANDO_ADDRESS,
                     singedUserProfile,
                     'my-secret',
                 );
@@ -60,7 +59,7 @@ describe('UserProfile', () => {
             expect(setAccount).not.toBeCalled();
         });
 
-        it('rejects a userProfile that already exists', async () => {
+        it('override a userProfile that already exists but with other nonce', async () => {
             const setAccount = () => Promise.resolve();
             const getAccount = async (address: string) => {
                 const session = async (
@@ -81,21 +80,28 @@ describe('UserProfile', () => {
                     };
                 };
 
-                return session(SENDER_NAME, '123', emptyProfile);
+                return session(SENDER_ADDRESS, '123', emptyProfile);
             };
 
             const singedUserProfile = await signProfile(emptyProfile);
 
+            await submitUserProfile(
+                getAccount,
+                setAccount,
+                SENDER_ADDRESS,
+                singedUserProfile,
+                'my-secret',
+            );
+
             await expect(async () => {
                 await submitUserProfile(
-                    { resolveName: () => SENDER_ADDRESS } as any,
                     getAccount,
                     setAccount,
-                    SENDER_NAME,
+                    SENDER_ADDRESS,
                     singedUserProfile,
-                    'my-secret',
+                    'my-new-secret',
                 );
-            }).rejects.toEqual(Error('Profile exists already'));
+            }).resolves;
         });
 
         it('stores a newly created user profile', async () => {
@@ -105,10 +111,9 @@ describe('UserProfile', () => {
             const singedUserProfile = await signProfile(emptyProfile);
 
             await submitUserProfile(
-                { resolveName: () => SENDER_ADDRESS } as any,
                 getAccount,
                 setAccount,
-                SENDER_NAME,
+                SENDER_ADDRESS,
                 singedUserProfile,
                 'my-secret',
             );

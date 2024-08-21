@@ -1,11 +1,9 @@
-import { Session as DSSession, spamFilter } from '@dm3-org/dm3-lib-delivery';
-import { IAccountDatabase } from '@dm3-org/dm3-lib-server-side';
-import { PrismaClient } from '@prisma/client';
+import { Account, PrismaClient } from '@prisma/client';
 import { createClient } from 'redis';
-import Session from './session';
 import Storage from './storage';
 import { ConversationRecord } from './storage/postgres/dto/ConversationRecord';
 import { MessageRecord } from './storage/postgres/dto/MessageRecord';
+import { IAccountDatabase } from '@dm3-org/dm3-lib-server-side';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',
@@ -13,7 +11,6 @@ export enum RedisPrefix {
     Sync = 'sync:',
     // Account used to be called Session. The prefix still resolves to "session:" for now.
     Account = 'session:',
-    Session = 'session:',
     NotificationChannel = 'notificationChannel:',
     GlobalNotification = 'globalNotification:',
     Otp = 'otp:',
@@ -54,16 +51,15 @@ export async function getPrismaClient() {
 }
 
 export async function getDatabase(
-    _redis?: Redis,
     _prisma?: PrismaClient,
-): Promise<IDatabase> {
-    const redis = _redis ?? (await getRedisClient());
+): Promise<IBackendDatabase> {
     const prisma = _prisma ?? (await getPrismaClient());
 
     return {
         //Session
-        setAccount: Session.setAccount(redis),
-        getAccount: Session.getAccount(redis),
+        setAccount: Storage.setAccount(prisma),
+        getAccount: Storage.getAccount(prisma),
+        hasAccount: Storage.hasAccount(prisma),
         //Storage AddConversation
         addConversation: Storage.addConversation(prisma),
         getConversationList: Storage.getConversationList(prisma),
@@ -86,17 +82,15 @@ export async function getDatabase(
     };
 }
 
-export interface IDatabase extends IAccountDatabase {
-    setAccount: (ensName: string, session: DSSession) => Promise<void>;
-    getAccount: (ensName: string) => Promise<
-        | (DSSession & {
-              spamFilterRules: spamFilter.SpamFilterRules;
-          })
-        | null
-    >;
+export interface IBackendDatabase extends IAccountDatabase {
+    setAccount: (ensName: string) => Promise<Account>;
+    getAccount: (ensName: string) => Promise<Account | null>;
+    hasAccount: (ensName: string) => Promise<boolean>;
+
     addConversation: (
         ensName: string,
         encryptedContactName: string,
+        encryptedProfileLocation: string,
     ) => Promise<boolean>;
     getConversationList: (
         ensName: string,

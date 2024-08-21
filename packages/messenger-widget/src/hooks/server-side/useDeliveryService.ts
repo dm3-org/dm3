@@ -1,4 +1,4 @@
-import { Acknowledgment } from '@dm3-org/dm3-lib-delivery';
+import { Acknowledgement } from '@dm3-org/dm3-lib-delivery';
 import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
 import { getDeliveryServiceProfile } from '@dm3-org/dm3-lib-profile';
 import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
@@ -42,6 +42,12 @@ export const useDeliveryService = () => {
             }
             console.log('start getting ds');
             const deliveryServices = account?.profile?.deliveryServices ?? [];
+
+            const signedUserProfile = {
+                profile: account?.profile!,
+                signature: account?.profileSignature!,
+            };
+
             //Fetch DS profile for each DS
 
             const connectors = deliveryServices
@@ -68,6 +74,7 @@ export const useDeliveryService = () => {
                         dm3Configuration.addressEnsSubdomain,
                         ethAddress!,
                         profileKeys!,
+                        signedUserProfile,
                         true,
                     );
                 });
@@ -79,10 +86,6 @@ export const useDeliveryService = () => {
                 (p): p is DeliveryServiceConnector => p !== undefined,
             );
 
-            const signedUserProfile = {
-                profile: account?.profile!,
-                signature: account?.profileSignature!,
-            };
             //Sign in connectors
             await Promise.all(
                 onlyValidConnectors.map((c) => c.login(signedUserProfile)),
@@ -156,33 +159,22 @@ export const useDeliveryService = () => {
                 notificationChannelType,
             );
         },
-
-        fetchNewMessages: async (ensName: string, contactAddress: string) => {
+        fetchIncomingMessages: async (ensName: string) => {
             const connectors = _getConnectors();
             const messages = await Promise.all(
-                connectors.map((c) =>
-                    c.fetchNewMessages(ensName, contactAddress),
-                ),
+                connectors.map((c) => c.fetchIncomingMessages(ensName)),
             );
             //flatten all messages to one array
             return messages.reduce((acc, val) => acc.concat(val), []);
         },
-        fetchIncommingMessages: async (ensName: string) => {
-            const connectors = _getConnectors();
-            const messages = await Promise.all(
-                connectors.map((c) => c.fetchIncommingMessages(ensName)),
-            );
-            //flatten all messages to one array
-            return messages.reduce((acc, val) => acc.concat(val), []);
-        },
-        syncAcknowledgment: (
+        syncAcknowledgement: (
             ensName: string,
-            acknowledgments: Acknowledgment[],
+            acknowledgements: Acknowledgement[],
         ) => {
             const connectors = _getConnectors();
             return Promise.all(
                 connectors.map((c) =>
-                    c.syncAcknowledgement(ensName, acknowledgments),
+                    c.syncAcknowledgement(ensName, acknowledgements),
                 ),
             );
         },

@@ -1,4 +1,4 @@
-import { generateAuthJWT } from '@dm3-org/dm3-lib-delivery';
+import { generateAuthJWT } from '@dm3-org/dm3-lib-server-side';
 import bodyParser from 'body-parser';
 import express from 'express';
 import request from 'supertest';
@@ -61,14 +61,13 @@ describe('Delivery', () => {
                 setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
+                hasAccount: (_: string) => Promise.resolve(true),
                 getMessages: () => Promise.resolve([]),
                 getIdEnsName: async (ensName: string) => ensName,
             };
             const app = express();
             app.use(bodyParser.json());
-            app.use(
-                delivery(web3Provider as any, db as any, keysA, serverSecret),
-            );
+            app.use(delivery(web3Provider as any, db as any, serverSecret));
 
             const { status } = await request(app)
                 .get('/messages/alice.eth/contact/bob.eth')
@@ -102,24 +101,23 @@ describe('Delivery', () => {
                 setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
+                hasAccount: (_: string) => Promise.resolve(true),
                 getIdEnsName: async (ensName: string) => ensName,
             };
             const app = express();
             app.use(bodyParser.json());
-            app.use(
-                delivery(web3Provider as any, db as any, keysA, serverSecret),
-            );
+            app.use(delivery(web3Provider as any, db as any, serverSecret));
 
             const { status } = await request(app)
                 .post(
-                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/syncAcknowledgments',
+                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/syncAcknowledgements',
                 )
                 .set({
                     authorization: `Bearer ${token}`,
                 })
 
                 .send({
-                    acknowledgments: [
+                    acknowledgements: [
                         {
                             contactAddress:
                                 '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
@@ -149,18 +147,17 @@ describe('Delivery', () => {
                 setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
+                hasAccount: (_: string) => Promise.resolve(true),
                 getIdEnsName: async (ensName: string) => ensName,
             };
 
             const app = express();
             app.use(bodyParser.json());
-            app.use(
-                delivery(web3Provider as any, db as any, keysA, serverSecret),
-            );
+            app.use(delivery(web3Provider as any, db as any, serverSecret));
 
             const { status } = await request(app)
                 .post(
-                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/syncAcknowledgments',
+                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/syncAcknowledgements',
                 )
                 .set({
                     authorization: `Bearer ${token}`,

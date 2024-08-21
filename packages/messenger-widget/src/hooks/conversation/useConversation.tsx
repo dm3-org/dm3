@@ -2,6 +2,7 @@
 import {
     DeliveryInformation,
     EncryptionEnvelop,
+    Envelop,
 } from '@dm3-org/dm3-lib-messaging';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { Conversation } from '@dm3-org/dm3-lib-storage/dist/new/types';
@@ -22,10 +23,8 @@ export const useConversation = (config: DM3Configuration) => {
     const mainnetProvider = useMainnetProvider();
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
     const { account } = useContext(AuthContext);
-    const {
-        fetchIncommingMessages,
-        isInitialized: deliveryServiceInitialized,
-    } = useContext(DeliveryServiceContext);
+    const { fetchIncomingMessages, isInitialized: deliveryServiceInitialized } =
+        useContext(DeliveryServiceContext);
     const {
         getConversations: getConversationsFromStorage,
         addConversationAsync: storeConversationAsync,
@@ -89,6 +88,7 @@ export const useConversation = (config: DM3Configuration) => {
                 //Get the conversations that have been added to the DS in absence of the user
                 getConversationsFromDeliveryService(),
             ]);
+            console.log('loaded conversations', conversations);
 
             //Flatten the conversations and remove duplicates
             conversations
@@ -113,9 +113,10 @@ export const useConversation = (config: DM3Configuration) => {
 
     const initDefaultContact = async () => {
         if (config.defaultContact) {
-            const aliasName = await resolveTLDtoAlias(
-                normalizeEnsName(config.defaultContact),
+            const defaultContactTldName = normalizeEnsName(
+                config.defaultContact,
             );
+            const aliasName = await resolveTLDtoAlias(defaultContactTldName);
             const defaultContactIsUser =
                 account?.ensName === normalizeEnsName(aliasName!);
 
@@ -133,6 +134,7 @@ export const useConversation = (config: DM3Configuration) => {
                 //I there are no conversations yet we add the default contact
                 const defaultConversation: Conversation = {
                     contactEnsName: normalizeEnsName(aliasName!),
+                    contactProfileLocation: [defaultContactTldName],
                     previewMessage: undefined,
                     isHidden: false,
                     updatedAt: new Date().getTime(),
@@ -152,42 +154,79 @@ export const useConversation = (config: DM3Configuration) => {
     const getConversationsFromDeliveryService = async (): Promise<
         Conversation[]
     > => {
-        //The DS does not exposes an endpoint to fetch pending conversations. Hence we're using the fetchIncommingMessages method.
-        //We can make some optimizations here if we use the messages fetched from incommingMessages in useMessages aswell.
+        //The DS does not exposes an endpoint to fetch pending conversations. Hence we're using the fetchIncomingMessages method.
+        //We can make some optimizations here if we use the messages fetched from incomingMessages in useMessages aswell.
         //This would require a refactor of the useMessages away from a contact based model.
         //Maybe we decide to to this in the future, for now we're going to keep it simple
-        const incommingMessages = await fetchIncommingMessages(
+        const incomingMessages: Envelop[] = await fetchIncomingMessages(
             account?.ensName as string,
         );
-        //Every pending conversation is going to be added to the conversation list
-        return (
-            incommingMessages
-                .map((pendingMessage: EncryptionEnvelop) => {
-                    const contactEnsName = (
-                        pendingMessage.metadata
-                            .deliveryInformation as DeliveryInformation
-                    ).from;
 
-                    return {
-                        contactEnsName,
-                        isHidden: false,
-                    };
-                })
-                //filter duplicates
-                .filter((conversation: Conversation) => {
-                    return !contacts.some(
-                        (current) =>
-                            current.contactDetails.account.ensName ===
-                            conversation.contactEnsName,
-                    );
-                })
+        //It might be possible that the same contact has sent multiple messages. We only want to retrieve the TLDAlias for each contact once
+        const uniqueSenders = new Set(
+            incomingMessages.map(
+                (message) =>
+                    (
+                        message.metadata!
+                            .deliveryInformation as DeliveryInformation
+                    ).from,
+            ),
         );
+
+        //For each unique sender we're going to resolve the TLD name to the TLDAlias
+        //We have to do it before processing incoming conversations to warm up the cache.
+        const resolvedTldAliases = await Array.from(uniqueSenders).reduce(
+            async (acc, tldName) => {
+                const aliasName = await resolveTLDtoAlias(tldName);
+                return {
+                    ...acc,
+                    [tldName]: aliasName,
+                };
+            },
+            {} as Promise<{ [tldName: string]: string }>,
+        );
+
+        //Every pending conversation is going to be added to the conversation list
+        const incommingConversations = await Promise.all(
+            incomingMessages.map(async (pendingMessage: Envelop) => {
+                //TODO might be necessary to resolve alias
+                const contactTldName = (
+                    pendingMessage.metadata!
+                        .deliveryInformation as DeliveryInformation
+                ).from;
+
+                //resolves the TLD name. That name becomes the identifier for the conversation. The alias name is the name that is displayed in the conversation list
+                //Every name should already be part of resolvedTldAliases. resolveTLDtoAlias is only there as a fallback
+                const aliasName =
+                    resolvedTldAliases[contactTldName] ??
+                    (await resolveTLDtoAlias(contactTldName));
+
+                return {
+                    contactProfileLocation: [contactTldName],
+                    contactEnsName: aliasName,
+                    updatedAt: new Date().getTime(),
+                    isHidden: false,
+                };
+            }),
+        );
+
+        //filter duplicates
+        return incommingConversations.filter((conversation: Conversation) => {
+            return !contacts.some(
+                (current) =>
+                    current.contactDetails.account.ensName ===
+                    conversation.contactEnsName,
+            );
+        });
     };
 
-    const addConversation = (_ensName: string) => {
-        const contactEnsName = normalizeEnsName(_ensName);
+    const addConversation = async (_ensName: string) => {
+        const contactTldName = normalizeEnsName(_ensName);
+        //rrsolves the TLD name. That name becomes the identifier for the conversation
+        const aliasName = await resolveTLDtoAlias(contactTldName);
         const newConversation: Conversation = {
-            contactEnsName,
+            contactEnsName: aliasName,
+            contactProfileLocation: [contactTldName], //(ID)
             isHidden: false,
             previewMessage: undefined,
             updatedAt: new Date().getTime(),
@@ -195,7 +234,7 @@ export const useConversation = (config: DM3Configuration) => {
         //Adds the conversation to the conversation state
         const conversationPreview = _addConversation(newConversation);
         //Add the contact to the storage in the background
-        storeConversationAsync(contactEnsName);
+        storeConversationAsync(aliasName, [contactTldName]);
         return conversationPreview;
     };
 
@@ -226,6 +265,7 @@ export const useConversation = (config: DM3Configuration) => {
     const hydrateExistingContactAsync = async (contact: ContactPreview) => {
         const conversation: Conversation = {
             contactEnsName: contact.contactDetails.account.ensName,
+            contactProfileLocation: contact.contactProfileLocation,
             previewMessage: undefined,
             isHidden: contact.isHidden,
             updatedAt: contact.updatedAt,
@@ -248,6 +288,7 @@ export const useConversation = (config: DM3Configuration) => {
                 return existingContact;
             });
         });
+        return hydratedContact;
     };
 
     const hideContact = (_ensName: string) => {
@@ -335,6 +376,7 @@ export const useConversation = (config: DM3Configuration) => {
             previewMessage,
             conversation.isHidden,
             conversation.updatedAt,
+            conversation.contactProfileLocation,
         );
         //Set the new contact to the list
         _setContactsSafe([newContact]);
@@ -348,6 +390,7 @@ export const useConversation = (config: DM3Configuration) => {
         contacts,
         conversationCount,
         addConversation,
+        hydrateExistingContactAsync,
         loadMoreConversations,
         initialized: conversationsInitialized,
         setSelectedContactName,

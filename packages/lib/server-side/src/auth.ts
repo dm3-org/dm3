@@ -1,11 +1,10 @@
-import {
-    createChallenge,
-    createNewSessionToken,
-} from '@dm3-org/dm3-lib-delivery';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import cors from 'cors';
+import { ethers } from 'ethers';
 import express from 'express';
+import { IAccountDatabase } from './iAccountDatabase';
+import { createChallenge, createNewSessionToken } from './Keys';
 
 const getChallengeSchema = {
     type: 'object',
@@ -35,8 +34,11 @@ const createNewSessionTokenBodySchema = {
     additionalProperties: false,
 };
 
-//@ts-ignore
-export const Auth = (getAccount, serverSecret: string) => {
+export const Auth = (
+    db: IAccountDatabase,
+    serverSecret: string,
+    web3Provider: ethers.providers.JsonRpcProvider,
+) => {
     const router = express.Router();
 
     //TODO remove
@@ -52,11 +54,11 @@ export const Auth = (getAccount, serverSecret: string) => {
             );
 
             if (!schemaIsValid) {
-                return res.send(400);
+                return res.sendStatus(400);
             }
 
             const challenge = await createChallenge(
-                getAccount,
+                db,
                 idEnsName,
                 serverSecret,
             );
@@ -83,21 +85,27 @@ export const Auth = (getAccount, serverSecret: string) => {
             const schemaIsValid = paramsAreValid && bodyIsValid;
 
             if (!schemaIsValid) {
-                return res.send(400);
+                return res.sendStatus(400);
             }
 
             const jwt = await createNewSessionToken(
-                getAccount,
+                db,
                 req.body.signature,
                 req.body.challenge,
                 idEnsName,
                 serverSecret,
+                web3Provider,
             );
 
             res.json(jwt);
         } catch (e) {
-            next(e);
             console.error('unable to create new session token ', e);
+            return res.status(400).json({
+                error:
+                    e instanceof Error
+                        ? e.message
+                        : 'Failed to create new session token',
+            });
         }
     });
 

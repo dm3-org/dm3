@@ -1,91 +1,8 @@
 /* eslint-disable no-console */
-import { checkToken } from '@dm3-org/dm3-lib-delivery';
-import {
-    DeliveryServiceProfileKeys,
-    normalizeEnsName,
-} from '@dm3-org/dm3-lib-profile';
+import { DeliveryServiceProfileKeys } from '@dm3-org/dm3-lib-profile';
 import { ethers } from 'ethers';
 import { NextFunction, Request, Response } from 'express';
-import { Socket } from 'socket.io';
-import { ExtendedError } from 'socket.io/dist/namespace';
 import winston from 'winston';
-import type { IAccountDatabase } from './iSessionDatabase';
-
-export async function auth(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-    ensName: string,
-    db: IAccountDatabase,
-    web3Provider: ethers.providers.JsonRpcProvider,
-    serverSecret: string,
-) {
-    const normalizedEnsName = normalizeEnsName(ensName);
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-
-    if (
-        token &&
-        (await checkToken(
-            web3Provider,
-            db.getAccount,
-            normalizedEnsName,
-            token,
-            serverSecret,
-        ))
-    ) {
-        next();
-    } else {
-        console.warn('AUTH Token check failed for ', normalizedEnsName);
-        res.sendStatus(401);
-    }
-}
-
-export function socketAuth(
-    db: IAccountDatabase,
-    web3Provider: ethers.providers.JsonRpcProvider,
-    serverSecret: string,
-) {
-    return async (
-        socket: Socket,
-        next: (err?: ExtendedError | undefined) => void,
-    ) => {
-        try {
-            const ensName = normalizeEnsName(
-                socket.handshake.auth.account.ensName,
-            );
-            console.log('Start WS auth for ', ensName, socket.id);
-
-            if (
-                !(await checkToken(
-                    web3Provider,
-                    db.getAccount,
-                    ensName,
-                    socket.handshake.auth.token as string,
-                    serverSecret,
-                ))
-            ) {
-                console.log('check token has failed for WS ');
-                return next(new Error('check token has failed for WS'));
-            }
-            const session = await db.getAccount(ensName);
-            if (!session) {
-                throw Error('Could not get session');
-            }
-
-            await db.setAccount(ensName, {
-                ...session,
-                socketId: socket.id,
-            });
-        } catch (e) {
-            console.log('socket auth error');
-            console.log(e);
-            next(e as Error);
-        }
-
-        next();
-    };
-}
 
 export function logRequest(req: Request, res: Response, next: NextFunction) {
     winston.loggers.get('default').info({
@@ -102,7 +19,7 @@ export function logError(
     res: Response,
     next: NextFunction,
 ) {
-    winston.loggers.get('default').error({
+    console.error({
         method: req.method,
         url: req.url,
         error: error.toString(),

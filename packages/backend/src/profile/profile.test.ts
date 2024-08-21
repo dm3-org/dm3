@@ -1,22 +1,22 @@
-import {
-    Session,
-    generateAuthJWT,
-    spamFilter,
-} from '@dm3-org/dm3-lib-delivery';
+import { generateAuthJWT } from '@dm3-org/dm3-lib-server-side';
 import {
     UserProfile,
     getProfileCreationMessage,
 } from '@dm3-org/dm3-lib-profile';
 import { stringify } from '@dm3-org/dm3-lib-shared';
+import { Account } from '@prisma/client';
 import bodyParser from 'body-parser';
 import { ethers } from 'ethers';
 import express from 'express';
 import http from 'http';
 import request from 'supertest';
-import { IDatabase } from './persistence/getDatabase';
+import { IBackendDatabase } from '../persistence/getDatabase';
 import profile from './profile';
-import storage from './storage';
+import storage from '../storage';
+import { mockUserProfile } from '@dm3-org/dm3-lib-test-helper';
 
+// todo: create a web3 provider mock that returns a resolver and that thren returns a text when the respective functions
+// are called
 const web3ProviderMock: ethers.providers.JsonRpcProvider =
     new ethers.providers.JsonRpcProvider();
 
@@ -26,7 +26,7 @@ let token = generateAuthJWT('alice.eth', serverSecret);
 
 const setUpApp = async (
     app: express.Express,
-    db: IDatabase,
+    db: IBackendDatabase,
     web3Provider: ethers.providers.JsonRpcProvider,
     serverSecret: string = 'my-secret',
 ) => {
@@ -36,20 +36,13 @@ const setUpApp = async (
 };
 
 const createDbMock = async () => {
-    const sessionMocked = {
-        challenge: '123',
-        token: 'deprecated token that is not used anymore',
-        signedUserProfile: {},
-    } as Session & { spamFilterRules: spamFilter.SpamFilterRules };
+    const accountMocked = {
+        id: 'alice.eth',
+    } as Account;
 
     const dbMock = {
-        getAccount: async (ensName: string) =>
-            Promise.resolve<
-                Session & {
-                    spamFilterRules: spamFilter.SpamFilterRules;
-                }
-            >(sessionMocked), // returns some valid session
-        setAccount: async (_: string, __: Session) => {},
+        getAccount: async (ensName: string) => Promise.resolve(accountMocked),
+        setAccount: async (id: string) => {},
         getIdEnsName: async (ensName: string) => ensName,
     };
 
@@ -63,15 +56,33 @@ describe('Profile', () => {
 
             const db = await createDbMock();
 
+            const user = await mockUserProfile(
+                ethers.Wallet.createRandom(),
+                'alice.eth',
+                ['ds1.eth', 'ds2.eth'],
+            );
+            const expectedUserProfile = user.signedUserProfile;
+            const userAddress = user.wallet.address;
+
+            const mockGetEnsResolver = (_: string) =>
+                Promise.resolve({
+                    getText: (_: string) =>
+                        Promise.resolve(
+                            'data:application/json,' +
+                                stringify(expectedUserProfile),
+                        ),
+                });
+
             const _web3Provider = {
-                resolveName: async () =>
-                    '0x95222290DD7278Aa3Ddd389Cc1E1d165CC4BAfe5',
-            };
+                getResolver: mockGetEnsResolver,
+                resolveName: async () => userAddress,
+            } as unknown as ethers.providers.StaticJsonRpcProvider;
+
             // I don't know why this function is needed in this test.
             // Remove it after storage migration.
             db.getUserStorage = () => {};
-            app.use(storage(db, _web3Provider as any, serverSecret));
-            setUpApp(app, db, web3ProviderMock);
+            app.use(storage(db, _web3Provider, serverSecret));
+            setUpApp(app, db, _web3Provider);
 
             const response = await request(app)
                 .get('/alice.eth')
