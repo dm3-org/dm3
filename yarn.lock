@@ -2409,6 +2409,7 @@ __metadata:
     "@dm3-org/dm3-lib-test-helper": "workspace:^"
     "@emoji-mart/data": ^1.1.2
     "@emoji-mart/react": ^1.1.1
+    "@erc725/smart-contracts": ^7.0.0
     "@popperjs/core": ^2.11.8
     "@rainbow-me/rainbowkit": ^1.0.6
     "@testing-library/dom": ^9.3.1
@@ -2674,6 +2675,17 @@ __metadata:
   dependencies:
     hash-test-vectors: ^1.3.2
   checksum: 1a84ccc329da4d40422c770e0baea1a63869f31a417589e3451a9997542c2f6683b6f8d3410de97580bbdce0567aba79328a86c7fda8925e446e02d724be6880
+  languageName: node
+  linkType: hard
+
+"@erc725/smart-contracts@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "@erc725/smart-contracts@npm:7.0.0"
+  dependencies:
+    "@openzeppelin/contracts": ^4.9.3
+    "@openzeppelin/contracts-upgradeable": ^4.9.3
+    solidity-bytes-utils: 0.8.0
+  checksum: 20fdca88eb7a33f4009c92d150c1c4b9b6ccd22bf4796c8b438d10afe5bf206ffa29b2b6c6aba7087b2117aeb2de533c1f4ce8d91ee21ff2012de95228c02bf5
   languageName: node
   linkType: hard
 
@@ -5059,6 +5071,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@openzeppelin/contracts-upgradeable@npm:^4.9.3":
+  version: 4.9.6
+  resolution: "@openzeppelin/contracts-upgradeable@npm:4.9.6"
+  checksum: 481075e7222cab025ae55304263fca69a2d04305521957bc16d2aece9fa2b86b6914711724822493e3d04df7e793469cd0bcb1e09f0ddd10cb4e360ac7eed12a
+  languageName: node
+  linkType: hard
+
 "@openzeppelin/contracts@npm:4.7.3":
   version: 4.7.3
   resolution: "@openzeppelin/contracts@npm:4.7.3"
@@ -5070,6 +5089,13 @@ __metadata:
   version: 4.9.3
   resolution: "@openzeppelin/contracts@npm:4.9.3"
   checksum: 4932063e733b35fa7669b9fe2053f69b062366c5c208b0c6cfa1ac451712100c78acff98120c3a4b88d94154c802be05d160d71f37e7d74cadbe150964458838
+  languageName: node
+  linkType: hard
+
+"@openzeppelin/contracts@npm:^4.9.3":
+  version: 4.9.6
+  resolution: "@openzeppelin/contracts@npm:4.9.6"
+  checksum: 274b6e968268294f12d5ca4f0278f6e6357792c8bb4d76664f83dbdc325f780541538a127e6a6e97e4f018088b42f65952014dec9c745c0fa25081f43ef9c4bf
   languageName: node
   linkType: hard
 
@@ -29064,7 +29090,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"solidity-bytes-utils@npm:^0.8.0":
+"solidity-bytes-utils@npm:0.8.0, solidity-bytes-utils@npm:^0.8.0":
   version: 0.8.0
   resolution: "solidity-bytes-utils@npm:0.8.0"
   dependencies:
