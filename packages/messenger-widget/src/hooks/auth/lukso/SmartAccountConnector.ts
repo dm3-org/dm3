@@ -1,25 +1,23 @@
 import {
     createStorageKey,
-    decrypt,
     decryptAsymmetric,
-    encrypt,
     encryptAsymmetric,
     EncryptedPayload,
     getStorageKeyCreationMessage,
 } from '@dm3-org/dm3-lib-crypto';
 import {
     createProfileKeys as _createProfileKeys,
+    DEFAULT_NONCE,
     getProfileCreationMessage,
     ProfileKeys,
     SignedUserProfile,
     UserProfile,
 } from '@dm3-org/dm3-lib-profile';
-import { sha256, stringify } from '@dm3-org/dm3-lib-shared';
+import { stringify } from '@dm3-org/dm3-lib-shared';
 import abiJson from '@erc725/smart-contracts/artifacts/ERC725.json';
 import { ethers } from 'ethers';
 import { Dm3KeyStore, IKeyStoreService } from './KeyStore/IKeyStore';
 import { LuksoKeyStore } from './KeyStore/LuksoKeyStore';
-import { Key } from 'react';
 
 export type LoginResult = {
     type: 'SUCCESS' | 'NEW_DEVICE';
@@ -31,12 +29,16 @@ export class SmartAccountConnector {
     private readonly upController: ethers.Signer;
     private readonly keyStoreService: IKeyStoreService;
 
+    private readonly nonce;
+
     constructor(
         keyStoreService: IKeyStoreService,
         upController: ethers.Signer,
+        nonce: string,
     ) {
         this.keyStoreService = keyStoreService;
         this.upController = upController;
+        this.nonce = nonce;
     }
 
     //TODO move to class tailored to lukso
@@ -64,29 +66,24 @@ export class SmartAccountConnector {
 
         const kss = new LuksoKeyStore(upContract);
 
-        return new SmartAccountConnector(kss, upController);
+        return new SmartAccountConnector(kss, upController, DEFAULT_NONCE);
     }
 
     private async createProfileKeys() {
-        //TEST_NONCE replcae with nonce from the app
-        const nonce = '0x0123';
         //TODO replace with crytpo graphically secure random bytes
         const seed = ethers.utils.randomBytes(32).toString();
 
         const signature = await this.upController.signMessage(seed);
         const storageKey = await createStorageKey(signature);
-        return await _createProfileKeys(storageKey, nonce);
+        return await _createProfileKeys(storageKey, this.nonce);
     }
 
     //Returns Keys to encrypt the actual profile at UP
     private async createEncryptionKeys() {
-        //TEST_NONCE replcae with nonce from the app
-        const nonce = '0x0123';
-
         const controllerAddress = await this.upController.getAddress();
 
         const storageKeyCreationMessage = getStorageKeyCreationMessage(
-            nonce,
+            this.nonce,
             controllerAddress,
         );
 
@@ -94,7 +91,7 @@ export class SmartAccountConnector {
             storageKeyCreationMessage,
         );
         const storageKey = await createStorageKey(signature);
-        return await _createProfileKeys(storageKey, nonce);
+        return await _createProfileKeys(storageKey, this.nonce);
     }
 
     private async createNewSignedUserProfile(
@@ -122,16 +119,72 @@ export class SmartAccountConnector {
         } as SignedUserProfile;
     }
 
-    public keySync() {}
+    //KeySync can be triggered by controller that has used dm3 before.
+    //This function will normally be called after login on behalf of the user
+    public async keySync(encryptionKeys: ProfileKeys) {
+        //1. Get the current keyStore
+        const keyStore = await this.keyStoreService.readDm3KeyStore();
+
+        const encryptedControllerKeyStore =
+            keyStore[await this.upController.getAddress()];
+
+        //Should not happen because this function should only be called after login
+        if (
+            !encryptedControllerKeyStore ||
+            !encryptedControllerKeyStore.encryptedProfileKeys
+        ) {
+            throw 'Controller has not used dm3 before';
+        }
+
+        //2. Decrypt the profileKeys of the controller
+
+        const payload: EncryptedPayload = JSON.parse(
+            atob(encryptedControllerKeyStore.encryptedProfileKeys),
+        ) as EncryptedPayload;
+        //Decrpyt the profileKeys of the controller
+        const profileKeys = await decryptAsymmetric(
+            encryptionKeys.encryptionKeyPair,
+            payload,
+            1,
+        );
+
+        //For each device in the keyStore, encrypt the profileKeys of the controller
+        //That only applies for controllers that have a publicKey but not encryptedProfileKeys yet
+        const newKeyStore: Dm3KeyStore = {};
+
+        for (const key of Object.keys(keyStore)) {
+            const controller = keyStore[key];
+
+            // If the controller already has a profile we don't have to encrypt the profileKeys
+            if (controller.encryptedProfileKeys) {
+                newKeyStore[key] = controller;
+                continue;
+            }
+
+            const encryptedProfileKeys = await encryptAsymmetric(
+                controller.signerPublicKey,
+                profileKeys,
+                1,
+            );
+
+            newKeyStore[key] = {
+                ...controller,
+                encryptedProfileKeys: btoa(stringify(encryptedProfileKeys)),
+            };
+        }
+
+        //3. Write the new keyStore
+        await this.keyStoreService.writeDm3KeyStore(newKeyStore);
+    }
 
     public async login(): Promise<LoginResult> {
         const keyStore = await this.keyStoreService.readDm3KeyStore();
         //Smart account has never used dm3 before
-        if (!keyStore) {
+        if (Object.keys(keyStore).length === 0) {
             return await this.signUp();
         }
         const encryptedControllerKeyStore =
-            keyStore![await this.upController.getAddress()];
+            keyStore[await this.upController.getAddress()];
 
         //If the controller already has a keyStore, we can decrypt the profileKeys using its encryptionKeys
         //If not we've to start the keyExchange process
