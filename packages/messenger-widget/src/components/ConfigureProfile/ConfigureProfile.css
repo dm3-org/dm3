@@ -158,6 +158,12 @@ input::placeholder {
     padding: 1rem;
 }
 
+.update-btn {
+    margin-left: 1.2rem !important;
+    font-size: 12px;
+    border-radius: 6px;
+}
+
 /* Customized CSS for radio button */
 .radio {
     input[type="radio"] {
@@ -305,5 +311,17 @@ input::placeholder {
 
     .ens-components-container{
         padding: 0.5rem;
-      }
+    }
+
+    .update-btn {
+        margin-top: 1rem;
+        margin-left: 0rem !important;
+        font-size: 12px;
+        border-radius: 6px;
+        width: fit-content;
+    }
+
+    .del-icon{
+        height: 1rem;
+    }
 }

@@ -17,6 +17,8 @@ import DeleteDM3Name from '../DeleteDM3Name/DeleteDM3Name';
 import { CloudStorage } from './CloudStorage';
 import { OwnStorage } from './OwnStorage';
 import { ClaimOwnName } from './ClaimOwnName';
+import { DM3UserProfileContext } from '../../context/DM3UserProfileContext';
+import updateIcon from '../../assets/images/update.svg';
 
 export function NormalView() {
     const connectedChainId = useChainId();
@@ -40,6 +42,33 @@ export function NormalView() {
     } = useContext(ConfigureDM3NameContext);
 
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
+
+    const {
+        nodes,
+        updateProfileWithTransaction,
+        isDm3NameConfigured,
+        isEnsNameConfigured,
+    } = useContext(DM3UserProfileContext);
+
+    const isProfileNotUpdatedForDm3Name = (): boolean => {
+        return nodes.filter(
+            (n) =>
+                isDm3NameConfigured &&
+                (!n.dm3Name?.isActive || !n.opName?.isActive),
+        ).length
+            ? true
+            : false;
+    };
+
+    const isProfileNotUpdatedForEnsName = (): boolean => {
+        return nodes.filter(
+            (n) =>
+                isEnsNameConfigured &&
+                (!n.ensName?.isActive || !n.gnosisName?.isActive),
+        ).length
+            ? true
+            : false;
+    };
 
     const ensDomainName =
         (existingDm3Name &&
@@ -116,8 +145,12 @@ export function NormalView() {
                     {existingDm3Name && (
                         <div className="d-flex mt-2">
                             <p
-                                className="m-0 
-                    font-size-14 font-weight-500 line-height-24 title-content"
+                                className={'m-0 font-size-14 font-weight-500 line-height-24 title-content'.concat(
+                                    ' ',
+                                    isProfileNotUpdatedForDm3Name()
+                                        ? 'error-text'
+                                        : '',
+                                )}
                             >
                                 DM3 Name
                                 <span className="address-tooltip">
@@ -136,18 +169,42 @@ export function NormalView() {
                                 </span>
                             </p>
                             <p
-                                className="dm3-address m-0 ms-5
-                    font-size-14 font-weight-500 line-height-24 grey-text"
+                                className={'dm3-address m-0 ms-5 font-size-14 font-weight-500 line-height-24'.concat(
+                                    ' ',
+                                    isProfileNotUpdatedForDm3Name()
+                                        ? 'error-text'
+                                        : 'grey-text',
+                                )}
                             >
                                 {existingDm3Name}
                             </p>
-                            {/* Show delete */}
+                            {/* Delete button */}
                             <img
                                 className="ms-4 pointer-cursor"
                                 src={deleteIcon}
                                 alt="remove"
                                 onClick={() => setShowDeleteConfirmation(true)}
                             />
+
+                            {isProfileNotUpdatedForDm3Name() && (
+                                <button
+                                    className="add-prof-btn-active update-btn"
+                                    onClick={() =>
+                                        updateProfileWithTransaction(
+                                            existingEnsName
+                                                ? existingEnsName
+                                                : existingDm3Name,
+                                        )
+                                    }
+                                >
+                                    <img
+                                        className="me-1 pointer-cursor "
+                                        src={updateIcon}
+                                        alt="update profile"
+                                    />
+                                    update now
+                                </button>
+                            )}
                         </div>
                     )}
 
@@ -155,8 +212,12 @@ export function NormalView() {
                     {ensDomainName && existingEnsName && (
                         <div className="d-flex mt-2">
                             <p
-                                className="m-0 
-                    font-size-14 font-weight-500 line-height-24 title-content"
+                                className={'m-0 font-size-14 font-weight-500 line-height-24 title-content'.concat(
+                                    ' ',
+                                    isProfileNotUpdatedForEnsName()
+                                        ? 'error-text'
+                                        : '',
+                                )}
                             >
                                 {ensDomainName} Name
                                 <span className="address-tooltip">
@@ -176,11 +237,32 @@ export function NormalView() {
                                 </span>
                             </p>
                             <p
-                                className="dm3-address m-0 ms-5
-                    font-size-14 font-weight-500 line-height-24 grey-text"
+                                className={'dm3-address m-0 ms-5 font-size-14 font-weight-500 line-height-24 grey-text'.concat(
+                                    ' ',
+                                    isProfileNotUpdatedForEnsName()
+                                        ? 'error-text'
+                                        : 'grey-text',
+                                )}
                             >
                                 {existingEnsName}
                             </p>
+                            {isProfileNotUpdatedForEnsName() && (
+                                <button
+                                    className="add-prof-btn-active update-btn"
+                                    onClick={() =>
+                                        updateProfileWithTransaction(
+                                            existingEnsName,
+                                        )
+                                    }
+                                >
+                                    <img
+                                        className="me-1 pointer-cursor "
+                                        src={updateIcon}
+                                        alt="update profile"
+                                    />
+                                    update now
+                                </button>
+                            )}
                         </div>
                     )}
 

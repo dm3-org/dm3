@@ -1,6 +1,6 @@
 import './Preferences.css';
 import { preferencesItems } from './bl';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect } from 'react';
 import closeIcon from '../../assets/images/cross.svg';
 import { closeConfigurationModal } from '../ConfigureProfile/bl';
 import { ModalContext } from '../../context/ModalContext';
@@ -11,9 +11,11 @@ export function MobileView() {
         showProfileConfigurationModal,
         setShowProfileConfigurationModal,
         resetConfigureProfileModal,
+        preferencesOptionSelected,
+        setPreferencesOptionSelected,
     } = useContext(ModalContext);
 
-    const [optionChoosen, setOptionChoosen] = useState<any>(null);
+    // const [optionChoosen, setOptionChoosen] = useState<any>(null);
 
     /**
      *  Opens DM3 profile configuration by default if user clicked
@@ -21,16 +23,19 @@ export function MobileView() {
      */
     useEffect(() => {
         if (showProfileConfigurationModal) {
-            setOptionChoosen(preferencesItems[1]);
+            setPreferencesOptionSelected(preferencesItems[1]);
         }
     }, []);
 
     // reset states of configure profile modal if any other component is loaded
     useEffect(() => {
-        if (optionChoosen && optionChoosen.name !== 'dm3 Profile') {
+        if (
+            preferencesOptionSelected &&
+            preferencesOptionSelected.name !== 'dm3 Profile'
+        ) {
             resetConfigureProfileModal();
         }
-    }, [optionChoosen]);
+    }, [preferencesOptionSelected]);
 
     return (
         <div>
@@ -51,15 +56,17 @@ export function MobileView() {
                                             <div
                                                 className={'target d-flex preferences-item '.concat(
                                                     ' ',
-                                                    optionChoosen &&
-                                                        optionChoosen.name ===
+                                                    preferencesOptionSelected &&
+                                                        preferencesOptionSelected.name ===
                                                             item.name
                                                         ? 'normal-btn-hover'
                                                         : '',
                                                 )}
                                                 key={index}
                                                 onClick={() =>
-                                                    setOptionChoosen(item)
+                                                    setPreferencesOptionSelected(
+                                                        item,
+                                                    )
                                                 }
                                             >
                                                 {item.icon}
@@ -84,9 +91,9 @@ export function MobileView() {
                         </div>
 
                         <div className="m-0 p-0 preferences-component">
-                            {optionChoosen &&
-                                optionChoosen.isEnabled &&
-                                optionChoosen.component}
+                            {preferencesOptionSelected &&
+                                preferencesOptionSelected.isEnabled &&
+                                preferencesOptionSelected.component}
                         </div>
                     </div>
                 </div>

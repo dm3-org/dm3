@@ -6,6 +6,7 @@ import {
     ProfileScreenType,
     ProfileType,
 } from '../../utils/enum-type-utils';
+import { preferencesItems } from '../../components/Preferences/bl';
 
 export interface IOpenEmojiPopup {
     action: boolean;
@@ -55,6 +56,13 @@ export const useModal = () => {
             onScreen: ProfileScreenType.NONE,
         });
 
+    const [preferencesOptionSelected, setPreferencesOptionSelected] = useState<{
+        icon: JSX.Element;
+        name: string;
+        component: JSX.Element;
+        isEnabled: boolean;
+    }>(preferencesItems[1]);
+
     const resetConfigureProfileModal = () => {
         setConfigureProfileModal({
             profileOptionSelected: ProfileType.DM3_NAME,
@@ -79,6 +87,7 @@ export const useModal = () => {
             profileOptionSelected: ProfileType.DM3_NAME,
             onScreen: ProfileScreenType.NONE,
         });
+        setPreferencesOptionSelected(preferencesItems[1]);
     };
 
     return {
@@ -104,5 +113,7 @@ export const useModal = () => {
         configureProfileModal,
         setConfigureProfileModal,
         resetConfigureProfileModal,
+        preferencesOptionSelected,
+        setPreferencesOptionSelected,
     };
 };

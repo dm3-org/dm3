@@ -17,6 +17,8 @@ import deleteIcon from '../../assets/images/delete.svg';
 import { CloudStorage } from './CloudStorage';
 import { OwnStorage } from './OwnStorage';
 import { ClaimOwnName } from './ClaimOwnName';
+import { DM3UserProfileContext } from '../../context/DM3UserProfileContext';
+import updateIcon from '../../assets/images/update.svg';
 
 export function MobileView() {
     const connectedChainId = useChainId();
@@ -41,6 +43,13 @@ export function MobileView() {
 
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
+    const {
+        nodes,
+        updateProfileWithTransaction,
+        isDm3NameConfigured,
+        isEnsNameConfigured,
+    } = useContext(DM3UserProfileContext);
+
     const ensDomainName =
         (existingDm3Name &&
             (existingEnsName?.endsWith('.gno') ||
@@ -48,6 +57,26 @@ export function MobileView() {
                 ? 'GNO'
                 : 'ENS')) ??
         null;
+
+    const isProfileNotUpdatedForDm3Name = (): boolean => {
+        return nodes.filter(
+            (n) =>
+                isDm3NameConfigured &&
+                (!n.dm3Name?.isActive || !n.opName?.isActive),
+        ).length
+            ? true
+            : false;
+    };
+
+    const isProfileNotUpdatedForEnsName = (): boolean => {
+        return nodes.filter(
+            (n) =>
+                isEnsNameConfigured &&
+                (!n.ensName?.isActive || !n.gnosisName?.isActive),
+        ).length
+            ? true
+            : false;
+    };
 
     // handles ENS name and address
     useEffect(() => {
@@ -112,10 +141,12 @@ export function MobileView() {
 
             {/* Existing DM3 name */}
             {existingDm3Name && (
-                <div className="d-flex mt-2 ps-2">
+                <div className="d-flex mt-2 ps-2 flex-column">
                     <p
-                        className="m-0 
-                    font-size-14 font-weight-500 line-height-24 title-content"
+                        className={'m-0 font-size-14 font-weight-500 line-height-24 title-content'.concat(
+                            ' ',
+                            isProfileNotUpdatedForDm3Name() ? 'error-text' : '',
+                        )}
                     >
                         DM3 Name
                         <span className="address-tooltip">
@@ -134,18 +165,40 @@ export function MobileView() {
                         </span>
                     </p>
                     <p
-                        className="dm3-address m-0 ms-0
-                    font-size-14 font-weight-500 line-height-24 grey-text"
+                        className={'dm3-address m-0 ms-0 font-size-14 font-weight-500 line-height-24 grey-text'.concat(
+                            ' ',
+                            isProfileNotUpdatedForDm3Name()
+                                ? 'error-text'
+                                : 'grey-text',
+                        )}
                     >
                         {existingDm3Name}
+
+                        {/* Delete icon */}
+                        <img
+                            className="ms-4 pointer-cursor del-icon"
+                            src={deleteIcon}
+                            alt="remove"
+                            onClick={() => setShowDeleteConfirmation(true)}
+                        />
                     </p>
-                    {/* Delete icon */}
-                    <img
-                        className="ms-2 pointer-cursor"
-                        src={deleteIcon}
-                        alt="remove"
-                        onClick={() => setShowDeleteConfirmation(true)}
-                    />
+
+                    {isProfileNotUpdatedForDm3Name() && (
+                        <button
+                            className="add-prof-btn-active update-btn"
+                            onClick={() =>
+                                updateProfileWithTransaction(existingDm3Name)
+                            }
+                        >
+                            <img
+                                className="me-1 pointer-cursor "
+                                src={updateIcon}
+                                alt="update profile"
+                                onClick={() => {}}
+                            />
+                            update now
+                        </button>
+                    )}
                 </div>
             )}
 
@@ -153,8 +206,10 @@ export function MobileView() {
             {ensDomainName && existingEnsName && (
                 <div className="d-flex mt-2 ps-2">
                     <p
-                        className="m-0 
-                    font-size-14 font-weight-500 line-height-24 title-content"
+                        className={'m-0 font-size-14 font-weight-500 line-height-24 title-content'.concat(
+                            ' ',
+                            isProfileNotUpdatedForEnsName() ? 'error-text' : '',
+                        )}
                     >
                         {ensDomainName} Name
                         <span className="address-tooltip">
@@ -175,18 +230,32 @@ export function MobileView() {
                         </span>
                     </p>
                     <p
-                        className="dm3-address m-0 ms-0
-                    font-size-14 font-weight-500 line-height-24 grey-text"
+                        className={'dm3-address m-0 ms-0 font-size-14 font-weight-500 line-height-24 grey-text'.concat(
+                            ' ',
+                            isProfileNotUpdatedForEnsName()
+                                ? 'error-text'
+                                : 'grey-text',
+                        )}
                     >
                         {existingEnsName}
                     </p>
-                    {/* Delete icon */}
-                    <img
-                        className="ms-2 pointer-cursor"
-                        src={deleteIcon}
-                        alt="remove"
-                        onClick={() => setShowDeleteConfirmation(true)}
-                    />
+
+                    {isProfileNotUpdatedForEnsName() && (
+                        <button
+                            className="add-prof-btn-active update-btn"
+                            onClick={() =>
+                                updateProfileWithTransaction(existingEnsName)
+                            }
+                        >
+                            <img
+                                className="me-1 pointer-cursor "
+                                src={updateIcon}
+                                alt="update profile"
+                                onClick={() => {}}
+                            />
+                            update now
+                        </button>
+                    )}
                 </div>
             )}
 

@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { NAME_TYPE } from '../chain/common';
 import { dm3NamingServices, namingServices } from '../bl';
+import { AuthContext } from '../../../context/AuthContext';
+import { DM3ConfigurationContext } from '../../../context/DM3ConfigurationContext';
 
 export interface ConfigureProfileContextType {
     existingEnsName: string | null;
@@ -49,6 +51,21 @@ export const ConfigureProfileContextProvider = (props: { children?: any }) => {
     const [namingServiceSelected, setNamingServiceSelected] = useState<string>(
         namingServices[0].name,
     );
+
+    const { displayName } = useContext(AuthContext);
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
+
+    useEffect(() => {
+        setExistingEnsName(
+            displayName
+                ? !displayName.endsWith(dm3Configuration.addressEnsSubdomain) &&
+                  !displayName.endsWith(dm3Configuration.userEnsSubdomain) &&
+                  !displayName.endsWith('.op.dm3.eth')
+                    ? displayName
+                    : null
+                : null,
+        );
+    }, []);
 
     return (
         <ConfigureProfileContext.Provider

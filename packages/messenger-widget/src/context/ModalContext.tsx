@@ -10,6 +10,7 @@ import {
     IOpenEmojiPopup,
     useModal,
 } from '../hooks/modals/useModal';
+import { preferencesItems } from '../components/Preferences/bl';
 
 export type ModalContextType = {
     loaderContent: string;
@@ -34,6 +35,18 @@ export type ModalContextType = {
     setConfigureProfileModal: (modal: IConfigureProfileModal) => void;
     resetConfigureProfileModal: () => void;
     resetModalStates: () => void;
+    preferencesOptionSelected: {
+        icon: JSX.Element;
+        name: string;
+        component: JSX.Element;
+        isEnabled: boolean;
+    };
+    setPreferencesOptionSelected: (item: {
+        icon: JSX.Element;
+        name: string;
+        component: JSX.Element;
+        isEnabled: boolean;
+    }) => void;
 };
 
 export const ModalContext = React.createContext<ModalContextType>({
@@ -66,6 +79,13 @@ export const ModalContext = React.createContext<ModalContextType>({
     setConfigureProfileModal: (modal: IConfigureProfileModal) => {},
     resetConfigureProfileModal: () => {},
     resetModalStates: () => {},
+    preferencesOptionSelected: preferencesItems[1],
+    setPreferencesOptionSelected: (item: {
+        icon: JSX.Element;
+        name: string;
+        component: JSX.Element;
+        isEnabled: boolean;
+    }) => {},
 });
 
 export const ModalContextProvider = ({ children }: { children?: any }) => {
@@ -91,6 +111,8 @@ export const ModalContextProvider = ({ children }: { children?: any }) => {
         configureProfileModal,
         setConfigureProfileModal,
         resetConfigureProfileModal,
+        preferencesOptionSelected,
+        setPreferencesOptionSelected,
         resetModalStates,
     } = useModal();
 
@@ -119,6 +141,8 @@ export const ModalContextProvider = ({ children }: { children?: any }) => {
                 configureProfileModal,
                 setConfigureProfileModal,
                 resetConfigureProfileModal,
+                preferencesOptionSelected,
+                setPreferencesOptionSelected,
             }}
         >
             {children}
