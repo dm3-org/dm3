@@ -69,6 +69,7 @@ export async function getDatabase(
         // Account
         setAccount: Account.setAccount(redis),
         getAccount: Account.getAccount(redis),
+        hasAccount: Account.hasAccount(redis),
         getIdEnsName: getIdEnsName(redis),
         syncAcknowledge: syncAcknowledge(redis),
         //Notification
@@ -106,6 +107,7 @@ export interface IDatabase extends IAccountDatabase {
         limit: number,
     ) => Promise<EncryptionEnvelop[]>;
     createMessage: (
+        receiverAddress: string,
         conversationId: string,
         envelop: EncryptionEnvelop,
     ) => Promise<void>;

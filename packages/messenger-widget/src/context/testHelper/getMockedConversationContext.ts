@@ -16,6 +16,8 @@ export const getMockedConversationContext = (
         addConversation: (ensName: string) => {
             return Promise.resolve({} as ContactPreview);
         },
+        hydrateExistingContactAsync: (contact: ContactPreview) =>
+            Promise.resolve({} as ContactPreview),
         loadMoreConversations: () => {
             return new Promise((resolve, reject) => resolve(0));
         },

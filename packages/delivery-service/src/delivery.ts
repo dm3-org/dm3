@@ -1,10 +1,10 @@
 import {
-    Acknowledgment,
+    Acknowledgement,
     getConversationId,
     schema,
 } from '@dm3-org/dm3-lib-delivery';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
-import { auth } from '@dm3-org/dm3-lib-server-side';
+import { authorize } from '@dm3-org/dm3-lib-server-side';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import cors from 'cors';
 import { ethers } from 'ethers';
@@ -22,12 +22,12 @@ const syncAcknowledgementParamsSchema = {
 const syncAcknowledgementBodySchema = {
     type: 'object',
     properties: {
-        acknowledgments: {
+        acknowledgements: {
             type: 'array',
-            items: schema.Acknowledgment,
+            items: schema.Acknowledgement,
         },
     },
-    required: ['acknowledgments'],
+    required: ['acknowledgements'],
     additionalProperties: false,
 };
 
@@ -40,14 +40,23 @@ export default (
     //TODO remove
     router.use(cors());
     router.param('ensName', async (req, res, next, ensName: string) => {
-        auth(req, res, next, ensName, db, web3Provider, serverSecret);
+        authorize(
+            req,
+            res,
+            next,
+            ensName,
+            db.hasAccount,
+            web3Provider,
+            serverSecret,
+        );
     });
     //Returns all incoming messages for a specific contact name
+    //TODO deprecated. remove in the future
     router.get(
         '/messages/:ensName/contact/:contactEnsName',
         async (req: express.Request, res, next) => {
             try {
-                //retive the address for the contact name since it is used as a key in the db
+                //retrieve the address for the contact name since it is used as a key in the db
                 const receiverAddress = await web3Provider.resolveName(
                     req.params.ensName,
                 );
@@ -103,10 +112,26 @@ export default (
         //@ts-ignore
         async (req: express.Request, res, next) => {
             try {
-                console.debug('get incoming messages for ', req.params.ensName);
+                //retrieve the address for the contact name since it is used as a key in the db
+                const receiverAddress = await web3Provider.resolveName(
+                    req.params.ensName,
+                );
+                //If the address is not found we return a 404. This should normally not happen since the receiver always is known to the delivery service
+                if (!receiverAddress) {
+                    console.error(
+                        'receiver address not found for name ',
+                        req.params.ensName,
+                    );
+                    return res.status(404).send({
+                        error:
+                            'receiver address not found for name ' +
+                            req.params.ensName,
+                    });
+                }
+                console.debug('get incoming messages for ', receiverAddress);
                 //TODO use address
                 const incomingMessages = await db.getIncomingMessages(
-                    req.params.ensName,
+                    receiverAddress,
                     //Fetch the last 10 messages per conversation
                     //If we decide to add pagination for that endpoint we can pass this value as a param
                     1000,
@@ -118,7 +143,7 @@ export default (
         },
     );
     router.post(
-        '/messages/:ensName/syncAcknowledgments/',
+        '/messages/:ensName/syncAcknowledgements/',
         async (req, res, next) => {
             const hasValidParams = validateSchema(
                 syncAcknowledgementParamsSchema,
@@ -153,8 +178,8 @@ export default (
                 }
 
                 await Promise.all(
-                    req.body.acknowledgments.map(
-                        async (ack: Acknowledgment) => {
+                    req.body.acknowledgements.map(
+                        async (ack: Acknowledgement) => {
                             const contactEnsName = await db.getIdEnsName(
                                 ack.contactAddress,
                             );
