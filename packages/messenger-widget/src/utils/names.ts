@@ -1,7 +1,7 @@
 import { Account } from '@dm3-org/dm3-lib-profile';
 import { Dm3Name } from '../hooks/topLevelAlias/nameService/Dm3Name';
 import { ethers } from 'ethers';
-import { DM3Configuration } from '../../lib/esm/interfaces/config';
+import { DM3Configuration } from '../interfaces/config';
 import { OptimismNames } from '../hooks/topLevelAlias/nameService/OptimismNames';
 import { Genome } from '../hooks/topLevelAlias/nameService/Genome';
 import { EthereumNameService } from '../hooks/topLevelAlias/nameService/EthereumNameService';
