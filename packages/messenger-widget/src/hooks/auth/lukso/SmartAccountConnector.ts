@@ -40,88 +40,9 @@ export class SmartAccountConnector {
         this.upController = upController;
         this.nonce = nonce;
     }
-
-    //TODO move to class tailored to lukso
-    public static async _instance(): Promise<SmartAccountConnector> {
-        //The universal profile extension can be accessed via the window.lukso object
-        if (!window.lukso) {
-            throw 'Universal Profile extension not found';
-        }
-        const provider = new ethers.providers.Web3Provider(window.lukso);
-        //Connect with the UP extension
-        await provider.send('eth_requestAccounts', []);
-
-        //The signer that will be used to sign transactions
-        const upController = await provider.getSigner();
-        //When uses with UP the signer.getAddress() will return the UP address. Even though the signer uses the controller address to sign transactions
-        //TODO clearify with Lukso-Team if that is always the case
-        const upAddress = await upController.getAddress();
-
-        //Instance of the UP contract
-        const upContract = new ethers.Contract(
-            upAddress,
-            abiJson.abi,
-            upController,
-        );
-
-        const kss = new LuksoKeyStore(upContract);
-
-        return new SmartAccountConnector(kss, upController, DEFAULT_NONCE);
-    }
-
-    private async createProfileKeys() {
-        //TODO replace with crytpo graphically secure random bytes
-        const seed = ethers.utils.randomBytes(32).toString();
-
-        const signature = await this.upController.signMessage(seed);
-        const storageKey = await createStorageKey(signature);
-        return await _createProfileKeys(storageKey, this.nonce);
-    }
-
-    //Returns Keys to encrypt the actual profile at UP
-    private async createEncryptionKeys() {
-        const controllerAddress = await this.upController.getAddress();
-
-        const storageKeyCreationMessage = getStorageKeyCreationMessage(
-            this.nonce,
-            controllerAddress,
-        );
-
-        const signature = await this.upController.signMessage(
-            storageKeyCreationMessage,
-        );
-        const storageKey = await createStorageKey(signature);
-        return await _createProfileKeys(storageKey, this.nonce);
-    }
-
-    private async createNewSignedUserProfile(
-        { signingKeyPair, encryptionKeyPair }: ProfileKeys,
-        defaultDeliveryService: string,
-        upAddress: string,
-    ) {
-        const profile: UserProfile = {
-            publicSigningKey: signingKeyPair.publicKey,
-            publicEncryptionKey: encryptionKeyPair.publicKey,
-            deliveryServices: [defaultDeliveryService],
-        };
-
-        const profileCreationMessage = getProfileCreationMessage(
-            stringify(profile),
-            upAddress,
-        );
-        const signature = await this.upController.signMessage(
-            profileCreationMessage,
-        );
-
-        return {
-            profile,
-            signature,
-        } as SignedUserProfile;
-    }
-
     //KeySync can be triggered by controller that has used dm3 before.
     //This function will normally be called after login on behalf of the user
-    public async keySync(encryptionKeys: ProfileKeys) {
+    public async syncKeys(encryptionKeys: ProfileKeys) {
         //1. Get the current keyStore
         const keyStore = await this.keyStoreService.readDm3KeyStore();
 
@@ -177,6 +98,8 @@ export class SmartAccountConnector {
         await this.keyStoreService.writeDm3KeyStore(newKeyStore);
     }
 
+    //Login is called by the client to start the login process without knowing the state of the keyStore.
+
     public async login(): Promise<LoginResult> {
         const keyStore = await this.keyStoreService.readDm3KeyStore();
         //Smart account has never used dm3 before
@@ -200,6 +123,55 @@ export class SmartAccountConnector {
             encryptedControllerKeyStore.encryptedProfileKeys,
         );
     }
+    private async createProfileKeys() {
+        //TODO replace with crytpo graphically secure random bytes
+        const seed = ethers.utils.randomBytes(32).toString();
+
+        const signature = await this.upController.signMessage(seed);
+        const storageKey = await createStorageKey(signature);
+        return await _createProfileKeys(storageKey, this.nonce);
+    }
+
+    //Returns Keys to encrypt the actual profile at UP
+    private async createEncryptionKeys() {
+        const controllerAddress = await this.upController.getAddress();
+
+        const storageKeyCreationMessage = getStorageKeyCreationMessage(
+            this.nonce,
+            controllerAddress,
+        );
+
+        const signature = await this.upController.signMessage(
+            storageKeyCreationMessage,
+        );
+        const storageKey = await createStorageKey(signature);
+        return await _createProfileKeys(storageKey, this.nonce);
+    }
+
+    private async createNewSignedUserProfile(
+        { signingKeyPair, encryptionKeyPair }: ProfileKeys,
+        defaultDeliveryService: string,
+        upAddress: string,
+    ) {
+        const profile: UserProfile = {
+            publicSigningKey: signingKeyPair.publicKey,
+            publicEncryptionKey: encryptionKeyPair.publicKey,
+            deliveryServices: [defaultDeliveryService],
+        };
+
+        const profileCreationMessage = getProfileCreationMessage(
+            stringify(profile),
+            upAddress,
+        );
+        const signature = await this.upController.signMessage(
+            profileCreationMessage,
+        );
+
+        return {
+            profile,
+            signature,
+        } as SignedUserProfile;
+    }
 
     private async signInExistingSigner(encryptedProfileKeys: string) {
         const encryptionKeys = await this.createEncryptionKeys();
@@ -218,6 +190,12 @@ export class SmartAccountConnector {
             payload: JSON.parse(profileKeys) as ProfileKeys,
         } as LoginResult;
     }
+
+    // Device2 checks if a UserProfile has been published for this UP. It has.
+    // Device2 checks if encrypted profileKeys for its deviceKeys are available locally or on an appropriate service.
+    // They are not.
+    // Device2 starts the key transfer process, by:
+    // Storing Device2 public key on an appropriate service
     private async addNewSigner(keyStore: Dm3KeyStore) {
         const encryptionKeys = await this.createEncryptionKeys();
 

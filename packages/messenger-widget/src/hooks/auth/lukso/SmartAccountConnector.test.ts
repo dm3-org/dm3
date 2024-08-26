@@ -162,7 +162,7 @@ describe('SmartAccountConnector', () => {
                     [],
                 );
                 //profileKeys from mockUserProfile are the same as the encryption keys of the connector
-                await connector1.keySync(profile.profileKeys);
+                await connector1.syncKeys(profile.profileKeys);
 
                 const data = JSON.parse(
                     ethers.utils.toUtf8String(
