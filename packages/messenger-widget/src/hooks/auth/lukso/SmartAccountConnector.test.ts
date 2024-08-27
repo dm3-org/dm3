@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import abiJson from '@erc725/smart-contracts/artifacts/ERC725.json';
-import { SmartAccountConnector } from './SmartAccountConnector';
+import { SmartAccountConnector, Success } from './SmartAccountConnector';
 import { DM3_KEYSTORE_KEY, LuksoKeyStore } from './KeyStore/LuksoKeyStore';
 import { mockUserProfile } from '@dm3-org/dm3-lib-test-helper';
 import { DEFAULT_NONCE } from '@dm3-org/dm3-lib-profile';
@@ -44,10 +44,11 @@ describe('SmartAccountConnector', () => {
                 luksoKeyStore,
                 upController1,
                 DEFAULT_NONCE,
+                'ds.eth',
             );
-            const loginResult = await connector.login();
+            const loginResult = (await connector.login()) as Success;
 
-            const profileKeys = loginResult.payload;
+            const profileKeys = loginResult.profileKeys;
 
             const data = JSON.parse(
                 ethers.utils.toUtf8String(
@@ -68,14 +69,15 @@ describe('SmartAccountConnector', () => {
                 luksoKeyStore,
                 upController1,
                 DEFAULT_NONCE,
+                'ds.eth',
             );
             //First call of login performs the signUp
-            const loginResult1 = await connector.login();
-            const initialProfileKeys = loginResult1.payload;
+            const loginResult1 = (await connector.login()) as Success;
+            const initialProfileKeys = loginResult1.profileKeys;
 
             //Second call of login perfroms the signIn using the same keyStore
-            const loginResult2 = await connector.login();
-            const profileKeys = loginResult2.payload;
+            const loginResult2 = (await connector.login()) as Success;
+            const profileKeys = loginResult2.profileKeys;
 
             expect(initialProfileKeys).toStrictEqual(profileKeys);
         });
@@ -87,12 +89,14 @@ describe('SmartAccountConnector', () => {
                     luksoKeyStore,
                     upController1,
                     DEFAULT_NONCE,
+                    'ds.eth',
                 );
                 //Another device can signIn using the same keyStore
                 const connector2 = new SmartAccountConnector(
                     luksoKeyStore,
                     upController2,
                     DEFAULT_NONCE,
+                    'ds.eth',
                 );
 
                 //First call of login performs the signUp
@@ -102,9 +106,10 @@ describe('SmartAccountConnector', () => {
                 const loginResult2 = await connector2.login();
 
                 expect(loginResult2.type).toBe('NEW_DEVICE');
-                expect(loginResult2.payload).toStrictEqual([
-                    await upController1.getAddress(),
-                ]);
+                expect(
+                    loginResult2.type === 'NEW_DEVICE' &&
+                        loginResult2.controllers,
+                ).toStrictEqual([await upController1.getAddress()]);
 
                 const onChainKeyStore = JSON.parse(
                     ethers.utils.toUtf8String(
@@ -129,22 +134,25 @@ describe('SmartAccountConnector', () => {
                     luksoKeyStore,
                     upController1,
                     DEFAULT_NONCE,
+                    'ds.eth',
                 );
                 //Another device can signIn using the same keyStore
                 const connector2 = new SmartAccountConnector(
                     luksoKeyStore,
                     upController2,
                     DEFAULT_NONCE,
+                    'ds.eth',
                 );
                 //Thirs device to cover case of multiple devices
                 const connector3 = new SmartAccountConnector(
                     luksoKeyStore,
                     upController3,
                     DEFAULT_NONCE,
+                    'ds.eth',
                 );
 
                 //First call of login performs the signUp
-                const loginResult1 = await connector1.login();
+                const loginResult1 = (await connector1.login()) as Success;
 
                 //Second device has to post its public key to the UP. So device 1 can share the profile keys
                 const loginResult2 = await connector2.login();
@@ -172,19 +180,19 @@ describe('SmartAccountConnector', () => {
                 console.log(data);
 
                 //Now the decives can login again and should be able to decrypt the profile
-                const loginResult21 = await connector2.login();
+                const loginResult21 = (await connector2.login()) as Success;
 
-                const loginResult31 = await connector3.login();
+                const loginResult31 = (await connector3.login()) as Success;
 
                 expect(loginResult21.type).toBe('SUCCESS');
                 expect(loginResult31.type).toBe('SUCCESS');
 
-                expect(loginResult21.payload).toStrictEqual(
-                    loginResult31.payload,
+                expect(loginResult21.profileKeys).toStrictEqual(
+                    loginResult31.profileKeys,
                 );
 
-                expect(loginResult21.payload).toStrictEqual(
-                    loginResult1.payload,
+                expect(loginResult21.profileKeys).toStrictEqual(
+                    loginResult1.profileKeys,
                 );
             });
         });

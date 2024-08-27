@@ -7,38 +7,50 @@ import {
 } from '@dm3-org/dm3-lib-crypto';
 import {
     createProfileKeys as _createProfileKeys,
-    DEFAULT_NONCE,
     getProfileCreationMessage,
     ProfileKeys,
     SignedUserProfile,
     UserProfile,
 } from '@dm3-org/dm3-lib-profile';
 import { stringify } from '@dm3-org/dm3-lib-shared';
-import abiJson from '@erc725/smart-contracts/artifacts/ERC725.json';
 import { ethers } from 'ethers';
 import { Dm3KeyStore, IKeyStoreService } from './KeyStore/IKeyStore';
-import { LuksoKeyStore } from './KeyStore/LuksoKeyStore';
+import { SiweMessage } from 'siwe';
 
-export type LoginResult = {
-    type: 'SUCCESS' | 'NEW_DEVICE';
-    payload: any;
+export type LoginResult = Success | NewDevice;
+
+export type Success = {
+    type: 'SUCCESS';
+    profileKeys: ProfileKeys;
+    profile: SignedUserProfile;
+    controllerAddress: string;
+    accountAddress: string;
+};
+export type NewDevice = {
+    type: 'NEW_DEVICE';
+    controllers: string[];
 };
 
 export class SmartAccountConnector {
-    //The controller that signs on behalf of the UP. Managed by the UP extension
-    private readonly upController: ethers.Signer;
+    //The controller is a EOA that can sign on behalf of the Smart Account
+    private readonly controller: ethers.Signer;
+    //An instnace of the keyStoreService that is used to read and write the keyStore
     private readonly keyStoreService: IKeyStoreService;
-
+    //The nonce is used to create the profileKeys
     private readonly nonce;
+
+    private readonly defaultDeliveryService;
 
     constructor(
         keyStoreService: IKeyStoreService,
         upController: ethers.Signer,
         nonce: string,
+        defaultDeliveryService: string,
     ) {
         this.keyStoreService = keyStoreService;
-        this.upController = upController;
+        this.controller = upController;
         this.nonce = nonce;
+        this.defaultDeliveryService = defaultDeliveryService;
     }
     //KeySync can be triggered by controller that has used dm3 before.
     //This function will normally be called after login on behalf of the user
@@ -47,7 +59,7 @@ export class SmartAccountConnector {
         const keyStore = await this.keyStoreService.readDm3KeyStore();
 
         const encryptedControllerKeyStore =
-            keyStore[await this.upController.getAddress()];
+            keyStore[await this.controller.getAddress()];
 
         //Should not happen because this function should only be called after login
         if (
@@ -103,11 +115,12 @@ export class SmartAccountConnector {
     public async login(): Promise<LoginResult> {
         const keyStore = await this.keyStoreService.readDm3KeyStore();
         //Smart account has never used dm3 before
+
         if (Object.keys(keyStore).length === 0) {
             return await this.signUp();
         }
         const encryptedControllerKeyStore =
-            keyStore[await this.upController.getAddress()];
+            keyStore[await this.controller.getAddress()];
 
         //If the controller already has a keyStore, we can decrypt the profileKeys using its encryptionKeys
         //If not we've to start the keyExchange process
@@ -126,25 +139,41 @@ export class SmartAccountConnector {
     private async createProfileKeys() {
         //TODO replace with crytpo graphically secure random bytes
         const seed = ethers.utils.randomBytes(32).toString();
+        const message =
+            'The following message creates the DM3 Keystore that can be used to share messages between different devices \n' +
+            seed;
 
-        const signature = await this.upController.signMessage(seed);
+        const signature = await this.controller.signMessage(message);
         const storageKey = await createStorageKey(signature);
         return await _createProfileKeys(storageKey, this.nonce);
     }
 
     //Returns Keys to encrypt the actual profile at UP
     private async createEncryptionKeys() {
-        const controllerAddress = await this.upController.getAddress();
+        const controllerAddress = await this.controller.getAddress();
+        const statement =
+            `Connect the DM3 MESSENGER with your wallet. ` +
+            `Keys for secure communication are derived from this signature.` +
+            `(There is no paid transaction initiated. The signature is used off-chain only.)`;
 
-        const storageKeyCreationMessage = getStorageKeyCreationMessage(
-            this.nonce,
-            controllerAddress,
-        );
+        const message = new SiweMessage({
+            domain: 'dm3.chat',
+            address: controllerAddress,
+            statement,
+            uri: 'https://dm3.chat',
+            version: '1',
+            chainId: 42,
+            nonce: this.nonce,
+            //Date is a mandatory property otherwise it'll be DAte.now(). We need it to be constant to create teh encryption keys deterministically
+            issuedAt: new Date(978307200000).toISOString(),
+            resources: ['https://dm3.network'],
+        });
 
-        const signature = await this.upController.signMessage(
-            storageKeyCreationMessage,
+        const signature = await this.controller.signMessage(
+            message.prepareMessage(),
         );
         const storageKey = await createStorageKey(signature);
+
         return await _createProfileKeys(storageKey, this.nonce);
     }
 
@@ -163,7 +192,7 @@ export class SmartAccountConnector {
             stringify(profile),
             upAddress,
         );
-        const signature = await this.upController.signMessage(
+        const signature = await this.controller.signMessage(
             profileCreationMessage,
         );
 
@@ -173,7 +202,9 @@ export class SmartAccountConnector {
         } as SignedUserProfile;
     }
 
-    private async signInExistingSigner(encryptedProfileKeys: string) {
+    private async signInExistingSigner(
+        encryptedProfileKeys: string,
+    ): Promise<Success> {
         const encryptionKeys = await this.createEncryptionKeys();
         const payload: EncryptedPayload = JSON.parse(
             atob(encryptedProfileKeys),
@@ -185,10 +216,15 @@ export class SmartAccountConnector {
             1,
         );
 
+        const userProfile = await this.keyStoreService.readDm3Profile();
+
         return {
             type: 'SUCCESS',
-            payload: JSON.parse(profileKeys) as ProfileKeys,
-        } as LoginResult;
+            profileKeys: JSON.parse(profileKeys) as ProfileKeys,
+            profile: userProfile!,
+            controllerAddress: await this.controller.getAddress(),
+            accountAddress: await this.keyStoreService.getAccountAddress(),
+        };
     }
 
     // Device2 checks if a UserProfile has been published for this UP. It has.
@@ -202,7 +238,7 @@ export class SmartAccountConnector {
         //The controller has to publish its publicKey to the UP so any other device can share the profile keys with it
         const newKeyStore = {
             ...keyStore,
-            [await this.upController.getAddress()]: {
+            [await this.controller.getAddress()]: {
                 signerPublicKey: encryptionKeys.encryptionKeyPair.publicKey,
             },
         };
@@ -212,7 +248,7 @@ export class SmartAccountConnector {
         return {
             type: 'NEW_DEVICE',
             //Eventually the client would tell the user the addresses of the other devices.
-            payload: Object.keys(keyStore ?? {}),
+            controllers: Object.keys(keyStore ?? {}),
         } as LoginResult;
     }
 
@@ -220,10 +256,8 @@ export class SmartAccountConnector {
     // 1. Device1 creates profileKeys from random seed
     // 2. UP publishes Dm3-UserProfile based on profileKeys created in #1 to UP KV (key value) store
     // 3. Device uploads encrypted profileKeys to KV store
-    private async signUp() {
-        //TODO replace with the address of the UP contract
-        const deliveryService = 'ds.eth';
-        const upContollerAddress = await this.upController.getAddress();
+    private async signUp(): Promise<Success> {
+        const upContollerAddress = await this.controller.getAddress();
 
         const profileKeys = await this.createProfileKeys();
         const encryptionKeys = await this.createEncryptionKeys();
@@ -244,7 +278,7 @@ export class SmartAccountConnector {
 
         const userProfile = await this.createNewSignedUserProfile(
             profileKeys,
-            deliveryService,
+            this.defaultDeliveryService,
             upContollerAddress,
         );
         await this.keyStoreService.writeDm3KeyStoreAndUserProfile(
@@ -254,7 +288,10 @@ export class SmartAccountConnector {
 
         return {
             type: 'SUCCESS',
-            payload: profileKeys,
-        } as LoginResult;
+            profileKeys,
+            profile: userProfile!,
+            controllerAddress: await this.controller.getAddress(),
+            accountAddress: await this.keyStoreService.getAccountAddress(),
+        };
     }
 }
