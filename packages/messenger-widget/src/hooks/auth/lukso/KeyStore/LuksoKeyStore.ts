@@ -15,6 +15,9 @@ export class LuksoKeyStore implements IKeyStore {
     constructor(upContract: ethers.Contract) {
         this.upContract = upContract;
     }
+    getAccountAddress(): string {
+        return this.upContract.address;
+    }
 
     async writeDm3Profile(userProfile: SignedUserProfile): Promise<void> {
         await this.setData(DM3_PROFILE_KEY, userProfile);
@@ -40,10 +43,10 @@ export class LuksoKeyStore implements IKeyStore {
         }
         return JSON.parse(ethers.utils.toUtf8String(_valueBytes));
     }
-    async readDm3KeyStore(): Promise<Dm3KeyStore | undefined> {
+    async readDm3KeyStore(): Promise<Dm3KeyStore> {
         const _valueBytes = await this.upContract.getData(DM3_KEYSTORE_KEY);
-        if (!_valueBytes) {
-            return undefined;
+        if (!_valueBytes || _valueBytes === '0x') {
+            return {};
         }
         return JSON.parse(ethers.utils.toUtf8String(_valueBytes));
     }
