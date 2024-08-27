@@ -21,5 +21,8 @@ export interface IKeyStoreService {
     ): Promise<void>;
 
     readDm3Profile(): Promise<SignedUserProfile | undefined>;
-    readDm3KeyStore(): Promise<Dm3KeyStore | undefined>;
+    readDm3KeyStore(): Promise<Dm3KeyStore>;
+
+    //Returns the address of the Smart Account the KeyStore is associated with
+    getAccountAddress(): string;
 }
