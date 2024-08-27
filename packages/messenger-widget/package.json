@@ -38,6 +38,7 @@
     "react-infinite-scroll-component": "^6.1.0",
     "react-scripts": "5.0.0",
     "rimraf": "^5.0.5",
+    "siwe": "^2.3.2",
     "socket.io-client": "^4.7.5",
     "url-loader": "^4.1.1",
     "uuid": "^8.3.2",
