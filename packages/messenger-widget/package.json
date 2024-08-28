@@ -12,6 +12,7 @@
     "@dm3-org/dm3-lib-messaging": "workspace:^",
     "@dm3-org/dm3-lib-profile": "workspace:^",
     "@dm3-org/dm3-lib-shared": "workspace:^",
+    "@dm3-org/dm3-lib-smart-account": "workspace:^",
     "@dm3-org/dm3-lib-storage": "workspace:^",
     "@dm3-org/dm3-lib-test-helper": "workspace:^",
     "@emoji-mart/data": "^1.1.2",
