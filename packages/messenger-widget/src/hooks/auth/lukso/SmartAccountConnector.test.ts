@@ -1,9 +1,9 @@
-import { ethers } from 'ethers';
-import abiJson from '@erc725/smart-contracts/artifacts/ERC725.json';
-import { SmartAccountConnector, Success } from './SmartAccountConnector';
-import { DM3_KEYSTORE_KEY, LuksoKeyStore } from './KeyStore/LuksoKeyStore';
-import { mockUserProfile } from '@dm3-org/dm3-lib-test-helper';
 import { DEFAULT_NONCE } from '@dm3-org/dm3-lib-profile';
+import { Lukso, Constants } from '@dm3-org/dm3-lib-smart-account';
+import { mockUserProfile } from '@dm3-org/dm3-lib-test-helper';
+import abiJson from '@erc725/smart-contracts/artifacts/ERC725.json';
+import { ethers } from 'ethers';
+import { SmartAccountConnector, Success } from './SmartAccountConnector';
 
 describe('SmartAccountConnector', () => {
     describe('SignUp', () => {
@@ -39,7 +39,7 @@ describe('SmartAccountConnector', () => {
         });
 
         it('should write initial profile to KV store', async () => {
-            const luksoKeyStore = new LuksoKeyStore(universalProfile);
+            const luksoKeyStore = new Lukso.LuksoKeyStore(universalProfile);
             const connector = new SmartAccountConnector(
                 luksoKeyStore,
                 upController1,
@@ -52,7 +52,7 @@ describe('SmartAccountConnector', () => {
 
             const data = JSON.parse(
                 ethers.utils.toUtf8String(
-                    universalProfile.getData(DM3_KEYSTORE_KEY),
+                    universalProfile.getData(Constants.DM3_KEYSTORE_KEY),
                 ),
             );
 
@@ -64,7 +64,7 @@ describe('SmartAccountConnector', () => {
             );
         });
         it('device 1 can decrypt profile from previous signUp', async () => {
-            const luksoKeyStore = new LuksoKeyStore(universalProfile);
+            const luksoKeyStore = new Lukso.LuksoKeyStore(universalProfile);
             const connector = new SmartAccountConnector(
                 luksoKeyStore,
                 upController1,
@@ -84,7 +84,7 @@ describe('SmartAccountConnector', () => {
 
         describe('New Device', () => {
             it('new device initialize key exchange by posting its publicKey', async () => {
-                const luksoKeyStore = new LuksoKeyStore(universalProfile);
+                const luksoKeyStore = new Lukso.LuksoKeyStore(universalProfile);
                 const connector1 = new SmartAccountConnector(
                     luksoKeyStore,
                     upController1,
@@ -113,7 +113,7 @@ describe('SmartAccountConnector', () => {
 
                 const onChainKeyStore = JSON.parse(
                     ethers.utils.toUtf8String(
-                        universalProfile.getData(DM3_KEYSTORE_KEY),
+                        universalProfile.getData(Constants.DM3_KEYSTORE_KEY),
                     ),
                 );
 
@@ -129,7 +129,7 @@ describe('SmartAccountConnector', () => {
                 ).toBeDefined();
             });
             it('key exchange syncs profile keys to new devices', async () => {
-                const luksoKeyStore = new LuksoKeyStore(universalProfile);
+                const luksoKeyStore = new Lukso.LuksoKeyStore(universalProfile);
                 const connector1 = new SmartAccountConnector(
                     luksoKeyStore,
                     upController1,
@@ -174,7 +174,7 @@ describe('SmartAccountConnector', () => {
 
                 const data = JSON.parse(
                     ethers.utils.toUtf8String(
-                        universalProfile.getData(DM3_KEYSTORE_KEY),
+                        universalProfile.getData(Constants.DM3_KEYSTORE_KEY),
                     ),
                 );
                 console.log(data);

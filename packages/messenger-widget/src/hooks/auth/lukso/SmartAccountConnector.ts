@@ -14,7 +14,7 @@ import {
 } from '@dm3-org/dm3-lib-profile';
 import { stringify } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
-import { Dm3KeyStore, IKeyStoreService } from './KeyStore/IKeyStore';
+import { KeyStore } from '@dm3-org/dm3-lib-smart-account';
 import { SiweMessage } from 'siwe';
 
 export type LoginResult = Success | NewDevice;
@@ -35,14 +35,14 @@ export class SmartAccountConnector {
     //The controller is a EOA that can sign on behalf of the Smart Account
     private readonly controller: ethers.Signer;
     //An instnace of the keyStoreService that is used to read and write the keyStore
-    private readonly keyStoreService: IKeyStoreService;
+    private readonly keyStoreService: KeyStore.IKeyStoreService;
     //The nonce is used to create the profileKeys
     private readonly nonce;
 
     private readonly defaultDeliveryService;
 
     constructor(
-        keyStoreService: IKeyStoreService,
+        keyStoreService: KeyStore.IKeyStoreService,
         upController: ethers.Signer,
         nonce: string,
         defaultDeliveryService: string,
@@ -83,7 +83,7 @@ export class SmartAccountConnector {
 
         //For each device in the keyStore, encrypt the profileKeys of the controller
         //That only applies for controllers that have a publicKey but not encryptedProfileKeys yet
-        const newKeyStore: Dm3KeyStore = {};
+        const newKeyStore: KeyStore.Dm3KeyStore = {};
 
         for (const key of Object.keys(keyStore)) {
             const controller = keyStore[key];
@@ -232,7 +232,7 @@ export class SmartAccountConnector {
     // They are not.
     // Device2 starts the key transfer process, by:
     // Storing Device2 public key on an appropriate service
-    private async addNewSigner(keyStore: Dm3KeyStore) {
+    private async addNewSigner(keyStore: KeyStore.Dm3KeyStore) {
         const encryptionKeys = await this.createEncryptionKeys();
 
         //The controller has to publish its publicKey to the UP so any other device can share the profile keys with it
@@ -269,7 +269,7 @@ export class SmartAccountConnector {
         );
         const encryptedProfileKeys = btoa(stringify(encryptedPayload));
 
-        const dm3KeyStore: Dm3KeyStore = {
+        const dm3KeyStore: KeyStore.Dm3KeyStore = {
             [upContollerAddress]: {
                 encryptedProfileKeys,
                 signerPublicKey: profileKeys.encryptionKeyPair.publicKey,

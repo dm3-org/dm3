@@ -1,10 +1,14 @@
-import { DEFAULT_NONCE } from '@dm3-org/dm3-lib-profile';
-import { ethers } from 'ethers';
-import { LuksoKeyStore } from './KeyStore/LuksoKeyStore';
-import { SmartAccountConnector } from './SmartAccountConnector';
+import { Lukso } from '@dm3-org/dm3-lib-smart-account';
 import abiJson from '@erc725/smart-contracts/artifacts/ERC725.json';
-import { DM3Configuration } from '../../../widget';
+import { ethers } from 'ethers';
+import { SmartAccountConnector } from './SmartAccountConnector';
+import { DM3Configuration } from '../../../interfaces/config';
 
+declare global {
+    interface Window {
+        lukso?: any;
+    }
+}
 export class LuksoConnector {
     //TODO move to class tailored to lukso
     public static async _instance(
@@ -30,8 +34,7 @@ export class LuksoConnector {
             abiJson.abi,
             upController,
         );
-
-        const keyStore = new LuksoKeyStore(upContract);
+        const keyStore = new Lukso.LuksoKeyStore(upContract);
 
         return new SmartAccountConnector(
             keyStore,
