@@ -2,7 +2,7 @@
 //It supports
 //1. Profiles signed by an EOA
 //2. Profiles signed by an Lukso Universal profile
-import abiJson from './deployedAbi.json';
+import abiJson from './ERC725Abi.json';
 
 import {
     checkUserProfileWithAddress,
