@@ -16,8 +16,8 @@ import { ethers } from 'ethers';
 const ERC1271_SUCCESSVALUE = '0x1626ba7e';
 
 export class ProfileValidator {
-    private readonly luksoProvider: ethers.providers.Web3Provider;
-    constructor(luksoProvider: ethers.providers.Web3Provider) {
+    private readonly luksoProvider: ethers.providers.BaseProvider;
+    constructor(luksoProvider: ethers.providers.BaseProvider) {
         this.luksoProvider = luksoProvider;
     }
     //Check if a profile is signed by the owner of the address

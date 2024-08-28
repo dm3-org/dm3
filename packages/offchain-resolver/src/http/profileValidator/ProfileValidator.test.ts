@@ -8,10 +8,8 @@ import {
     MockedUserProfile,
     mockUserProfile,
 } from '@dm3-org/dm3-lib-test-helper';
-import abiJson from './deployedAbi.json';
 import { expect } from 'chai';
 import { ethers } from 'ethers';
-import { DM3_PROFILE_KEY } from '../../../../lib/smart-account/dist/KeyStore/constants';
 import { ProfileValidator } from './ProfileValidator';
 
 describe('ProfileValidator', () => {
