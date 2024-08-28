@@ -4,11 +4,7 @@ import { isValidName } from 'ethers/lib/utils';
 import { updateProfile } from './../../adapters/offchainResolverApi';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 import { ethers } from 'ethers';
-import {
-    Account,
-    getUserProfile,
-    UserProfile,
-} from '@dm3-org/dm3-lib-profile';
+import { Account, getUserProfile, UserProfile } from '@dm3-org/dm3-lib-profile';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import {
     fetchExistingDM3Name,
@@ -152,26 +148,26 @@ export const useDm3UserProfile = () => {
 
             const dm3NameProfile = dm3Name
                 ? await getUserProfile(mainnetProvider, dm3Name).catch(
-                    (e) => null,
-                )
+                      (e) => null,
+                  )
                 : null;
 
             const opNameProfile = opName
                 ? await getUserProfile(mainnetProvider, opName).catch(
-                    (e) => null,
-                )
+                      (e) => null,
+                  )
                 : null;
 
             const ensNameProfile = ensName
                 ? await getUserProfile(mainnetProvider, ensName).catch(
-                    (e) => null,
-                )
+                      (e) => null,
+                  )
                 : null;
 
             const gnosisNameProfile = gnosisName
                 ? await getUserProfile(mainnetProvider, gnosisName).catch(
-                    (e) => null,
-                )
+                      (e) => null,
+                  )
                 : null;
 
             // update states to store the profle for each name
@@ -357,7 +353,7 @@ export const useDm3UserProfile = () => {
             startLoader();
 
             try {
-                await registerOpName(provider, () => { }, profileName);
+                await registerOpName(provider, () => {}, profileName);
 
                 // do transaction
                 await publishProfile(provider, updatedAccount, profileName);
@@ -386,8 +382,8 @@ export const useDm3UserProfile = () => {
                     setLoaderContent,
                     profileName,
                     ethAddress!,
-                    () => { },
-                    () => { },
+                    () => {},
+                    () => {},
                 );
 
                 setProfileName(null);
@@ -411,8 +407,8 @@ export const useDm3UserProfile = () => {
                     ethAddress!,
                     setLoaderContent,
                     profileName,
-                    () => { },
-                    () => { },
+                    () => {},
+                    () => {},
                 );
 
                 setProfileName(null);
