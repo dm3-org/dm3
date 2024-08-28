@@ -1,8 +1,6 @@
 import './Network.css';
 import { Heading } from '../Heading/Heading';
 import deleteIcon from '../../../assets/images/delete.svg';
-import activeNodeIcon from '../../../assets/images/active-node.svg';
-import inactiveNodeIcon from '../../../assets/images/inactive-node.svg';
 import { useContext, useEffect } from 'react';
 import { DM3UserProfileContext } from '../../../context/DM3UserProfileContext';
 import { ModalContext } from '../../../context/ModalContext';
@@ -21,9 +19,7 @@ export function Network() {
         nodeName,
         addNode,
         handleNodeNameChange,
-        changeOrder,
-        isDm3NameConfigured,
-        isEnsNameConfigured,
+        isProfileUpdated,
     } = useContext(DM3UserProfileContext);
 
     const { setPreferencesOptionSelected } = useContext(ModalContext);
@@ -43,7 +39,7 @@ export function Network() {
 
                 <div className="row">
                     <div className="col-xxl-6 col-xl-6 col-lg-6 col-md-12 col-sm-12">
-                        {nodes.map((data, index) => {
+                        {nodes.dsNames.map((data, index) => {
                             return (
                                 <div
                                     className="mt-2 ps-4 network-text d-flex"
@@ -51,11 +47,11 @@ export function Network() {
                                 >
                                     <div className="node-name">
                                         <span>{index + 1}. </span>
-                                        <span>{data.dsName} </span>
+                                        <span>{data} </span>
                                     </div>
                                     <div>
                                         {/* Delete node option is shown only when more than 1 nodes exists */}
-                                        {nodes.length > 1 && (
+                                        {nodes.dsNames.length > 1 && (
                                             <img
                                                 className="ms-3 pointer-cursor"
                                                 src={deleteIcon}
@@ -65,38 +61,13 @@ export function Network() {
                                                 }}
                                             />
                                         )}
-
-                                        {/* Change order option is shown only when more than 1 nodes exists */}
-                                        {nodes.length > 1 && (
-                                            <img
-                                                className="ms-1 pointer-cursor node-icon"
-                                                src={
-                                                    index
-                                                        ? activeNodeIcon
-                                                        : inactiveNodeIcon
-                                                }
-                                                alt="node"
-                                                onClick={() => {
-                                                    if (index) {
-                                                        changeOrder(index);
-                                                    }
-                                                }}
-                                            />
-                                        )}
                                     </div>
                                 </div>
                             );
                         })}
                     </div>
-                    {nodes.filter(
-                        (n) =>
-                            (isDm3NameConfigured &&
-                                (!n.dm3Name?.isActive ||
-                                    !n.opName?.isActive)) ||
-                            (isEnsNameConfigured &&
-                                (!n.ensName?.isActive ||
-                                    !n.gnosisName?.isActive)),
-                    ).length >= 1 && (
+
+                    {!isProfileUpdated() && (
                         <div className="col-xxl-6 col-xl-6 col-lg-6 col-md-12 col-sm-12">
                             <span className="update-profile-box">
                                 <div>

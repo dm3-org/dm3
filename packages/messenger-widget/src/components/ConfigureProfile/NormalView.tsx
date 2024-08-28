@@ -44,31 +44,10 @@ export function NormalView() {
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
     const {
-        nodes,
         updateProfileWithTransaction,
-        isDm3NameConfigured,
-        isEnsNameConfigured,
+        isProfileUpdatedForDm3Name,
+        isProfileUpdatedForEnsName,
     } = useContext(DM3UserProfileContext);
-
-    const isProfileNotUpdatedForDm3Name = (): boolean => {
-        return nodes.filter(
-            (n) =>
-                isDm3NameConfigured &&
-                (!n.dm3Name?.isActive || !n.opName?.isActive),
-        ).length
-            ? true
-            : false;
-    };
-
-    const isProfileNotUpdatedForEnsName = (): boolean => {
-        return nodes.filter(
-            (n) =>
-                isEnsNameConfigured &&
-                (!n.ensName?.isActive || !n.gnosisName?.isActive),
-        ).length
-            ? true
-            : false;
-    };
 
     const ensDomainName =
         (existingDm3Name &&
@@ -147,7 +126,7 @@ export function NormalView() {
                             <p
                                 className={'m-0 font-size-14 font-weight-500 line-height-24 title-content'.concat(
                                     ' ',
-                                    isProfileNotUpdatedForDm3Name()
+                                    !isProfileUpdatedForDm3Name()
                                         ? 'error-text'
                                         : '',
                                 )}
@@ -171,7 +150,7 @@ export function NormalView() {
                             <p
                                 className={'dm3-address m-0 ms-5 font-size-14 font-weight-500 line-height-24'.concat(
                                     ' ',
-                                    isProfileNotUpdatedForDm3Name()
+                                    !isProfileUpdatedForDm3Name()
                                         ? 'error-text'
                                         : 'grey-text',
                                 )}
@@ -186,7 +165,7 @@ export function NormalView() {
                                 onClick={() => setShowDeleteConfirmation(true)}
                             />
 
-                            {isProfileNotUpdatedForDm3Name() && (
+                            {!isProfileUpdatedForDm3Name() && (
                                 <button
                                     className="add-prof-btn-active update-btn"
                                     onClick={() =>
@@ -214,7 +193,7 @@ export function NormalView() {
                             <p
                                 className={'m-0 font-size-14 font-weight-500 line-height-24 title-content'.concat(
                                     ' ',
-                                    isProfileNotUpdatedForEnsName()
+                                    !isProfileUpdatedForEnsName()
                                         ? 'error-text'
                                         : '',
                                 )}
@@ -239,14 +218,14 @@ export function NormalView() {
                             <p
                                 className={'dm3-address m-0 ms-5 font-size-14 font-weight-500 line-height-24 grey-text'.concat(
                                     ' ',
-                                    isProfileNotUpdatedForEnsName()
+                                    !isProfileUpdatedForEnsName()
                                         ? 'error-text'
                                         : 'grey-text',
                                 )}
                             >
                                 {existingEnsName}
                             </p>
-                            {isProfileNotUpdatedForEnsName() && (
+                            {!isProfileUpdatedForEnsName() && (
                                 <button
                                     className="add-prof-btn-active update-btn"
                                     onClick={() =>

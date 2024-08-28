@@ -44,10 +44,9 @@ export function MobileView() {
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
     const {
-        nodes,
         updateProfileWithTransaction,
-        isDm3NameConfigured,
-        isEnsNameConfigured,
+        isProfileUpdatedForDm3Name,
+        isProfileUpdatedForEnsName,
     } = useContext(DM3UserProfileContext);
 
     const ensDomainName =
@@ -57,26 +56,6 @@ export function MobileView() {
                 ? 'GNO'
                 : 'ENS')) ??
         null;
-
-    const isProfileNotUpdatedForDm3Name = (): boolean => {
-        return nodes.filter(
-            (n) =>
-                isDm3NameConfigured &&
-                (!n.dm3Name?.isActive || !n.opName?.isActive),
-        ).length
-            ? true
-            : false;
-    };
-
-    const isProfileNotUpdatedForEnsName = (): boolean => {
-        return nodes.filter(
-            (n) =>
-                isEnsNameConfigured &&
-                (!n.ensName?.isActive || !n.gnosisName?.isActive),
-        ).length
-            ? true
-            : false;
-    };
 
     // handles ENS name and address
     useEffect(() => {
@@ -145,7 +124,7 @@ export function MobileView() {
                     <p
                         className={'m-0 font-size-14 font-weight-500 line-height-24 title-content'.concat(
                             ' ',
-                            isProfileNotUpdatedForDm3Name() ? 'error-text' : '',
+                            !isProfileUpdatedForDm3Name() ? 'error-text' : '',
                         )}
                     >
                         DM3 Name
@@ -167,7 +146,7 @@ export function MobileView() {
                     <p
                         className={'dm3-address m-0 ms-0 font-size-14 font-weight-500 line-height-24 grey-text'.concat(
                             ' ',
-                            isProfileNotUpdatedForDm3Name()
+                            !isProfileUpdatedForDm3Name()
                                 ? 'error-text'
                                 : 'grey-text',
                         )}
@@ -183,7 +162,7 @@ export function MobileView() {
                         />
                     </p>
 
-                    {isProfileNotUpdatedForDm3Name() && (
+                    {!isProfileUpdatedForDm3Name() && (
                         <button
                             className="add-prof-btn-active update-btn"
                             onClick={() =>
@@ -208,7 +187,7 @@ export function MobileView() {
                     <p
                         className={'m-0 font-size-14 font-weight-500 line-height-24 title-content'.concat(
                             ' ',
-                            isProfileNotUpdatedForEnsName() ? 'error-text' : '',
+                            !isProfileUpdatedForEnsName() ? 'error-text' : '',
                         )}
                     >
                         {ensDomainName} Name
@@ -232,7 +211,7 @@ export function MobileView() {
                     <p
                         className={'dm3-address m-0 ms-0 font-size-14 font-weight-500 line-height-24 grey-text'.concat(
                             ' ',
-                            isProfileNotUpdatedForEnsName()
+                            !isProfileUpdatedForEnsName()
                                 ? 'error-text'
                                 : 'grey-text',
                         )}
@@ -240,7 +219,7 @@ export function MobileView() {
                         {existingEnsName}
                     </p>
 
-                    {isProfileNotUpdatedForEnsName() && (
+                    {!isProfileUpdatedForEnsName() && (
                         <button
                             className="add-prof-btn-active update-btn"
                             onClick={() =>

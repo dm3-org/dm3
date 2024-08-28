@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+    INameProfile,
     INodeDetails,
     useDm3UserProfile,
 } from '../hooks/userProfile/useDm3UserProfile';
@@ -9,16 +10,16 @@ export type DM3UserProfileContextType = {
     updateProfileWithTransaction: (existingName: string) => void;
     addNode: () => void;
     deleteNode: (id: number) => void;
-    changeOrder: (index: number) => void;
-    nodes: INodeDetails[];
+    nodes: INodeDetails;
     isModalOpenToAddNode: boolean;
     setIsModalOpenToAddNode: (action: boolean) => void;
     error: string | null;
     setError: (msg: string) => void;
     nodeName: string;
     handleNodeNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    isDm3NameConfigured: boolean;
-    isEnsNameConfigured: boolean;
+    isProfileUpdated: () => boolean;
+    isProfileUpdatedForDm3Name: () => boolean;
+    isProfileUpdatedForEnsName: () => boolean;
 };
 
 export const DM3UserProfileContext =
@@ -27,16 +28,23 @@ export const DM3UserProfileContext =
         updateProfileWithTransaction: (existingName: string) => {},
         addNode: () => {},
         deleteNode: (id: number) => {},
-        changeOrder: (index: number) => {},
-        nodes: [],
+        nodes: {
+            dsNames: [''],
+            profile: {
+                publicSigningKey: '',
+                publicEncryptionKey: '',
+                deliveryServices: [''],
+            },
+        },
         isModalOpenToAddNode: false,
         setIsModalOpenToAddNode: (action: boolean) => {},
         error: null,
         setError: (msg: string) => {},
         nodeName: '',
         handleNodeNameChange: (e: React.ChangeEvent<HTMLInputElement>) => {},
-        isDm3NameConfigured: false,
-        isEnsNameConfigured: false,
+        isProfileUpdated: () => true,
+        isProfileUpdatedForDm3Name: () => true,
+        isProfileUpdatedForEnsName: () => true,
     });
 
 export const DM3UserProfileContextProvider = ({
@@ -49,7 +57,6 @@ export const DM3UserProfileContextProvider = ({
         addNode,
         updateProfileWithTransaction,
         deleteNode,
-        changeOrder,
         nodes,
         isModalOpenToAddNode,
         setIsModalOpenToAddNode,
@@ -57,8 +64,9 @@ export const DM3UserProfileContextProvider = ({
         setError,
         nodeName,
         handleNodeNameChange,
-        isDm3NameConfigured,
-        isEnsNameConfigured,
+        isProfileUpdated,
+        isProfileUpdatedForDm3Name,
+        isProfileUpdatedForEnsName,
     } = useDm3UserProfile();
 
     return (
@@ -68,7 +76,6 @@ export const DM3UserProfileContextProvider = ({
                 addNode,
                 updateProfileWithTransaction,
                 deleteNode,
-                changeOrder,
                 nodes,
                 isModalOpenToAddNode,
                 setIsModalOpenToAddNode,
@@ -76,8 +83,9 @@ export const DM3UserProfileContextProvider = ({
                 setError,
                 nodeName,
                 handleNodeNameChange,
-                isDm3NameConfigured,
-                isEnsNameConfigured,
+                isProfileUpdated,
+                isProfileUpdatedForDm3Name,
+                isProfileUpdatedForEnsName,
             }}
         >
             {children}
