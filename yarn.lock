@@ -2284,6 +2284,20 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@dm3-org/dm3-lib-smart-account@workspace:^, @dm3-org/dm3-lib-smart-account@workspace:packages/lib/smart-account":
+  version: 0.0.0-use.local
+  resolution: "@dm3-org/dm3-lib-smart-account@workspace:packages/lib/smart-account"
+  dependencies:
+    "@dm3-org/dm3-lib-profile": "workspace:^"
+    "@dm3-org/dm3-lib-shared": "workspace:^"
+    "@erc725/smart-contracts": ^7.0.0
+    ethers: 5.7.2
+    jest: ^29.7.0
+    ts-jest: ^29.1.4
+    typescript: ^4.4.2
+  languageName: unknown
+  linkType: soft
+
 "@dm3-org/dm3-lib-storage@workspace:^, @dm3-org/dm3-lib-storage@workspace:packages/lib/storage":
   version: 0.0.0-use.local
   resolution: "@dm3-org/dm3-lib-storage@workspace:packages/lib/storage"
@@ -2405,6 +2419,7 @@ __metadata:
     "@dm3-org/dm3-lib-messaging": "workspace:^"
     "@dm3-org/dm3-lib-profile": "workspace:^"
     "@dm3-org/dm3-lib-shared": "workspace:^"
+    "@dm3-org/dm3-lib-smart-account": "workspace:^"
     "@dm3-org/dm3-lib-storage": "workspace:^"
     "@dm3-org/dm3-lib-test-helper": "workspace:^"
     "@emoji-mart/data": ^1.1.2
@@ -2465,6 +2480,7 @@ __metadata:
     "@dm3-org/dm3-lib-crypto": "workspace:^"
     "@dm3-org/dm3-lib-profile": "workspace:^"
     "@dm3-org/dm3-lib-shared": "workspace:^"
+    "@dm3-org/dm3-lib-test-helper": "workspace:^"
     "@istanbuljs/nyc-config-typescript": ^1.0.2
     "@prisma/client": ^4.15.0
     "@types/chai": ^4.3.5
