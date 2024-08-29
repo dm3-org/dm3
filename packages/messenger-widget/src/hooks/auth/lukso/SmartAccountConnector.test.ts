@@ -1,7 +1,6 @@
 import { DEFAULT_NONCE } from '@dm3-org/dm3-lib-profile';
 import { Lukso, Constants } from '@dm3-org/dm3-lib-smart-account';
 import { mockUserProfile } from '@dm3-org/dm3-lib-test-helper';
-import abiJson from '@erc725/smart-contracts/artifacts/ERC725.json';
 import { ethers } from 'ethers';
 import { SmartAccountConnector, Success } from './SmartAccountConnector';
 
@@ -19,7 +18,7 @@ describe('SmartAccountConnector', () => {
 
             const c = new ethers.Contract(
                 ethers.Wallet.createRandom().address,
-                abiJson.abi,
+                Lukso.ERC725ABI,
                 upController1,
             );
 
