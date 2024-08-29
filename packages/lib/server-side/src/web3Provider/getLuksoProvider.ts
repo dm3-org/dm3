@@ -12,6 +12,6 @@ export async function getLuksoProvider(
         return key;
     };
 
-    const rpc = readKey('RPC');
+    const rpc = readKey('LUKSO_RPC');
     return new ethers.providers.JsonRpcProvider(rpc);
 }
