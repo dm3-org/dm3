@@ -69,15 +69,16 @@ export const AccountConnector = (
         /**
          * We've to check wether the profile published on chain belongs to the address we're trying to connectÌ
          */
-        const isProfileValid = await checkUserProfile(
-            mainnetProvider,
-            onChainProfile,
-            address,
-        );
+        //First occurance users logs in with onchain profile
+        // const isProfileValid = await checkUserProfile(
+        //     mainnetProvider,
+        //     onChainProfile,
+        //     address,
+        // );
 
-        if (!isProfileValid) {
-            throw Error('Profile signature is invalid');
-        }
+        // if (!isProfileValid) {
+        //     throw Error('Profile signature is invalid');
+        // }
 
         return {
             userProfile: onChainProfile,
