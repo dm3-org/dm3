@@ -2,6 +2,7 @@ import { Lukso } from '@dm3-org/dm3-lib-smart-account';
 import { ethers } from 'ethers';
 import { DM3Configuration } from '../../../interfaces/config';
 import { SmartAccountConnector } from './SmartAccountConnector';
+import ERC725Abi from './ERC725Abi.json';
 
 declare global {
     interface Window {
@@ -30,7 +31,7 @@ export class LuksoConnector {
         //Instance of the UP contract
         const upContract = new ethers.Contract(
             upAddress,
-            Lukso.ERC725ABI,
+            ERC725Abi,
             upController,
         );
         const keyStore = new Lukso.LuksoKeyStore(upContract);

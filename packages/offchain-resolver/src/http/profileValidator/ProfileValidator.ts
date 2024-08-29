@@ -2,7 +2,6 @@
 //It supports
 //1. Profiles signed by an EOA
 //2. Profiles signed by an Lukso Universal profile
-import abiJson from './ERC725Abi.json';
 
 import {
     checkUserProfileWithAddress,
@@ -11,6 +10,7 @@ import {
 } from '@dm3-org/dm3-lib-profile';
 import { stringify } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
+import ERC725Abi from './ERC725Abi.json';
 
 //ERC-1271 constants can be found at lsp6-contracts/contracts/constants.sol
 const ERC1271_SUCCESSVALUE = '0x1626ba7e';
@@ -36,7 +36,7 @@ export class ProfileValidator {
     ) {
         const upContract = new ethers.Contract(
             address,
-            abiJson,
+            ERC725Abi,
             this.luksoProvider,
         );
         //Get the message that the up users has signed earlier to create their profile

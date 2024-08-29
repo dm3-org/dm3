@@ -8,6 +8,7 @@
     "@dm3-org/dm3-lib-crypto": "workspace:^",
     "@dm3-org/dm3-lib-profile": "workspace:^",
     "@dm3-org/dm3-lib-shared": "workspace:^",
+    "@dm3-org/dm3-lib-smart-account": "workspace:^",
     "@dm3-org/dm3-lib-test-helper": "workspace:^",
     "@erc725/erc725.js": "^0.27.1",
     "@prisma/client": "^4.15.0",
