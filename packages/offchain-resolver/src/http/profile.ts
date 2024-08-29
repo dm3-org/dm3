@@ -1,10 +1,13 @@
 import { checkSignature } from '@dm3-org/dm3-lib-crypto';
-import { checkUserProfileWithAddress, schema } from '@dm3-org/dm3-lib-profile';
+import {
+    checkUserProfileWithAddress,
+    schema,
+    ProfileValidator,
+} from '@dm3-org/dm3-lib-profile';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import express from 'express';
 import { SiweMessage } from 'siwe';
-import { ProfileValidator } from './profileValidator/ProfileValidator';
 import { SubdomainManager } from './subdomainManager/SubdomainManager';
 import { WithLocals } from './types';
 

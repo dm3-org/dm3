@@ -3,14 +3,14 @@
 //1. Profiles signed by an EOA
 //2. Profiles signed by an Lukso Universal profile
 
-import {
-    checkUserProfileWithAddress,
-    getProfileCreationMessage,
-    SignedUserProfile,
-} from '@dm3-org/dm3-lib-profile';
 import { stringify } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import ERC725Abi from './ERC725Abi.json';
+import {
+    checkUserProfileWithAddress,
+    getProfileCreationMessage,
+} from '../Profile';
+import { SignedUserProfile } from '../types';
 
 //ERC-1271 constants can be found at lsp6-contracts/contracts/constants.sol
 const ERC1271_SUCCESSVALUE = '0x1626ba7e';
@@ -26,7 +26,18 @@ export class ProfileValidator {
         signedUserProfile: SignedUserProfile,
         address: string,
     ): Promise<boolean> {
-        return checkUserProfileWithAddress(signedUserProfile, address);
+        const isValid = await checkUserProfileWithAddress(
+            signedUserProfile,
+            address,
+        );
+
+        if (!isValid) {
+            console.error('invalid dm3 address profile', {
+                signedUserProfile,
+                address,
+            });
+        }
+        return isValid;
     }
     //Check if a profile is signed by one of the UP controllers
     //This method is used for every universal profile

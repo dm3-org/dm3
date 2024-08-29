@@ -3,6 +3,7 @@ import {
     Auth,
     errorHandler,
     getCachedWebProvider,
+    getLuksoProvider,
     getServerSecret,
     logError,
     logRequest,
@@ -105,6 +106,7 @@ global.logger = winston.createLogger({
     // load environment
     const deliveryServiceProperties = getDeliveryServiceProperties();
     const web3Provider = await getCachedWebProvider(process.env);
+    const luksoProvider = await getLuksoProvider(process.env);
 
     const db = getDbWithAddressResolvedGetAccount(
         await getDatabase(),
@@ -154,7 +156,7 @@ global.logger = winston.createLogger({
     //restAuth
 
     app.use('/auth', Auth(db, serverSecret, web3Provider));
-    app.use('/profile', Profile(db, web3Provider, serverSecret));
+    app.use('/profile', Profile(db, web3Provider, luksoProvider, serverSecret));
     app.use('/delivery', Delivery(web3Provider, db, serverSecret));
     app.use(
         '/notifications',
