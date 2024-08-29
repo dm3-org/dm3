@@ -1,10 +1,9 @@
 import { DEFAULT_NONCE } from '@dm3-org/dm3-lib-profile';
-import { Lukso, Constants } from '@dm3-org/dm3-lib-smart-account';
+import { Constants, Lukso } from '@dm3-org/dm3-lib-smart-account';
 import { mockUserProfile } from '@dm3-org/dm3-lib-test-helper';
 import { ethers } from 'ethers';
-import { SmartAccountConnector, Success } from './SmartAccountConnector';
 import ERC725Abi from './ERC725Abi.json';
-import { ERC725ABI } from '@dm3-org/dm3-lib-smart-account/dist/lukso';
+import { SmartAccountConnector, Success } from './SmartAccountConnector';
 
 describe('SmartAccountConnector', () => {
     describe('SignUp', () => {
