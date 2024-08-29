@@ -108,8 +108,8 @@ export function getAccountDisplayName(
  * @param ensName The ENS domain name
  */
 export async function checkUserProfile(
-    luksoProvider: ethers.providers.JsonRpcProvider,
     provider: ethers.providers.JsonRpcProvider,
+    luksoProvider: ethers.providers.JsonRpcProvider,
     signedUserProfile: SignedUserProfile,
     ensName: string,
 ): Promise<boolean> {
