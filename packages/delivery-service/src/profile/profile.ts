@@ -7,8 +7,8 @@ import { IDatabase } from '../persistence/getDatabase';
 
 export const Profile = (
     db: IDatabase,
-    luksoProvider: ethers.providers.JsonRpcProvider,
     web3Provider: ethers.providers.JsonRpcProvider,
+    luksoProvider: ethers.providers.JsonRpcProvider,
     serverSecret: string,
 ) => {
     const router = express.Router();
