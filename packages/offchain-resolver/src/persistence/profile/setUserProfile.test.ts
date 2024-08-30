@@ -100,7 +100,7 @@ describe('setUserProfile', () => {
         );
 
         expect(secondWrite).to.be.true;
-        expect(JSON.stringify(retrievedProfile)).to.be(
+        expect(JSON.stringify(retrievedProfile)).to.be.equals(
             JSON.stringify(newProfile.profile),
         );
     });
