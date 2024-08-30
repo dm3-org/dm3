@@ -61,7 +61,7 @@ describe('setUserProfile', () => {
 
         expect(writeResult).to.be.true;
     });
-    it('Rejects if a name already has profile attached', async () => {
+    it('Updates the profile if it already exists', async () => {
         const { address } = ethers.Wallet.createRandom();
 
         const profile: SignedUserProfile = {
@@ -90,6 +90,6 @@ describe('setUserProfile', () => {
             profile,
             address,
         );
-        expect(secondWrite).to.be.false;
+        expect(secondWrite).to.be.true;
     });
 });
