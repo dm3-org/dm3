@@ -85,7 +85,7 @@ describe('setUserProfile', () => {
         expect(firstWrite).to.be.true;
 
         // add new DS to the profile
-        const newProfile = { ...profile };
+        const newProfile: SignedUserProfile = { ...profile };
         newProfile.profile.deliveryServices = ['ds.eth'];
 
         //This should reject bc the subdomain already has a profile
@@ -100,8 +100,8 @@ describe('setUserProfile', () => {
         );
 
         expect(secondWrite).to.be.true;
-        expect(JSON.stringify(retrievedProfile)).to.be.equals(
-            JSON.stringify(newProfile.profile),
+        expect(JSON.stringify(retrievedProfile?.profile)).to.equal(
+            JSON.stringify(newProfile),
         );
     });
 });
