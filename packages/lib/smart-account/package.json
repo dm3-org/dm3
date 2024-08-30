@@ -16,6 +16,7 @@
     }
   },
   "dependencies": {
+    "@apollo/client": "^3.11.5",
     "@dm3-org/dm3-lib-profile": "workspace:^",
     "@dm3-org/dm3-lib-shared": "workspace:^",
     "ethers": "5.7.2"
