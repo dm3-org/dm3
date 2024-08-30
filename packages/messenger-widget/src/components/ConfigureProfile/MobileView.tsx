@@ -44,13 +44,15 @@ export function MobileView() {
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
     const {
+        updateProfileForAddressOrDm3Name,
         updateProfileWithTransaction,
+        isProfileUpdatedForAddrName,
         isProfileUpdatedForDm3Name,
         isProfileUpdatedForEnsName,
     } = useContext(DM3UserProfileContext);
 
     const ensDomainName =
-        (existingDm3Name &&
+        (existingEnsName &&
             (existingEnsName?.endsWith('.gno') ||
             existingEnsName?.endsWith('.gnosis.eth')
                 ? 'GNO'
@@ -88,8 +90,10 @@ export function MobileView() {
                 {/* Wallet address */}
                 <div className="d-flex">
                     <p
-                        className="m-0 
-                    font-size-14 font-weight-500 line-height-24 title-content"
+                        className={'m-0 font-size-14 font-weight-500 line-height-24 title-content'.concat(
+                            ' ',
+                            !isProfileUpdatedForAddrName() ? 'error-text' : '',
+                        )}
                     >
                         Wallet Address
                         <span className="address-tooltip">
@@ -110,12 +114,29 @@ export function MobileView() {
                     </p>
                 </div>
                 <p
-                    className="dm3-address m-0
-                    font-size-14 font-weight-500 line-height-24 grey-text"
+                    className={'dm3-address m-0 font-size-14 font-weight-500 line-height-24'.concat(
+                        ' ',
+                        !isProfileUpdatedForAddrName()
+                            ? 'error-text'
+                            : 'grey-text',
+                    )}
                 >
                     {ethAddress &&
                         ethAddress + dm3Configuration.addressEnsSubdomain}
                 </p>
+                {!isProfileUpdatedForAddrName() && (
+                    <button
+                        className="add-prof-btn-active update-btn"
+                        onClick={() => updateProfileForAddressOrDm3Name('ADDR')}
+                    >
+                        <img
+                            className="me-1 pointer-cursor "
+                            src={updateIcon}
+                            alt="update profile"
+                        />
+                        update now
+                    </button>
+                )}
             </div>
 
             {/* Existing DM3 name */}
@@ -165,9 +186,17 @@ export function MobileView() {
                     {!isProfileUpdatedForDm3Name() && (
                         <button
                             className="add-prof-btn-active update-btn"
-                            onClick={() =>
-                                updateProfileWithTransaction(existingDm3Name)
-                            }
+                            onClick={() => {
+                                if (existingDm3Name.endsWith('.op.dm3.eth')) {
+                                    updateProfileWithTransaction(
+                                        existingEnsName
+                                            ? existingEnsName
+                                            : existingDm3Name,
+                                    );
+                                } else {
+                                    updateProfileForAddressOrDm3Name('DM3');
+                                }
+                            }}
                         >
                             <img
                                 className="me-1 pointer-cursor "
