@@ -3,11 +3,12 @@ import { IDatabase } from '../IDatabase';
 import { setUserProfile } from './setUserProfile';
 import { ethers } from 'ethers';
 import winston from 'winston';
-import { SignedUserProfile } from '@dm3-org/dm3-lib-profile';
+import { getUserProfile, SignedUserProfile } from '@dm3-org/dm3-lib-profile';
 import { PrismaClient } from '@prisma/client';
 import { clearDb } from '../clearDb';
 import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
+import { getProfileContainer } from './getProfileContainer';
 
 chai.use(chaiAsPromised);
 
@@ -90,6 +91,12 @@ describe('setUserProfile', () => {
             profile,
             address,
         );
+
+        const retrievedProfile = await getProfileContainer(prismaClient)(
+            'foo.eth',
+        );
+
         expect(secondWrite).to.be.true;
+        expect(JSON.stringify(retrievedProfile)).to.be(JSON.stringify(profile));
     });
 });
