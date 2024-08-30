@@ -2,8 +2,7 @@ import { getDatabase, getDbClient } from '../getDatabase';
 import { IDatabase } from '../IDatabase';
 import { setUserProfile } from './setUserProfile';
 import { ethers } from 'ethers';
-import winston from 'winston';
-import { getUserProfile, SignedUserProfile } from '@dm3-org/dm3-lib-profile';
+import { SignedUserProfile } from '@dm3-org/dm3-lib-profile';
 import { PrismaClient } from '@prisma/client';
 import { clearDb } from '../clearDb';
 import chai, { expect } from 'chai';
@@ -85,10 +84,14 @@ describe('setUserProfile', () => {
         );
         expect(firstWrite).to.be.true;
 
+        // add new DS to the profile
+        const newProfile = { ...profile };
+        newProfile.profile.deliveryServices = ['ds.eth'];
+
         //This should reject bc the subdomain already has a profile
         const secondWrite = await setUserProfile(prismaClient)(
             'foo.eth',
-            profile,
+            newProfile,
             address,
         );
 
@@ -97,6 +100,8 @@ describe('setUserProfile', () => {
         );
 
         expect(secondWrite).to.be.true;
-        expect(JSON.stringify(retrievedProfile)).to.be(JSON.stringify(profile));
+        expect(JSON.stringify(retrievedProfile)).to.be(
+            JSON.stringify(newProfile.profile),
+        );
     });
 });
