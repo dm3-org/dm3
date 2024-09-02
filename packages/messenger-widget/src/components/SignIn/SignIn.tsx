@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 /* eslint-disable no-console */
 import { useConnectModal } from '@rainbow-me/rainbowkit';
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import { useAccount } from 'wagmi';
 import { signInImage } from '../../assets/base64/home-image';
 import { AuthContext } from '../../context/AuthContext';
@@ -11,11 +11,16 @@ import DM3Logo from './DM3Logo';
 import { LoginButton } from './LoginButton';
 import './SignIn.css';
 import { changeSignInButtonStyle } from './bl';
+declare global {
+    interface Window {
+        lukso?: any;
+    }
+}
 
 export function SignIn() {
     const { isConnected } = useAccount();
 
-    const { cleanSignIn, isLoading } = useContext(AuthContext);
+    const { cleanSignIn, luksoSignIn, isLoading } = useContext(AuthContext);
 
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
@@ -39,6 +44,10 @@ export function SignIn() {
         );
         openConnectModal && openConnectModal();
     };
+
+    const isLukso = useMemo(() => {
+        return !!window.lukso;
+    }, []);
 
     return (
         <div className="signin-container-type h-100">
@@ -94,6 +103,14 @@ export function SignIn() {
                                         ? ButtonState.Loading
                                         : ButtonState.Ideal
                                 }
+                            />
+                        )}
+
+                        {isLukso && (
+                            <LoginButton
+                                text="Lukso Login"
+                                onClick={() => luksoSignIn()}
+                                buttonState={ButtonState.Ideal}
                             />
                         )}
 

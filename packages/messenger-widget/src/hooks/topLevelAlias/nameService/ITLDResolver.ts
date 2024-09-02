@@ -2,7 +2,7 @@ export interface ITLDResolver {
     isResolverForTldName(ensName: string): Promise<boolean>;
     isResolverForAliasName(
         ensName: string,
-        foreinAliasName?: string,
+        foreignTldName?: string,
     ): Promise<boolean>;
     resolveAliasToTLD(
         ensName: string,

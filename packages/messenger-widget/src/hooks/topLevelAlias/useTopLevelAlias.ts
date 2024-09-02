@@ -10,6 +10,7 @@ import { OptimismNames } from './nameService/OptimismNames';
 import { DM3Configuration } from '../../interfaces/config';
 import { ITLDResolver } from './nameService/ITLDResolver';
 import { ForeignName } from './nameService/ForeignName';
+import { UniversalProfile } from './nameService/UniversalProfile';
 
 const SUPPORTED_NAMESERVICES = (
     provider: ethers.providers.JsonRpcProvider,
@@ -20,6 +21,7 @@ const SUPPORTED_NAMESERVICES = (
     }: DM3Configuration,
 ): ITLDResolver[] => [
     new EthereumNameService(provider, addressEnsSubdomain, userEnsSubdomain),
+    new UniversalProfile(addressEnsSubdomain),
     new Genome(provider, addressEnsSubdomain),
     new OptimismNames(provider, addressEnsSubdomain),
     new ForeignName(provider, addressEnsSubdomain),

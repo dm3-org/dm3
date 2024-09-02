@@ -94,10 +94,21 @@ export default function AddConversation() {
         setErrorMsg('');
         setShowError(false);
         setTldName(e.target.value);
-        if (!ethers.utils.isValidName(e.target.value)) {
+
+        if (
+            !(
+                ethers.utils.isValidName(e.target.value) ||
+                isLuksoName(e.target.value)
+            )
+        ) {
             setErrorMsg('Invalid address or ENS name');
             setShowError(true);
         }
+    };
+
+    const isLuksoName = (input: string): boolean => {
+        const regex = /^[a-zA-Z0-9]+#[a-zA-Z0-9]{4}\.lukso$/;
+        return regex.test(input);
     };
 
     return (

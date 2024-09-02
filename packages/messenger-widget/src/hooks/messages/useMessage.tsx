@@ -351,6 +351,13 @@ export const useMessage = () => {
         return { isSuccess: true };
     };
 
+    //Just for testing purposes
+    //TODO cleanup and find better solution
+    const isLuksoName = (input: string): boolean => {
+        const regex = /^[a-zA-Z0-9]+#[a-zA-Z0-9]{4}\.lukso$/;
+        return regex.test(input);
+    };
+
     const _dispatchMessage = async (
         contact: string,
         recipient: ContactPreview,
@@ -369,7 +376,10 @@ export const useMessage = () => {
                             from: account!,
                             to: {
                                 ...recipient!.contactDetails.account,
-                                ensName: recipient.name,
+                                //Cover edge case of lukso names. TODO discuss with the team and decide how to dela with non ENS names
+                                ensName: isLuksoName(recipient.name)
+                                    ? recipient.contactDetails.account.ensName
+                                    : recipient.name,
                             },
                             deliverServiceProfile,
                             keys: profileKeys!,

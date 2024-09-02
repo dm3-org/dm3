@@ -148,6 +148,7 @@ export const useAuth = () => {
                 dm3Configuration.addressEnsSubdomain,
             );
             _setAccount(ensName, controllerAddress, profile, profileKeys);
+            return;
         }
 
         throw Error('Login failed UNIMPLEMENTED!');
