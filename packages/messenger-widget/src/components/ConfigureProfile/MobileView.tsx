@@ -44,7 +44,7 @@ export function MobileView() {
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
     const {
-        updateProfileForAddressOrDm3Name,
+        updateProfileForAddressName,
         updateProfileWithTransaction,
         isProfileUpdatedForAddrName,
         isProfileUpdatedForDm3Name,
@@ -127,7 +127,7 @@ export function MobileView() {
                 {!isProfileUpdatedForAddrName() && (
                     <button
                         className="add-prof-btn-active update-btn"
-                        onClick={() => updateProfileForAddressOrDm3Name('ADDR')}
+                        onClick={() => updateProfileForAddressName()}
                     >
                         <img
                             className="me-1 pointer-cursor "
@@ -194,7 +194,7 @@ export function MobileView() {
                                             : existingDm3Name,
                                     );
                                 } else {
-                                    updateProfileForAddressOrDm3Name('DM3');
+                                    updateProfileForAddressName();
                                 }
                             }}
                         >

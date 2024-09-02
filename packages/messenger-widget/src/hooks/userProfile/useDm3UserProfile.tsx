@@ -101,15 +101,34 @@ export const useDm3UserProfile = () => {
     });
 
     // adds DS nodes in local storage of browser
-    const setDsNodesInLocalStorage = (data: any) => {
-        const stringifiedData = JSON.stringify(data);
-        localStorage.setItem('ds_nodes', stringifiedData);
+    const setDsNodesInLocalStorage = (data: INodeDetails) => {
+        // fetch data from local storage
+        const dsLocalData = localStorage.getItem('ds_nodes');
+        let parsedData;
+        if (dsLocalData) {
+            // update or add the DS node data of connected account to local storage
+            parsedData = JSON.parse(dsLocalData);
+            parsedData[ethAddress as string] = data;
+        }
+        // if local storage doesn't have data then add fresh data
+        const freshData = { [ethAddress as string]: data };
+        localStorage.setItem(
+            'ds_nodes',
+            JSON.stringify(parsedData ?? freshData),
+        );
     };
 
     // retrieves DS nodes from local storage of browser
     const getDsNodesFromLocalStorage = (): INodeDetails => {
         const data = localStorage.getItem('ds_nodes');
-        return data ? JSON.parse(data) : null;
+        // checks if local storage has data or not
+        const parsedData = data ? JSON.parse(data) : null;
+        // return the data only if connected account's data found
+        return parsedData
+            ? parsedData[ethAddress as string]
+                ? parsedData[ethAddress as string]
+                : null
+            : null;
     };
 
     // fetches profile for the names like ADDR, DM3, OP, GNO and ENS
@@ -153,12 +172,6 @@ export const useDm3UserProfile = () => {
                 mainnetProvider,
                 addressName,
             ).catch((e) => null);
-
-            console.log(
-                'profile data tracked : ',
-                addressName,
-                addressNameProfile,
-            );
 
             const dm3NameProfile = dm3Name
                 ? await getUserProfile(mainnetProvider, dm3Name).catch(
@@ -219,8 +232,6 @@ export const useDm3UserProfile = () => {
                 dsNames: profileData.deliveryServices,
             };
 
-            console.log('my profile data is : ', profileData);
-
             // fetch DS nodes from local storage
             const dsNodeFromLocalStorage = getDsNodesFromLocalStorage();
 
@@ -242,16 +253,13 @@ export const useDm3UserProfile = () => {
         }
     };
 
-    const updateProfileForAddressOrDm3Name = async (nameType: string) => {
+    const updateProfileForAddressName = async () => {
         // add those nodes to new profile
         const newProfile = { ...account?.profile! };
         newProfile.deliveryServices = nodes.dsNames;
 
-        // fetch subdomain for ADDR name or DM3 name
-        const subdomain =
-            nameType === 'ADDR'
-                ? dm3Configuration.addressEnsSubdomain.substring(1)
-                : dm3Configuration.userEnsSubdomain.substring(1);
+        // fetch subdomain for ADDR name
+        const subdomain = dm3Configuration.addressEnsSubdomain.substring(1);
 
         // fetch profile creation message to update the profile
         const profileCreationMessage = getProfileCreationMessage(
@@ -260,9 +268,14 @@ export const useDm3UserProfile = () => {
         );
 
         // sign the message to update the profile
-        const signature = await walletClient?.signMessage({
-            message: profileCreationMessage,
-        });
+        const signature = await walletClient
+            ?.signMessage({
+                message: profileCreationMessage,
+            })
+            .catch((err) => {
+                console.log('signature error: ', err);
+                return;
+            });
 
         // create new profile object
         const signedUserProfile = {
@@ -278,22 +291,15 @@ export const useDm3UserProfile = () => {
             signedUserProfile,
         );
 
-        // update the profile state of ADDR name
-        if (success && nameType === 'ADDR') {
+        // update the profile state of ADDR name & DM3 name as both have same profile
+        if (success) {
             setNamesWithProfile((prev) => {
                 return {
                     ...prev,
                     addrName: { profile: newProfile, isActive: true },
-                };
-            });
-        }
-
-        // update the profile state of DM3 name
-        if (success && nameType === 'DM3') {
-            setNamesWithProfile((prev) => {
-                return {
-                    ...prev,
-                    dm3Name: { profile: newProfile, isActive: true },
+                    dm3Name: prev.dm3Name
+                        ? { profile: newProfile, isActive: true }
+                        : prev.dm3Name,
                 };
             });
         }
@@ -459,6 +465,9 @@ export const useDm3UserProfile = () => {
      * Adds node to the local storage
      */
     const addNode = async () => {
+        setLoaderContent('Adding DS node...');
+        startLoader();
+
         let result: boolean = true;
 
         // validate node name
@@ -474,18 +483,21 @@ export const useDm3UserProfile = () => {
         // set error if any validation fails
         if (!result) {
             setError('Invalid ENS name');
+            closeLoader();
             return;
         }
 
         // set error if node already exists
         if (nodes.dsNames.filter((data) => data === nodeName).length) {
             setError('ENS name already exists');
+            closeLoader();
             return;
         }
 
         // validate DS node by looking into ENS record
         if (!(await checkDsNameValidity(nodeName))) {
             setError('Invalid DS node name');
+            closeLoader();
             return;
         }
 
@@ -508,6 +520,9 @@ export const useDm3UserProfile = () => {
 
         // close the input field window
         setIsModalOpenToAddNode(false);
+
+        // close the loader
+        closeLoader();
     };
 
     /**
@@ -586,8 +601,6 @@ export const useDm3UserProfile = () => {
      */
     const isProfileUpdatedForAddrName = useCallback(() => {
         const { addrName } = namesWithProfile;
-        console.log('======================', addrName);
-        console.log('----------------------', nodes);
         if (
             addrName &&
             addrName.isActive &&
@@ -598,7 +611,7 @@ export const useDm3UserProfile = () => {
             return false;
         }
         return true;
-    }, [namesWithProfile]);
+    }, [nodes, namesWithProfile]);
 
     /**
      * Checks the DM3/OP name profile is updated or not
@@ -624,7 +637,7 @@ export const useDm3UserProfile = () => {
             return false;
         }
         return true;
-    }, [namesWithProfile]);
+    }, [nodes, namesWithProfile]);
 
     /**
      * Checks the ENS/GNO name profile is updated or not
@@ -650,7 +663,7 @@ export const useDm3UserProfile = () => {
             return false;
         }
         return true;
-    }, [namesWithProfile]);
+    }, [nodes, namesWithProfile]);
 
     useEffect(() => {
         initialize();
@@ -659,7 +672,7 @@ export const useDm3UserProfile = () => {
     return {
         initialize,
         addNode,
-        updateProfileForAddressOrDm3Name,
+        updateProfileForAddressName,
         updateProfileWithTransaction,
         deleteNode,
         nodes,

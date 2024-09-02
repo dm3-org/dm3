@@ -6,7 +6,7 @@ import {
 
 export type DM3UserProfileContextType = {
     initialize: () => void;
-    updateProfileForAddressOrDm3Name: (nameType: string) => void;
+    updateProfileForAddressName: () => void;
     updateProfileWithTransaction: (existingName: string) => void;
     addNode: () => void;
     deleteNode: (id: number) => void;
@@ -26,7 +26,7 @@ export type DM3UserProfileContextType = {
 export const DM3UserProfileContext =
     React.createContext<DM3UserProfileContextType>({
         initialize: () => {},
-        updateProfileForAddressOrDm3Name: (nameType: string) => {},
+        updateProfileForAddressName: () => {},
         updateProfileWithTransaction: (existingName: string) => {},
         addNode: () => {},
         deleteNode: (id: number) => {},
@@ -53,7 +53,7 @@ export const DM3UserProfileContextProvider = ({
     const {
         initialize,
         addNode,
-        updateProfileForAddressOrDm3Name,
+        updateProfileForAddressName,
         updateProfileWithTransaction,
         deleteNode,
         nodes,
@@ -74,7 +74,7 @@ export const DM3UserProfileContextProvider = ({
             value={{
                 initialize,
                 addNode,
-                updateProfileForAddressOrDm3Name,
+                updateProfileForAddressName,
                 updateProfileWithTransaction,
                 deleteNode,
                 nodes,

@@ -44,7 +44,7 @@ export function NormalView() {
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
     const {
-        updateProfileForAddressOrDm3Name,
+        updateProfileForAddressName,
         updateProfileWithTransaction,
         isProfileUpdatedForAddrName,
         isProfileUpdatedForDm3Name,
@@ -131,9 +131,7 @@ export function NormalView() {
                         {!isProfileUpdatedForAddrName() && (
                             <button
                                 className="add-prof-btn-active update-btn"
-                                onClick={() =>
-                                    updateProfileForAddressOrDm3Name('ADDR')
-                                }
+                                onClick={() => updateProfileForAddressName()}
                             >
                                 <img
                                     className="me-1 pointer-cursor "
@@ -205,9 +203,7 @@ export function NormalView() {
                                                     : existingDm3Name,
                                             );
                                         } else {
-                                            updateProfileForAddressOrDm3Name(
-                                                'DM3',
-                                            );
+                                            updateProfileForAddressName();
                                         }
                                     }}
                                 >
