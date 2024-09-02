@@ -41,7 +41,7 @@ describe('Server Side Connector', () => {
     });
 
     describe('relogin with existing profile', () => {
-        it('solve challenge and retrive token', async () => {
+        it('solve challenge and retrieve token', async () => {
             axiosMock = new MockAdapter(axios);
 
             const aliceEnsName = normalizeEnsName(

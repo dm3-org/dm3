@@ -110,14 +110,14 @@ describe('Delivery', () => {
 
             const { status } = await request(app)
                 .post(
-                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/syncAcknowledgments',
+                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/syncAcknowledgements',
                 )
                 .set({
                     authorization: `Bearer ${token}`,
                 })
 
                 .send({
-                    acknowledgments: [
+                    acknowledgements: [
                         {
                             contactAddress:
                                 '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
@@ -157,7 +157,7 @@ describe('Delivery', () => {
 
             const { status } = await request(app)
                 .post(
-                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/syncAcknowledgments',
+                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/syncAcknowledgements',
                 )
                 .set({
                     authorization: `Bearer ${token}`,

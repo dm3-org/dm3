@@ -576,9 +576,11 @@ describe('MessageProcessor', () => {
         await messageProcessor.processEnvelop(incomingEnvelop);
 
         //createMessageCall
-        const [_, actualEnvelop] = createMessageMock.mock.calls[0];
+        const [receiverAddress, _, actualEnvelop] =
+            createMessageMock.mock.calls[0];
 
         expect(createMessageMock).toBeCalled();
+        expect(receiverAddress).toBe(receiver.address);
         expect(actualEnvelop['message']).toBe(incomingEnvelop.message);
 
         const actualPostmark = await decryptAsymmetric(
@@ -666,10 +668,13 @@ describe('MessageProcessor', () => {
         await messageProcessor.processEnvelop(incomingEnvelop2);
 
         //createMessageCall
-        const [_, actualEnvelop] = createMessageMock.mock.calls[0];
+        const [receiverAddress, _, actualEnvelop] =
+            createMessageMock.mock.calls[0];
 
         expect(createMessageMock).toBeCalled();
         expect(createMessageMock).toBeCalledTimes(2);
+        expect(receiverAddress).toBe(receiver.address);
+
         expect(actualEnvelop['message']).toBe(incomingEnvelop1.message);
 
         const actualPostmark = await decryptAsymmetric(
@@ -752,9 +757,11 @@ describe('MessageProcessor', () => {
         await messageProcessor.processEnvelop(incomingEnvelop);
 
         //createMessageCall
-        const [_, actualEnvelop] = createMessageMock.mock.calls[0];
+        const [receiverAddress, _, actualEnvelop] =
+            createMessageMock.mock.calls[0];
 
         expect(createMessageMock).toBeCalled();
+        expect(receiverAddress).toBe(receiver.address);
         expect(actualEnvelop['message']).toBe(incomingEnvelop.message);
 
         const actualPostmark = await decryptAsymmetric(
