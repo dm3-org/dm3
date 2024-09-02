@@ -19,7 +19,8 @@
     "@apollo/client": "^3.11.5",
     "@dm3-org/dm3-lib-profile": "workspace:^",
     "@dm3-org/dm3-lib-shared": "workspace:^",
-    "ethers": "5.7.2"
+    "ethers": "5.7.2",
+    "graphql": "^15.0.0"
   },
   "devDependencies": {
     "jest": "^29.7.0",
