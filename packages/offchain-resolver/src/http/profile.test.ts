@@ -260,7 +260,7 @@ describe('Profile', () => {
             expect(body.error).to.equal('invalid profile');
         });
 
-        it('Rejects if subdomain has already a profile', async () => {
+        it('Updates profile if subdomain has already a profile', async () => {
             app.use(profile(provider));
 
             const offChainProfile1 = await getSignedUserProfile();
@@ -291,8 +291,7 @@ describe('Profile', () => {
                     subdomain: 'beta-addr.dm3.eth',
                 });
 
-            expect(res2.status).to.equal(400);
-            expect(res2.body.error).to.eql('subdomain already claimed');
+            expect(res2.status).to.equal(200);
         });
         it('Rejects if subdomain is not supported', async () => {
             app.use(profile(provider));

@@ -4,7 +4,7 @@ export {
     decryptDeliveryInformation,
     handleIncomingMessage,
 } from './Messages';
-export type { Acknowledgment } from './Messages';
+export type { Acknowledgement } from './Messages';
 export { getConversationId } from './Messages';
 export type {} from './PublicMessages';
 export * as schema from './schema';

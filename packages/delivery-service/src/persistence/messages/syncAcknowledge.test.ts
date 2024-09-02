@@ -56,8 +56,8 @@ describe('Sync Acknowledge', () => {
 
         expect(priorCreateMessages.length).toBe(0);
 
-        await db.createMessage(conversionId, envelop1);
-        await db.createMessage(conversionId, envelop2);
+        await db.createMessage(RECEIVER_ADDRESS, conversionId, envelop1);
+        await db.createMessage(RECEIVER_ADDRESS, conversionId, envelop2);
 
         const afterCreateMessages = await db.getIncomingMessages(
             RECEIVER_ADDRESS,
@@ -104,7 +104,7 @@ describe('Sync Acknowledge', () => {
 
         expect(priorCreateMessages.length).toBe(0);
 
-        await db.createMessage(conversionId, envelop1);
+        await db.createMessage(RECEIVER_ADDRESS, conversionId, envelop1);
 
         const afterCreateMessages = await db.getIncomingMessages(
             RECEIVER_ADDRESS,

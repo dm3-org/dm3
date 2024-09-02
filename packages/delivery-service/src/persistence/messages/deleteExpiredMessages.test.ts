@@ -17,6 +17,7 @@ describe('Delete Expired messages', () => {
 
     it('Delete all messages createdAt before a given time', async () => {
         await db.createMessage(
+            '',
             'foox',
             {
                 message: 'hello',
@@ -31,6 +32,7 @@ describe('Delete Expired messages', () => {
             1,
         );
         await db.createMessage(
+            '',
             'foox',
             {
                 message: 'world',
@@ -44,7 +46,9 @@ describe('Delete Expired messages', () => {
             },
             3,
         );
+
         await db.createMessage(
+            '',
             'foox',
             {
                 message: 'dm3',
