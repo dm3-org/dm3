@@ -1,8 +1,8 @@
-const lib = require('@dm3-org/dm3-lib');
+const crypto = require('@dm3-org/dm3-lib-crypto');
 
 const main = async () => {
-    const encryptionKeyPair = await lib.crypto.createKeyPair();
-    const signingKeyPair = await lib.crypto.createSigningKeyPair();
+    const encryptionKeyPair = await crypto.createKeyPair();
+    const signingKeyPair = await crypto.createSigningKeyPair();
     console.log(`\nencryption key pair`);
     console.log(JSON.stringify(encryptionKeyPair, null, 4));
     console.log(`\nsigning key pair`);

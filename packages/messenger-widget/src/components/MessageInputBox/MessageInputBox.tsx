@@ -16,7 +16,8 @@ import { UiViewContext } from '../../context/UiViewContext';
 import { ModalContext } from '../../context/ModalContext';
 
 export function MessageInputBox() {
-    const { selectedContact } = useContext(ConversationContext);
+    const { selectedContact, selectedContactName } =
+        useContext(ConversationContext);
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
     const { messageView, setMessageView } = useContext(UiViewContext);
     const { openEmojiPopup } = useContext(ModalContext);
@@ -56,13 +57,17 @@ export function MessageInputBox() {
         }
     }, [messageView]);
 
+    /**
+     * On change of contact selected
+     * Resets the input message and message view as no message is selected
+     */
     useEffect(() => {
         setMessageView({
             actionType: MessageActionType.NONE,
             messageData: undefined,
         });
         setMessage('');
-    }, [selectedContact]);
+    }, [selectedContactName]);
 
     useEffect(() => {
         setFilesSelected([]);
@@ -72,6 +77,7 @@ export function MessageInputBox() {
     return (
         <div
             id="msg-input-box-container"
+            data-testid="msg-input-box-container"
             className="mb-1 p-1 msg-input-box-container width-fill"
         >
             {/* Reply message preview */}

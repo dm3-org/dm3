@@ -11,6 +11,7 @@ import {
     NotificationChannel,
     NotificationChannelType,
 } from '@dm3-org/dm3-lib-shared';
+import { Push } from '../channels/Push';
 
 /**
  * Sets up the notification broker with supported notification channels.
@@ -102,12 +103,17 @@ export const NotificationBroker = (
     notificationType: NotificationType,
 ): INotificationBroker => {
     const channels = notificationChannel.map((channel) => {
+        channel.config.notificationType = notificationType;
         switch (channel.type) {
             case NotificationChannelType.EMAIL:
-                channel.config.notificationType = notificationType;
                 return {
                     type: NotificationChannelType.EMAIL,
                     send: Email(channel.config).send,
+                };
+            case NotificationChannelType.PUSH:
+                return {
+                    type: NotificationChannelType.PUSH,
+                    send: Push(channel.config).send,
                 };
             default:
                 throw new NotificationError(

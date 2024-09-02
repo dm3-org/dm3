@@ -1,23 +1,22 @@
-import bodyParser from 'body-parser';
-import { globalConfig, stringify } from '@dm3-org/dm3-lib-shared';
-import { ethers } from 'ethers';
-import express from 'express';
-import request from 'supertest';
-import winston from 'winston';
-import { getDatabase, getDbClient } from '../persistence/getDatabase';
-import { IDatabase } from '../persistence/IDatabase';
-import { profile } from './profile';
+import { sign } from '@dm3-org/dm3-lib-crypto';
 import {
     UserProfile,
     getProfileCreationMessage,
 } from '@dm3-org/dm3-lib-profile';
-import { Interceptor } from './handleCcipRequest/handler/intercept';
+import { stringify } from '@dm3-org/dm3-lib-shared';
 import { PrismaClient } from '@prisma/client';
-import { clearDb } from '../persistence/clearDb';
-import { resolverEndpoint } from './resolverEndpoint';
+import bodyParser from 'body-parser';
 import { expect } from 'chai';
+import { ethers } from 'ethers';
+import express from 'express';
+import request from 'supertest';
+import { IDatabase } from '../persistence/IDatabase';
+import { clearDb } from '../persistence/clearDb';
+import { getDatabase, getDbClient } from '../persistence/getDatabase';
 import { encodeEnsName } from './handleCcipRequest/dns/encodeEnsName';
-import { sign } from '@dm3-org/dm3-lib-crypto';
+import { Interceptor } from './handleCcipRequest/handler/intercept';
+import { profile } from './profile';
+import { resolverEndpoint } from './resolverEndpoint';
 
 describe('Resolver Endpoint', () => {
     let prismaClient: PrismaClient;
@@ -26,23 +25,13 @@ describe('Resolver Endpoint', () => {
     let ccipApp: express.Express;
     let profileApp: express.Express;
 
-    const logger = winston.createLogger({
-        transports: [new winston.transports.Console()],
-    });
-
     beforeEach(async () => {
-        prismaClient = await getDbClient(logger);
-        db = await getDatabase(logger, prismaClient);
+        prismaClient = await getDbClient();
+        db = await getDatabase(prismaClient);
         await clearDb(prismaClient);
         ccipApp = express();
         ccipApp.use(bodyParser.json());
         ccipApp.locals.db = db;
-        ccipApp.locals.logger = {
-            // eslint-disable-next-line no-console
-            info: (msg: string) => console.log(msg),
-            // eslint-disable-next-line no-console
-            warn: (msg: string) => console.log(msg),
-        };
 
         ccipApp.use(resolverEndpoint());
         profileApp = express();
@@ -56,14 +45,6 @@ describe('Resolver Endpoint', () => {
         profileApp.use(profile(provider));
         profileApp.locals.db = db;
         profileApp.locals.config = { spamProtection: true };
-        profileApp.locals.logger = {
-            // eslint-disable-next-line no-console
-            info: (msg: string) => console.log(msg),
-            // eslint-disable-next-line no-console
-            warn: (msg: string) => console.log(msg),
-        };
-
-        process.env.REACT_APP_ADDR_ENS_SUBDOMAIN = '.beta-addr.dm3.eth';
     });
 
     afterEach(async () => {
@@ -146,12 +127,18 @@ describe('Resolver Endpoint', () => {
     });
 
     describe('Get UserProfile Offchain', () => {
+        process.env.RESOLVER_SUPPORTED_ADDR_ENS_SUBDOMAINS = JSON.stringify([
+            'beta-addr.dm3.eth',
+        ]);
+        process.env.RESOLVER_SUPPORTED_NAME_ENS_SUBDOMAINS = JSON.stringify([
+            'beta-name.dm3.eth',
+        ]);
         describe('ResolveText', () => {
             it('Returns valid Offchain profile', async () => {
                 const { signature, profile, signer, privateSigningKey } =
                     profileApp.locals.forTests;
 
-                const name = 'foo.dm3.eth';
+                const dm3Name = 'foo.beta-name.dm3.eth';
 
                 //Create the profile in the first place
                 const writeRes = await request(profileApp)
@@ -162,17 +149,18 @@ describe('Resolver Endpoint', () => {
                             signature,
                             profile,
                         },
+                        subdomain: 'beta-addr.dm3.eth',
                     });
                 expect(writeRes.status).to.equal(200);
 
                 const writeRes2 = await request(profileApp)
                     .post(`/name`)
                     .send({
-                        alias: 'foo.dm3.eth',
-                        name: signer + globalConfig.ADDR_ENS_SUBDOMAIN(),
+                        dm3Name,
+                        addressName: signer + '.beta-addr.dm3.eth',
                         signature: await sign(
                             privateSigningKey,
-                            'alias: foo.dm3.eth',
+                            'alias: foo.beta-name.dm3.eth',
                         ),
                     });
                 expect(writeRes2.status).to.equal(200);
@@ -181,13 +169,13 @@ describe('Resolver Endpoint', () => {
                 // for the ENS name foo.test.eth
                 const innerCall = getResolverInterface().encodeFunctionData(
                     'text',
-                    [ethers.utils.namehash(name), 'network.dm3.profile'],
+                    [ethers.utils.namehash(dm3Name), 'network.dm3.profile'],
                 );
 
                 // the outer resolve() call
                 const outerCall = getResolverInterface().encodeFunctionData(
                     'resolve',
-                    [encodeEnsName(name), innerCall],
+                    [encodeEnsName(dm3Name), innerCall],
                 );
                 const { text, status } = await request(ccipApp)
                     .get(`/${ethers.constants.AddressZero}/${outerCall}`)

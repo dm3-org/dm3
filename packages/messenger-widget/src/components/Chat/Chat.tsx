@@ -12,6 +12,7 @@ import { Message } from '../Message/Message';
 import { MessageInputBox } from '../MessageInputBox/MessageInputBox';
 import { scrollToBottomOfChat } from './scrollToBottomOfChat';
 import { ModalContext } from '../../context/ModalContext';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 export function Chat() {
     const { account } = useContext(AuthContext);
@@ -20,12 +21,30 @@ export function Chat() {
     const { screenWidth, dm3Configuration } = useContext(
         DM3ConfigurationContext,
     );
-    const { getMessages, contactIsLoading } = useContext(MessageContext);
+    const { getMessages, contactIsLoading, loadMoreMessages } =
+        useContext(MessageContext);
     const { lastMessageAction } = useContext(ModalContext);
 
     const [isProfileConfigured, setIsProfileConfigured] =
         useState<boolean>(false);
     const [showShimEffect, setShowShimEffect] = useState(false);
+
+    // state which tracks old msgs loading is active or not
+    const [loadingOldMsgs, setLoadingOldMsgs] = useState(false);
+
+    // state to track more old msgs exists or not
+    const [hasMoreOldMsgs, setHasMoreOldMsgs] = useState(true);
+
+    const fetchOldMessages = async () => {
+        setLoadingOldMsgs(true);
+        const newMsgCount = await loadMoreMessages(
+            selectedContact?.contactDetails.account.ensName!,
+        );
+        // if no old msgs are found, sets state to no more old msgs exists
+        if (!newMsgCount) {
+            setHasMoreOldMsgs(false);
+        }
+    };
 
     useEffect(() => {
         if (!selectedContact) {
@@ -48,14 +67,24 @@ export function Chat() {
         const isLoading = contactIsLoading(
             selectedContact?.contactDetails.account.ensName!,
         );
-        setShowShimEffect(isLoading);
+
+        // shim effect must be visible only if the messages are loaded first time
+        if (!messages.length) {
+            setShowShimEffect(isLoading);
+        }
     }, [contactIsLoading]);
 
     // scrolls to bottom of chat when messages are loaded
     useEffect(() => {
-        if (messages.length && lastMessageAction === MessageActionType.NONE) {
+        // scrolls to bottom only when old msgs are not fetched
+        if (
+            messages.length &&
+            lastMessageAction === MessageActionType.NONE &&
+            !loadingOldMsgs
+        ) {
             scrollToBottomOfChat();
         }
+        setLoadingOldMsgs(false);
     }, [messages]);
 
     /**
@@ -142,44 +171,61 @@ export function Chat() {
                                 ? 'chat-height-small'
                                 : 'chat-height-high',
                         )}
+                        style={{
+                            overflow: 'auto',
+                            display: 'flex',
+                            flexDirection: 'column-reverse',
+                        }}
                     >
-                        {messages.length > 0 &&
-                            messages.map(
-                                (
-                                    storageEnvelopContainer: MessageModel,
-                                    index,
-                                ) => (
-                                    <div key={index} className="mt-2">
-                                        <Message
-                                            message={
-                                                storageEnvelopContainer.envelop
-                                                    .message.message ?? ''
-                                            }
-                                            time={
-                                                storageEnvelopContainer.envelop.message.metadata?.timestamp.toString() ??
-                                                '0'
-                                            }
-                                            messageState={
-                                                storageEnvelopContainer.messageState
-                                            }
-                                            ownMessage={
-                                                storageEnvelopContainer.envelop
-                                                    .message.metadata?.from ===
-                                                account!.ensName
-                                            }
-                                            envelop={
-                                                storageEnvelopContainer.envelop
-                                            }
-                                            reactions={
-                                                storageEnvelopContainer.reactions
-                                            }
-                                            replyToMessageEnvelop={
-                                                storageEnvelopContainer.replyToMessageEnvelop
-                                            }
-                                        />
-                                    </div>
-                                ),
-                            )}
+                        <InfiniteScroll
+                            dataLength={messages.length}
+                            next={fetchOldMessages}
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column-reverse',
+                            }} //To put endMessage and loader to the top.
+                            inverse={true}
+                            hasMore={hasMoreOldMsgs}
+                            //Maybe we add a cusotm loader later
+                            loader={<></>}
+                            scrollableTarget="chat-box"
+                        >
+                            {messages.length > 0 &&
+                                messages.map(
+                                    (messageModel: MessageModel, index) => (
+                                        <div key={index} className="mt-2">
+                                            <Message
+                                                message={
+                                                    messageModel.envelop.message
+                                                        .message ?? ''
+                                                }
+                                                time={
+                                                    messageModel.envelop.message.metadata?.timestamp.toString() ??
+                                                    '0'
+                                                }
+                                                messageState={
+                                                    messageModel.messageState
+                                                }
+                                                ownMessage={
+                                                    messageModel.envelop.message
+                                                        .metadata?.from ===
+                                                    account!.ensName
+                                                }
+                                                envelop={messageModel.envelop}
+                                                reactions={
+                                                    messageModel.reactions
+                                                }
+                                                replyToMessageEnvelop={
+                                                    messageModel.replyToMessageEnvelop
+                                                }
+                                                indicator={
+                                                    messageModel.indicator
+                                                }
+                                            />
+                                        </div>
+                                    ),
+                                )}
+                        </InfiniteScroll>
                     </div>
 
                     {/* Message, emoji and file attachments */}

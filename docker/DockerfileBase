@@ -1,0 +1,12 @@
+## Create a base image that contains some common tools and all libraries
+FROM --platform=linux/amd64 node:22-alpine3.18 as base
+RUN apk add --update bash gawk \
+   && rm -rf /var/cache/apk/*
+
+# copy archives of libraries
+COPY --from=build /library_archives/ /library_archives/
+
+# entrypoint is the same for all images that will be built from this image
+ENTRYPOINT [ "yarn", "start" ]
+
+

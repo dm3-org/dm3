@@ -1,4 +1,5 @@
 export type {
+    DispatchableEnvelop,
     DeliveryInformation,
     EncryptionEnvelop,
     Envelop,
@@ -10,6 +11,8 @@ export {
     createEditMessage,
     createReactionMessage,
     createReplyMessage,
+    createReadOpenMessage,
+    createReadReceiveMessage,
     createJsonRpcCallSubmitMessage,
     handleMessageOnDeliveryService,
     decryptEnvelop,

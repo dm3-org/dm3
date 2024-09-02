@@ -1,0 +1,13 @@
+Some notes on handling certain stuff
+
+# Host key verification failed
+
+Before connecting to the server from the deployment pipeline, we make sure the server's host key is in the known_hosts file. This is the command used:
+
+`echo "${{ secrets.HOST_SSH_PUBLIC_KEY }}" > ~/.ssh/known_hosts`
+
+If the server's host key changes, the pipeline will fail with the error message "Host key verification failed". To fix this, log in to the server with ssh from your local machine, and accept the new host key. Then, copy the last line from the known_hosts file on your local machine to the secret HOST_SSH_PUBLIC_KEY in the repository.
+
+If you already logged in to the server from your local machine before, you can find the proper line to copy by running this command:
+
+`ssh-keygen -H -F app.dm3.network`

@@ -42,30 +42,26 @@ const signProfile = async (profile: UserProfile) => {
 describe('UserProfile', () => {
     describe('SubmitUserProfile', () => {
         it('rejects a userProfile with a wrong signature', async () => {
-            const setSession = jest.fn();
-            const getSession = () => Promise.resolve(null);
-            const getPendingConversations = () => Promise.resolve([]);
-            const send = () => {};
+            const setAccount = jest.fn();
+            const getAccount = () => Promise.resolve(null);
 
             const singedUserProfile = await signProfile(emptyProfile);
 
             await expect(async () => {
                 await submitUserProfile(
-                    { resolveName: () => RANDO_ADDRESS } as any,
-                    getSession,
-                    setSession,
-                    RANDO_NAME,
+                    getAccount,
+                    setAccount,
+                    RANDO_ADDRESS,
                     singedUserProfile,
-                    getPendingConversations,
-                    send,
+                    'my-secret',
                 );
             }).rejects.toEqual(Error('Signature invalid.'));
-            expect(setSession).not.toBeCalled();
+            expect(setAccount).not.toBeCalled();
         });
 
-        it('rejects a userProfile that already exists', async () => {
-            const setSession = () => Promise.resolve();
-            const getSession = async (address: string) => {
+        it('override a userProfile that already exists but with other nonce', async () => {
+            const setAccount = () => Promise.resolve();
+            const getAccount = async (address: string) => {
                 const session = async (
                     account: string,
                     token: string,
@@ -84,111 +80,60 @@ describe('UserProfile', () => {
                     };
                 };
 
-                return session(SENDER_NAME, '123', emptyProfile);
+                return session(SENDER_ADDRESS, '123', emptyProfile);
             };
-            const getPendingConversations = () => Promise.resolve([]);
-            const send = () => {};
 
             const singedUserProfile = await signProfile(emptyProfile);
+
+            await submitUserProfile(
+                getAccount,
+                setAccount,
+                SENDER_ADDRESS,
+                singedUserProfile,
+                'my-secret',
+            );
 
             await expect(async () => {
                 await submitUserProfile(
-                    { resolveName: () => SENDER_ADDRESS } as any,
-                    getSession,
-                    setSession,
-                    SENDER_NAME,
+                    getAccount,
+                    setAccount,
+                    SENDER_ADDRESS,
                     singedUserProfile,
-                    getPendingConversations,
-                    send,
+                    'my-new-secret',
                 );
-            }).rejects.toEqual(Error('Profile exists already'));
-        });
-
-        it('skips pending contact without a session', async () => {
-            const setSession = jest.fn();
-            const getSession = (address: string) => Promise.resolve(null);
-            const getPendingConversations = () => Promise.resolve([RANDO_NAME]);
-            const send = jest.fn();
-
-            const singedUserProfile = await signProfile(emptyProfile);
-
-            await submitUserProfile(
-                { resolveName: () => SENDER_ADDRESS } as any,
-                getSession,
-                setSession,
-                SENDER_NAME,
-                singedUserProfile,
-                getPendingConversations,
-                send,
-            );
-
-            expect(setSession).toBeCalled();
-            expect(send).not.toBeCalled();
-        });
-
-        it('notifies pending contact with a socketId', async () => {
-            const setSession = jest.fn();
-            const getSession = (address: string) => {
-                if (address === RANDO_NAME) {
-                    return Promise.resolve({
-                        socketId: 'foo',
-                    } as Session);
-                }
-                return Promise.resolve(null);
-            };
-            const getPendingConversations = () => Promise.resolve([RANDO_NAME]);
-            const send = jest.fn();
-
-            const singedUserProfile = await signProfile(emptyProfile);
-
-            await submitUserProfile(
-                { resolveName: () => SENDER_ADDRESS } as any,
-                getSession,
-                setSession,
-                SENDER_NAME,
-                singedUserProfile,
-                getPendingConversations,
-                send,
-            );
-
-            expect(setSession).toBeCalled();
-            expect(send).toBeCalled();
+            }).resolves;
         });
 
         it('stores a newly created user profile', async () => {
-            const setSession = jest.fn();
-            const getSession = () => Promise.resolve(null);
-            const getPendingConversations = () => Promise.resolve([]);
-            const send = () => {};
+            const setAccount = jest.fn();
+            const getAccount = () => Promise.resolve(null);
 
             const singedUserProfile = await signProfile(emptyProfile);
 
             await submitUserProfile(
-                { resolveName: () => SENDER_ADDRESS } as any,
-                getSession,
-                setSession,
-                SENDER_NAME,
+                getAccount,
+                setAccount,
+                SENDER_ADDRESS,
                 singedUserProfile,
-                getPendingConversations,
-                send,
+                'my-secret',
             );
 
-            expect(setSession).toBeCalled();
+            expect(setAccount).toBeCalled();
         });
     });
     describe('GetUserProfile', () => {
         it('Returns undefined if address has no session', async () => {
-            const getSession = () => Promise.resolve(null);
+            const getAccount = () => Promise.resolve(null);
 
-            const profile = await getUserProfile(getSession, RANDO_NAME);
+            const profile = await getUserProfile(getAccount, RANDO_NAME);
 
             expect(profile).toBeUndefined();
         });
         it('Returns the signedUserProfile if a session was created', async () => {
-            const getSession = () =>
+            const getAccount = () =>
                 Promise.resolve({ signedUserProfile: {} } as Session);
 
-            const profile = await getUserProfile(getSession, RANDO_NAME);
+            const profile = await getUserProfile(getAccount, RANDO_NAME);
 
             expect(profile).not.toBeUndefined();
         });

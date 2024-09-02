@@ -1,6 +1,3 @@
-import { getUserStorageOld } from './getUserStorageOld';
-import { setUserStorageOld } from './setUserStorageOld';
-
 import { addConversation } from './postgres/addConversation';
 import { addMessageBatch } from './postgres/addMessageBatch';
 import { editMessageBatch } from './postgres/editMessageBatch';
@@ -9,14 +6,15 @@ import { getMessages } from './postgres/getMessages';
 import { getNumberOfConversations } from './postgres/getNumberOfConversations';
 import { getNumberOfMessages } from './postgres/getNumberOfMessages';
 import { toggleHideConversation } from './postgres/toggleHideConversation';
-import { MessageRecord } from './postgres/utils/MessageRecord';
+import { MessageRecord } from './postgres/dto/MessageRecord';
 
-import { getUserDbMigrationStatus } from './getUserDbMigrationStatus';
-import { setUserDbMigrated } from './setUserDbMigrated';
+import { getHaltedMessages } from './postgres/haltedMessage/getHaltedMessages';
+import { clearHaltedMessage } from './postgres/haltedMessage/clearHaltedMessage';
+import { getAccount } from './postgres/getAccount';
+import { setAccount } from './postgres/setAccount';
+import { hasAccount } from './postgres/hasAccount';
 
 export default {
-    getUserStorageOld,
-    setUserStorageOld,
     addConversation,
     addMessageBatch,
     editMessageBatch,
@@ -25,8 +23,11 @@ export default {
     getNumberOfConversations,
     getNumberOfMessages,
     toggleHideConversation,
-    getUserDbMigrationStatus,
-    setUserDbMigrated,
+    getHaltedMessages,
+    clearHaltedMessage,
+    getAccount,
+    setAccount,
+    hasAccount,
 };
 
 export type { MessageRecord };

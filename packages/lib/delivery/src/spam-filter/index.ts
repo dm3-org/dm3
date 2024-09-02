@@ -39,7 +39,7 @@ function compileSpamFilter(filter: SpamFilter[]) {
  */
 function getUsersSpamFilters(
     provider: ethers.providers.BaseProvider,
-    { spamFilterRules }: Session & { spamFilterRules: SpamFilterRules },
+    { spamFilterRules }: Session,
 ) {
     //User has not defined any rules
     if (!spamFilterRules) {
@@ -55,7 +55,7 @@ function getUsersSpamFilters(
  */
 export async function isSpam(
     provider: ethers.providers.BaseProvider,
-    session: Session & { spamFilterRules: SpamFilterRules },
+    session: Session,
     deliveryInformation: DeliveryInformation,
 ) {
     const usersSpamFilters = getUsersSpamFilters(provider, session);

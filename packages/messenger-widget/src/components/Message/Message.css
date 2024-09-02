@@ -36,6 +36,11 @@
     margin-left: -5px;
 }
 
+.indicator-tick-icon {
+    height: 15px;
+    width: 10px;
+}
+
 .msg-action-container {
     height: fit-content;
     width: fit-content;

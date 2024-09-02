@@ -16,7 +16,7 @@ export type EmailNotificationServerConfig = {
 type UserEmailConfig = {
     recipientValue: string;
     notificationType: NotificationType;
-    notificationContent: any; // object that can contain OTP to send in email and other details also in funture
+    notificationContent: any; // object that can contain OTP to send in email and other details also in future
 };
 
 // method to send email

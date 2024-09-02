@@ -12,32 +12,24 @@ describe('ErrorModal test cases', () => {
 
     it('Check error content', () => {
         const mockFn = jest.fn();
-        openErrorModal('There is some error', false, mockFn);
         const { getByTestId } = render(<ErrorModal />);
-        const modal = getByTestId('error-message');
-        expect(modal).toHaveTextContent('There is some error');
-    });
-
-    it('Check error content', () => {
-        const mockFn = jest.fn();
         openErrorModal('There is some error', false, mockFn);
-        const { getByTestId } = render(<ErrorModal />);
         const modal = getByTestId('error-message');
-        expect(modal).toHaveTextContent('There is some error');
+        expect(modal.innerText).toBe('There is some error');
     });
 
     it('Renders OK button', () => {
         const mockFn = jest.fn();
-        openErrorModal('There is some error', false, mockFn);
         const { getByTestId } = render(<ErrorModal />);
+        openErrorModal('There is some error', false, mockFn);
         const button = getByTestId('ok-btn');
-        expect(button).toHaveTextContent('There is some error');
+        expect(button).toHaveTextContent('OK');
     });
 
     it('Click on OK button', () => {
         const mockFn = jest.fn();
-        openErrorModal('There is some error', false, mockFn);
         const { getByTestId } = render(<ErrorModal />);
+        openErrorModal('There is some error', false, mockFn);
         const button = getByTestId('ok-btn');
         const action = fireEvent.click(button);
         expect(action).toBe(true);

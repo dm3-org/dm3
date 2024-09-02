@@ -313,7 +313,7 @@ input[type='number'] {
     color: black;
     font-size: 14px;
     padding: 2px 10px 0px 10px;
-    margin-left: 1rem;
+    margin-left: 3.3rem;
 }
 
 /* =================== Mobile Responsive CSS =================== */
@@ -383,6 +383,7 @@ input[type='number'] {
     .experimental-fun{
         font-size: 12px;
         padding: 1px 10px 0px 10px;
+        margin-left: 0rem;
     }
     
 }

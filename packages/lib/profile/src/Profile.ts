@@ -116,7 +116,7 @@ export async function checkUserProfile(
     if (!accountAddress) {
         throw Error(`Couldn't resolve name`);
     }
-
+    //ensures that the profile has been signed by the owner of the ENS name to prevent impersonation
     return checkUserProfileWithAddress({ profile, signature }, accountAddress);
 }
 

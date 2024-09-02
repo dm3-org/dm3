@@ -1,21 +1,24 @@
-import '@testing-library/jest-dom';
-describe('Contact Menu test cases', () => {
-    //TODO fix bid problems
-});
-
-/* import { fireEvent, render } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
+import { IContactMenu } from '../../interfaces/props';
 import { ContactMenu } from './ContactMenu';
 import '@testing-library/jest-dom';
 
 describe('ContactMenu test cases', () => {
-    const props = {
+    const props: IContactMenu = {
         contactDetails: {
             name: 'test',
+            contactProfileLocation: [],
             message: 'test',
             image: 'image',
-            contactDetails: {} as any,
+            contactDetails: {
+                account: {
+                    ensName: '',
+                },
+            } as any,
+            isHidden: false,
+            messageSizeLimit: 100000,
+            updatedAt: 0,
         },
-        index: 1,
         isMenuAlignedAtBottom: true,
     };
 
@@ -51,4 +54,3 @@ describe('ContactMenu test cases', () => {
         expect(action).toBe(true);
     });
 });
- */

@@ -1,8 +1,6 @@
 import {
     StorageEnvelopContainer as StorageEnvelopContainerNew,
     getCloudStorage,
-    load,
-    migrageStorage,
 } from '@dm3-org/dm3-lib-storage';
 
 import {
@@ -14,22 +12,17 @@ import {
 } from '@dm3-org/dm3-lib-crypto';
 import { Account, ProfileKeys } from '@dm3-org/dm3-lib-profile';
 import { sha256, stringify } from '@dm3-org/dm3-lib-shared';
-import {
-    Conversation,
-    StorageAPI,
-} from '@dm3-org/dm3-lib-storage/dist/new/types';
-import { useContext, useEffect, useState } from 'react';
-import axios from 'axios';
-import { TLDContext } from '../../context/TLDContext';
+import { Conversation, StorageAPI } from '@dm3-org/dm3-lib-storage';
+import { useEffect, useState } from 'react';
+import { BackendContextType } from '../../context/BackendContext';
+import { HaltedStorageEnvelopContainer } from '@dm3-org/dm3-lib-storage';
 
 //Handels storage sync and offers an interface for other hooks to interact with the storage
 export const useStorage = (
     account: Account | undefined,
-    storageServiceUrl: string,
-    storageServiceToken: string | undefined,
+    backendContext: BackendContextType,
     profileKeys: ProfileKeys | undefined,
 ) => {
-    const { resolveTLDtoAlias } = useContext(TLDContext);
     const [storageApi, setStorageApi] = useState<StorageAPI | undefined>(
         undefined,
     );
@@ -39,11 +32,11 @@ export const useStorage = (
     useEffect(() => {
         setInitialized(false);
         setStorageApi(undefined);
-        if (!storageServiceToken) {
+        if (!account || !profileKeys || !backendContext.isInitialized) {
             return;
         }
         init();
-    }, [storageServiceToken, account]);
+    }, [profileKeys, account, backendContext]);
 
     const init = async () => {
         const encryptSync = async (data: string) => {
@@ -85,17 +78,12 @@ export const useStorage = (
             );
         };
 
-        const s = getCloudStorage(
-            storageServiceUrl,
-            storageServiceToken!,
-            account!.ensName,
-            {
-                encryptAsync,
-                decryptAsync,
-                encryptSync,
-                decryptSync,
-            },
-        );
+        const s = getCloudStorage(backendContext, account!.ensName, {
+            encryptAsync,
+            decryptAsync,
+            encryptSync,
+            decryptSync,
+        });
         setStorageApi(s);
         setInitialized(true);
     };
@@ -107,23 +95,19 @@ export const useStorage = (
         if (!storageApi) {
             throw Error('Storage not initialized');
         }
-        /**
-         * Because the storage cannot handle concurrency properly
-         * we need to catch the error and retry if the message is not yet synced
-         */
-        storageApi.editMessageBatch(contact, batch).catch((e) => {
-            console.log('message not sync yet');
-        });
+
+        storageApi.editMessageBatch(contact, batch);
     };
 
     const storeMessageAsync = (
         contact: string,
         envelop: StorageEnvelopContainerNew,
+        isHalted: boolean = false,
     ) => {
         if (!storageApi) {
             throw Error('Storage not initialized');
         }
-        storageApi.addMessage(contact, envelop);
+        storageApi.addMessage(contact, envelop, isHalted);
     };
     const storeMessageBatch = async (
         contact: string,
@@ -134,24 +118,47 @@ export const useStorage = (
         }
         await storageApi.addMessageBatch(contact, batch);
     };
-    const getConversations = async (page: number) => {
+    const getConversations = async (size: number, offset: number) => {
         if (!storageApi) {
             return Promise.resolve([]);
         }
-        return storageApi.getConversationList(page);
+        return storageApi.getConversations(size, offset);
     };
 
-    const addConversationAsync = (contact: string) => {
+    const addConversationAsync = (
+        contact: string,
+        contactProfileLocation: string[],
+    ) => {
         if (!storageApi) {
             throw Error('Storage not initialized');
         }
-        storageApi.addConversation(contact);
+        storageApi.addConversation(contact, contactProfileLocation);
     };
-    const getMessages = async (contact: string, page: number) => {
+    const getMessages = async (
+        contact: string,
+        pageSize: number,
+        offset: number,
+    ) => {
         if (!storageApi) {
             return Promise.resolve([]);
         }
-        return storageApi.getMessages(contact, page);
+        return storageApi.getMessages(contact, pageSize, offset);
+    };
+    const clearHaltedMessages = async (
+        messageId: string,
+        aliasName: string,
+    ) => {
+        if (!storageApi) {
+            return Promise.resolve();
+        }
+        return storageApi.clearHaltedMessages(messageId, aliasName);
+    };
+
+    const getHaltedMessages = async () => {
+        if (!storageApi) {
+            return Promise.resolve([]);
+        }
+        return storageApi.getHaltedMessages();
     };
 
     const getNumberOfMessages = async (contact: string) => {
@@ -168,75 +175,6 @@ export const useStorage = (
         storageApi.toggleHideConversation(contact, value);
     };
 
-    //Migration to migrate the old storage to the new storage
-    //Remove after a certain time once every user has migrated
-    const migrate = async (cloudStorage: StorageAPI) => {
-        const hasAlreadyMigrated = await axios.get(
-            `${storageServiceUrl}/storage/new/${account?.ensName}/migrationStatus`,
-            {
-                headers: {
-                    Authorization: `Bearer ${storageServiceToken}`,
-                },
-            },
-        );
-
-        //If the user has already migrated we don't need to do anything
-        if (hasAlreadyMigrated.data === true) {
-            return;
-        }
-
-        //Check if the user has used dm3 before
-        const { data: legacyStorageFile } = await axios.get(
-            `${storageServiceUrl}/storage/${account?.ensName}/`,
-            {
-                headers: {
-                    Authorization: `Bearer ${storageServiceToken}`,
-                },
-            },
-        );
-
-        //If the user has used dm3 before we need to migrate the old storage to the new one
-        if (legacyStorageFile !== null) {
-            const userDb = await load(
-                JSON.parse(legacyStorageFile),
-                profileKeys?.storageEncryptionKey!,
-            );
-            await printUserDb();
-            await migrageStorage(userDb, cloudStorage, resolveTLDtoAlias);
-        }
-        //Set the migrationStatus to true. So we won't migrate again
-        await axios.post(
-            `${storageServiceUrl}/storage/new/${account?.ensName}/migrationStatus`,
-            undefined,
-            {
-                headers: {
-                    Authorization: `Bearer ${storageServiceToken}`,
-                },
-            },
-        );
-    };
-    const printUserDb = async () => {
-        const { data: legacyStorageFile } = await axios.get(
-            `${storageServiceUrl}/storage/${account?.ensName}/`,
-            {
-                headers: {
-                    Authorization: `Bearer ${storageServiceToken}`,
-                },
-            },
-        );
-        if (legacyStorageFile === null) {
-            return;
-        }
-        const userDb = await load(
-            JSON.parse(legacyStorageFile),
-            profileKeys?.storageEncryptionKey!,
-        );
-        userDb.conversations.forEach((value, key) => {
-            console.log('key', key);
-            console.log('value', value);
-        });
-    };
-
     return {
         storeMessageAsync,
         storeMessageBatch,
@@ -244,6 +182,8 @@ export const useStorage = (
         getConversations,
         addConversationAsync,
         getMessages,
+        getHaltedMessages,
+        clearHaltedMessages,
         getNumberOfMessages,
         toggleHideContactAsync,
         initialized,
@@ -253,6 +193,7 @@ export const useStorage = (
 export type StoreMessageAsync = (
     contact: string,
     envelop: StorageEnvelopContainerNew,
+    isHalted?: boolean,
 ) => void;
 export type editMessageBatchAsync = (
     contact: string,
@@ -262,11 +203,23 @@ export type StoreMessageBatch = (
     contact: string,
     batch: StorageEnvelopContainerNew[],
 ) => Promise<void>;
-export type GetConversations = (page: number) => Promise<Conversation[]>;
-export type AddConversation = (contact: string) => void;
+export type GetConversations = (
+    size: number,
+    offset: number,
+) => Promise<Conversation[]>;
+export type AddConversation = (
+    contact: string,
+    contactProfileLocation: string[],
+) => void;
 export type GetMessages = (
     contact: string,
-    page: number,
+    pageSize: number,
+    offset: number,
 ) => Promise<StorageEnvelopContainerNew[]>;
+export type GetHaltedMessages = () => Promise<HaltedStorageEnvelopContainer[]>;
+export type ClearHaltedMessages = (
+    messageId: string,
+    aliasName: string,
+) => Promise<void>;
 export type GetNumberOfMessages = (contact: string) => Promise<number>;
 export type ToggleHideContactAsync = (contact: string, value: boolean) => void;

@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { ITLDResolver } from './TLDResolver';
+import { ITLDResolver } from './ITLDResolver';
 
 const TOP_LEVEL_DOMAIN = '.op.dm3.eth';
 const EVM_FETCHER_CONTRACT_ADDRESS =
@@ -84,7 +84,7 @@ export class OptimismNames implements ITLDResolver {
 
             return !!ensNameHasAddress;
         } catch (err) {
-            console.log(
+            console.debug(
                 `Cant resolve OP name ${opName} to address error: ${err}`,
             );
             return false;
@@ -98,7 +98,7 @@ export class OptimismNames implements ITLDResolver {
             'function resolve(bytes,bytes) returns (bytes memory result)',
         ]);
     }
-    //Helper function to retrive the address of a given name from the Dm3NameRegistrar contract using the EVM FETCHER
+    //Helper function to retrieve the address of a given name from the Dm3NameRegistrar contract using the EVM FETCHER
     private async resolveNameCcip(opName: string) {
         try {
             const i = this.getEvmFetcher();
@@ -128,11 +128,11 @@ export class OptimismNames implements ITLDResolver {
             }
             return address;
         } catch (err) {
-            console.log('Error resolving name op name ', err);
+            console.debug('Error resolving name op name ', err);
             return null;
         }
     }
-    //Helper function to retrive the name of a given address from the Dm3NameRegistrar contract using the EVM FETCHER
+    //Helper function to retrieve the name of a given address from the Dm3NameRegistrar contract using the EVM FETCHER
     //
     private async lookupAddressCcip(opName: string, reverseNode: string) {
         try {
@@ -156,11 +156,11 @@ export class OptimismNames implements ITLDResolver {
             );
             return decodedInner[0];
         } catch (err) {
-            console.log('Error resolving name op name ', err);
+            console.debug('Error resolving name op name ', err);
             return null;
         }
     }
-    //Helper function to retrive a text record of a given name from the Dm3NameRegistrar contract using the EVM FETCHER
+    //Helper function to retrieve a text record of a given name from the Dm3NameRegistrar contract using the EVM FETCHER
 
     private async resolveTextCcip(opName: string, key: string) {
         try {
@@ -186,7 +186,7 @@ export class OptimismNames implements ITLDResolver {
 
             return decodedInner[0];
         } catch (err) {
-            console.log('Error resolving text for op name', err);
+            console.debug('Error resolving text for op name', err);
             return null;
         }
     }

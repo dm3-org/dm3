@@ -2,7 +2,6 @@ import { ethers } from 'ethers';
 import { checkEnsDM3Text } from '../../utils/ens-utils';
 import { log } from '@dm3-org/dm3-lib-shared';
 import { closeLoader, startLoader } from '../Loader/Loader';
-import { removeAlias } from '../../adapters/offchain-resolver-api';
 import { ConfigureEnsProfile } from './chain/ens/ConfigureEnsProfile';
 import { Dm3Name } from '../../hooks/topLevelAlias/nameService/Dm3Name';
 import { ConfigureGenomeProfile } from './chain/genome/ConfigureGenomeProfile';
@@ -10,6 +9,7 @@ import { Account, ProfileKeys, hasUserProfile } from '@dm3-org/dm3-lib-profile';
 import { ConfigureCloudNameProfile } from './dm3Names/cloudName/ConfigureCloudNameProfile';
 import { ConfigureOptimismNameProfile } from './dm3Names/optimismName/ConfigureOptimismNameProfile';
 import { supportedChains } from '../../utils/common-utils';
+import { removeAlias } from '../../adapters/offchainResolverApi';
 
 export const PROFILE_INPUT_FIELD_CLASS =
     'profile-input font-weight-400 font-size-14 border-radius-6 w-100 line-height-24';
@@ -66,7 +66,7 @@ export const getEnsName = async (
     }
 };
 
-// method to remove aliad
+// method to remove alias
 export const removeAliasFromDm3Name = async (
     resolverBackendUrl: string,
     profileKeys: ProfileKeys,
@@ -131,10 +131,10 @@ export const fetchExistingDM3Name = async (
                 mainnetProvider,
                 addrEnsSubdomain,
                 userEnsSubdomain,
+                resolverBackendUrl,
             );
             const dm3Name = await dm3NameService.resolveAliasToTLD(
                 account.ensName,
-                resolverBackendUrl,
             );
             // Not a DM3 name -> 0xa966.beta-addr.dm3.eth
             // Its DM3 name -> bob.beta-user.dm3.eth
@@ -212,7 +212,7 @@ export const fetchChainIdFromServiceName = (name: string, chainId: string) => {
     }
 };
 
-const enum DM3_NAME_SERVICES {
+export const enum DM3_NAME_SERVICES {
     CLOUD = 'Cloud-Service by dm3 (... .user.dm3.eth)',
     OPTIMISM = 'Optimism (... .op.dm3.eth)',
 }

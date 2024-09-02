@@ -107,7 +107,7 @@ export const AccountConnector = (
             );
 
             //hardcode genome name and move to LIB fn (Alex)
-            const resolvedTLD = 'alex1234.eth';
+            const resolvedTLD = 'gnosis.eth';
             const l1EnsName = spaceIdWeb3Name.replace(
                 '.gno',
                 '.' + resolvedTLD,

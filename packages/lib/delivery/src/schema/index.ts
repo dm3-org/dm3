@@ -1,11 +1,10 @@
-import AcknoledgmentSchema from './Acknoledgment.schema.json';
+import AcknowledgementSchema from './Acknowledgement.schema.json';
 import DeliveryServicePropertiesSchema from './DeliveryServiceProperties.schema.json';
-import MessageSubmissionSchema from './MessageSubmission.schema.json';
 import SessionSchema from './Session.schema.json';
 import NotificationChannelSchema from './NotificationChannel.schema.json';
 
-export const Acknoledgment = AcknoledgmentSchema.definitions.Acknoledgment;
+export const Acknowledgement =
+    AcknowledgementSchema.definitions.Acknowledgement;
 export const DeliveryServiceProperties = DeliveryServicePropertiesSchema;
-export const MessageSubmission = MessageSubmissionSchema;
 export const Session = SessionSchema;
 export const NotificationChannel = NotificationChannelSchema;

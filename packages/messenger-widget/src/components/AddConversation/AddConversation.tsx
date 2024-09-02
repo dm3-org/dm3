@@ -1,18 +1,18 @@
-import './AddConversation.css';
-import '../../styles/modal.css';
 import { ethers } from 'ethers';
 import { FormEvent, useContext, useState } from 'react';
 import closeIcon from '../../assets/images/cross.svg';
 import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';
+import { ModalContext } from '../../context/ModalContext';
 import { TLDContext } from '../../context/TLDContext';
+import { UiViewContext } from '../../context/UiViewContext';
+import '../../styles/modal.css';
 import {
     LeftViewSelected,
     RightViewSelected,
 } from '../../utils/enum-type-utils';
 import { closeLoader, startLoader } from '../Loader/Loader';
-import { UiViewContext } from '../../context/UiViewContext';
-import { ModalContext } from '../../context/ModalContext';
+import './AddConversation.css';
 
 // class for input field
 export const INPUT_FIELD_CLASS =
@@ -22,7 +22,6 @@ export default function AddConversation() {
     const { addConversation, setSelectedContactName } =
         useContext(ConversationContext);
     const { ethAddress } = useContext(AuthContext);
-    const { resolveTLDtoAlias } = useContext(TLDContext);
     const { setSelectedLeftView, setSelectedRightView } =
         useContext(UiViewContext);
     const {
@@ -31,7 +30,7 @@ export default function AddConversation() {
         setAddConversation,
     } = useContext(ModalContext);
 
-    const [name, setName] = useState<string>('');
+    const [tldName, setTldName] = useState<string>('');
     const [showError, setShowError] = useState<boolean>(false);
     const [errorMsg, setErrorMsg] = useState<string>('');
     const [inputClass, setInputClass] = useState<string>(INPUT_FIELD_CLASS);
@@ -39,28 +38,29 @@ export default function AddConversation() {
     // handles new contact submission
     const submit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setName(name.trim());
-        if (name.length) {
+        setTldName(tldName.trim());
+        if (tldName.length) {
             // start loader
             setLoaderContent('Adding contact...');
             startLoader();
 
             const ensNameIsInvalid =
                 ethAddress &&
-                name.split('.')[0] &&
-                ethAddress.toLowerCase() === name.split('.')[0].toLowerCase();
+                tldName.split('.')[0] &&
+                ethAddress.toLowerCase() ===
+                    tldName.split('.')[0].toLowerCase();
 
             if (ensNameIsInvalid) {
                 setErrorMsg('Please enter valid ENS name');
                 setShowError(true);
                 return;
             }
-            //Checks wether the name entered, is an tld name. If yes, the TLD is substituded with the alias name
-            const aliasName = await resolveTLDtoAlias(name);
+
+            const newContact = await addConversation(tldName);
 
             const addConversationData = {
                 active: true,
-                ensName: aliasName,
+                ensName: newContact?.contactDetails.account.ensName,
                 processed: false,
             };
 
@@ -72,8 +72,12 @@ export default function AddConversation() {
 
             // set right view to chat
             setSelectedRightView(RightViewSelected.Chat);
-
-            const newContact = await addConversation(aliasName);
+            if (!newContact) {
+                //Maybe show a message that its not possible to add the users address as a contact
+                setShowAddConversationModal(false);
+                closeLoader();
+                return;
+            }
             setSelectedContactName(newContact.contactDetails.account.ensName);
             closeLoader();
 
@@ -89,7 +93,7 @@ export default function AddConversation() {
     const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setErrorMsg('');
         setShowError(false);
-        setName(e.target.value);
+        setTldName(e.target.value);
         if (!ethers.utils.isValidName(e.target.value)) {
             setErrorMsg('Invalid address or ENS name');
             setShowError(true);
@@ -127,6 +131,7 @@ export default function AddConversation() {
                     <hr className="line-separator separator text-secondary-color" />
 
                     <form
+                        aria-label="add-conv-form"
                         onSubmit={(e: React.FormEvent) => submit(e)}
                         className="mt-4 mb-2 d-flex"
                     >
@@ -149,12 +154,14 @@ export default function AddConversation() {
                             </div>
                             <div className="d-flex add-name-container">
                                 <label
+                                    title="add-conv-label"
                                     htmlFor="name"
                                     className="font-size-14 font-weight-500"
                                 >
                                     Name
                                 </label>
                                 <input
+                                    data-testid="add-conv-input"
                                     id="add-conv-input"
                                     className={inputClass.concat(
                                         ' ',
@@ -162,7 +169,7 @@ export default function AddConversation() {
                                     )}
                                     type="text"
                                     placeholder="Enter the name or address of the contact"
-                                    value={name}
+                                    value={tldName}
                                     onChange={(
                                         e: React.ChangeEvent<HTMLInputElement>,
                                     ) => handleNameChange(e)}
@@ -179,10 +186,12 @@ export default function AddConversation() {
                         </div>
                         <div>
                             <button
-                                disabled={!name || !name.length || showError}
+                                disabled={
+                                    !tldName || !tldName.length || showError
+                                }
                                 className={'add-btn font-weight-400 font-size-12 border-radius-4 line-height-24'.concat(
                                     ' ',
-                                    !name || !name.length || showError
+                                    !tldName || !tldName.length || showError
                                         ? 'modal-btn-disabled'
                                         : 'modal-btn-active',
                                 )}

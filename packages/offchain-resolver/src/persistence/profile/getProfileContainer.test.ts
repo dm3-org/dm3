@@ -13,15 +13,9 @@ describe('getUserProfile', () => {
     let prismaClient: PrismaClient;
     let db: IDatabase;
 
-    const logger = winston.createLogger({
-        transports: [new winston.transports.Console()],
-    });
-
-    global.logger = logger;
-
     beforeEach(async () => {
-        prismaClient = await getDbClient(logger);
-        db = await getDatabase(logger, prismaClient);
+        prismaClient = await getDbClient();
+        db = await getDatabase(prismaClient);
         await clearDb(prismaClient);
     });
 
@@ -53,8 +47,8 @@ describe('getUserProfile', () => {
         };
 
         await setUserProfile(prismaClient)(name, profile, address);
-        const retrivedProfile = await getProfileContainer(prismaClient)(name);
+        const retrievedProfile = await getProfileContainer(prismaClient)(name);
 
-        expect(retrivedProfile?.profile).to.eql(profile);
+        expect(retrievedProfile?.profile).to.eql(profile);
     });
 });
