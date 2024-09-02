@@ -17,7 +17,7 @@ export function onConnection(
 ) {
     return (socket: Socket) => {
         socket.on('disconnect', () => {
-            global.logger.info({
+            console.info({
                 method: 'WS DISCONNECT',
                 socketId: socket.id,
             });

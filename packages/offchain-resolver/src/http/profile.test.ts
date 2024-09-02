@@ -8,7 +8,7 @@ import { ethers } from 'ethers';
 import express from 'express';
 
 import request from 'supertest';
-import winston from 'winston';
+
 import { getDatabase, getDbClient } from '../persistence/getDatabase';
 import { IDatabase } from '../persistence/IDatabase';
 import { profile } from './profile';
