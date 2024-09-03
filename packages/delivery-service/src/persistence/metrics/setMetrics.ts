@@ -20,6 +20,13 @@ export function countMessage(redis: Redis) {
     return async (messageSizeBytes: number) => {
         const timestamp = getKeyIntervalTimestamp();
 
+        console.log(
+            'countMessage at',
+            timestamp,
+            ' with size ',
+            messageSizeBytes,
+        );
+
         // Increment the message count, starting at 0 if the key doesn't exist
         await redis.incrBy(`${RedisPrefix.MetricsMessageCount}${timestamp}`, 1);
 
