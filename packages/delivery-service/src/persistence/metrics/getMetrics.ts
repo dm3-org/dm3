@@ -26,26 +26,31 @@ function replacer(key, value) {
 
 export function getMetrics(redis: Redis): () => Promise<MetricsMap> {
     return async () => {
-        const metrics: Map<Date, IntervalMetric> = new Map<
-            Date,
-            IntervalMetric
-        >();
-        metrics.set(new Date('2024-08-09'), {
-            messageCount: 294,
-            messageSizeBytes: 29424,
-            notificationCount: 29,
-        });
-        metrics.set(new Date('2024-08-10'), {
-            messageCount: 20,
-            messageSizeBytes: 294,
-            notificationCount: 2,
-        });
-        metrics.set(new Date('2024-08-11'), {
-            messageCount: 24,
-            messageSizeBytes: 294,
-            notificationCount: 9,
-        });
-        console.log('metrics', metrics);
+        const metrics: MetricsMap = new Map<Date, IntervalMetric>();
+        const keys = await redis.keys('metrics:*');
+
+        for (const key of keys) {
+            const timestamp = parseInt(key.split(':')[1], 10);
+            const date = new Date(timestamp * 1000);
+            const messageCount = await redis.get(`${key}:messageCount`);
+            const messageSizeBytes = await redis.get(`${key}:messageSizeBytes`);
+            const notificationCount = await redis.get(
+                `${key}:notificationCount`,
+            );
+
+            metrics.set(date, {
+                messageCount: parseInt(messageCount ? messageCount : '0', 10),
+                messageSizeBytes: parseInt(
+                    messageSizeBytes ? messageSizeBytes : '0',
+                    10,
+                ),
+                notificationCount: parseInt(
+                    notificationCount ? notificationCount : '0',
+                    10,
+                ),
+            });
+        }
+
         return metrics;
     };
 }
