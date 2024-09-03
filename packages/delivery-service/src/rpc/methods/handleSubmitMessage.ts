@@ -12,6 +12,7 @@ import express from 'express';
 import { Server } from 'socket.io';
 import { MessageProcessor } from '../../message/MessageProcessor';
 import { IDatabase } from '../../persistence/getDatabase';
+import { countMessage } from '../../persistence/metrics/setMetrics';
 
 export async function handleSubmitMessage(
     req: express.Request,
@@ -70,6 +71,7 @@ export async function handleSubmitMessage(
 
     try {
         await messageProcessor.processEnvelop(envelop);
+        db.countMessage(envelop.message.size);
         res.sendStatus(200);
     } catch (error) {
         console.error('handle submit message error');

@@ -58,12 +58,8 @@ export async function getRedisClient() {
     return client;
 }
 
-export async function getDatabase(
-    _redis?: Redis,
-    // _prisma?: PrismaClient,
-): Promise<IDatabase> {
+export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
     const redis = _redis ?? (await getRedisClient());
-    // const prisma = _prisma ?? (await getPrismaClient());
 
     return {
         //Messages
@@ -97,7 +93,8 @@ export async function getDatabase(
         resetOtp: Otp.resetOtp(redis),
         // Metrics
         getMetrics: Metrics.getMetrics(redis),
-        setMetrics: Metrics.setMetrics(redis),
+        countMessage: Metrics.countMessage(redis),
+        countNotification: Metrics.countNotification(redis),
     };
 }
 
@@ -164,7 +161,8 @@ export interface IDatabase extends IAccountDatabase {
         channelType: NotificationChannelType,
     ) => Promise<void>;
     getMetrics: () => Promise<MetricsMap>;
-    setMetrics: (metrics: MetricsMap) => Promise<void>;
+    countMessage: (messageSizeBytes: number) => Promise<void>;
+    countNotification: () => Promise<void>;
 }
 
 export type Redis = Awaited<ReturnType<typeof getRedisClient>>;

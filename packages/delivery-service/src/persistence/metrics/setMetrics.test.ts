@@ -33,7 +33,9 @@ describe('setMetrics', () => {
             const messageSizeBytes = 100;
             const expectedTimestamp = '1680307200';
 
-            await countMessage(mockRedis, messageSizeBytes);
+            const countMessageFunction = countMessage(mockRedis);
+
+            await countMessageFunction(messageSizeBytes);
 
             expect(mockRedis.incrBy).toHaveBeenCalledTimes(2);
             expect(mockRedis.incrBy).toHaveBeenCalledWith(
@@ -61,7 +63,9 @@ describe('setMetrics', () => {
         it('should increment notification count and set expiration', async () => {
             const expectedTimestamp = '1680307200';
 
-            await countNotification(mockRedis);
+            const countNotificationFunction = countNotification(mockRedis);
+
+            await countNotificationFunction();
 
             expect(mockRedis.incrBy).toHaveBeenCalledTimes(1);
             expect(mockRedis.incrBy).toHaveBeenCalledWith(

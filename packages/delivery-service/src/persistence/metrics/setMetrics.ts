@@ -16,44 +16,49 @@ function getKeyIntervalTimestamp(): string {
     return `${timestamp}`;
 }
 
-export async function countMessage(
-    redis: Redis,
-    messageSizeBytes: number,
-): Promise<void> {
-    const timestamp = getKeyIntervalTimestamp();
+export function countMessage(redis: Redis) {
+    return async (messageSizeBytes: number) => {
+        const timestamp = getKeyIntervalTimestamp();
 
-    // Increment the message count, starting at 0 if the key doesn't exist
-    await redis.incrBy(`${RedisPrefix.MetricsMessageCount}${timestamp}`, 1);
+        // Increment the message count, starting at 0 if the key doesn't exist
+        await redis.incrBy(`${RedisPrefix.MetricsMessageCount}${timestamp}`, 1);
 
-    // Increment the message size bytes, starting at 0 if the key doesn't exist
-    await redis.incrBy(
-        `${RedisPrefix.MetricsMessageSize}${timestamp}`,
-        messageSizeBytes,
-    );
+        // Increment the message size bytes, starting at 0 if the key doesn't exist
+        await redis.incrBy(
+            `${RedisPrefix.MetricsMessageSize}${timestamp}`,
+            messageSizeBytes,
+        );
 
-    // Set expiration
-    await redis.expire(
-        `${RedisPrefix.MetricsMessageCount}${timestamp}`,
-        INTERVAL_SECONDS * RETAIN_INTERVALS,
-    );
-    await redis.expire(
-        `${RedisPrefix.MetricsMessageSize}${timestamp}`,
-        INTERVAL_SECONDS * RETAIN_INTERVALS,
-    );
+        // Set expiration
+        await redis.expire(
+            `${RedisPrefix.MetricsMessageCount}${timestamp}`,
+            INTERVAL_SECONDS * RETAIN_INTERVALS,
+        );
+        await redis.expire(
+            `${RedisPrefix.MetricsMessageSize}${timestamp}`,
+            INTERVAL_SECONDS * RETAIN_INTERVALS,
+        );
+
+        console.log('countMessage of size', messageSizeBytes, 'at', timestamp);
+    };
 }
 
-export async function countNotification(redis: Redis): Promise<void> {
-    const timestamp = getKeyIntervalTimestamp();
+export function countNotification(redis: Redis) {
+    return async () => {
+        const timestamp = getKeyIntervalTimestamp();
 
-    // Increment the notification count, starting at 0 if the key doesn't exist
-    await redis.incrBy(
-        `${RedisPrefix.MetricsNotificationCount}${timestamp}`,
-        1,
-    );
+        // Increment the notification count, starting at 0 if the key doesn't exist
+        await redis.incrBy(
+            `${RedisPrefix.MetricsNotificationCount}${timestamp}`,
+            1,
+        );
 
-    // Set expiration
-    await redis.expire(
-        `${RedisPrefix.MetricsNotificationCount}${timestamp}`,
-        INTERVAL_SECONDS * RETAIN_INTERVALS,
-    );
+        // Set expiration
+        await redis.expire(
+            `${RedisPrefix.MetricsNotificationCount}${timestamp}`,
+            INTERVAL_SECONDS * RETAIN_INTERVALS,
+        );
+
+        console.log('countNotification at', timestamp);
+    };
 }
