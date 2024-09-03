@@ -112,18 +112,15 @@ export async function getPublishProfileOnchainTransaction(
 
     const ens = getEnsUtils(mainnetProvider);
 
-    // Fetch owner of ENS name
-    const owner = await ens.name(ensName).getAddress();
-
     // Fetch resolver of account
-    const ethersResolver = await ens.resolver(owner);
+    const ensResolverAddress = await ens.name(ensName).getResolver();
 
-    if (!ethersResolver) {
+    if (!ensResolverAddress) {
         throw Error('No resolver found');
     }
 
     const resolver = ethersHelper.getConractInstance(
-        ethersResolver.address,
+        ensResolverAddress,
         [
             'function setText(bytes32 node, string calldata key, string calldata value) external',
         ],
