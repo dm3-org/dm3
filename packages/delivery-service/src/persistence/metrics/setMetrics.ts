@@ -2,8 +2,8 @@ import { Redis, RedisPrefix } from '../getDatabase';
 
 // todo: add loader function like in server-side utils
 const INTERVAL_SECONDS = parseInt(
-    process.env.METRICS_INTERVAL_SECONDS || '60*60*24',
-);
+    process.env.METRICS_INTERVAL_SECONDS || '86400',
+); // 1 day
 const RETAIN_INTERVALS = parseInt(
     process.env.METRICS_INTERVAL_RETENTION_COUNT || '10',
 );
@@ -18,7 +18,6 @@ function getKeyIntervalTimestamp(): string {
 
 export async function countMessage(
     redis: Redis,
-    date: Date,
     messageSizeBytes: number,
 ): Promise<void> {
     const timestamp = getKeyIntervalTimestamp();
@@ -43,17 +42,13 @@ export async function countMessage(
     );
 }
 
-export async function countNotification(
-    redis: Redis,
-    date: Date,
-    notificationCount: number,
-): Promise<void> {
+export async function countNotification(redis: Redis): Promise<void> {
     const timestamp = getKeyIntervalTimestamp();
 
     // Increment the notification count, starting at 0 if the key doesn't exist
     await redis.incrBy(
         `${RedisPrefix.MetricsNotificationCount}${timestamp}`,
-        notificationCount,
+        1,
     );
 
     // Set expiration
