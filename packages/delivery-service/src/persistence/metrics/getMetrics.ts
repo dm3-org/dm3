@@ -8,6 +8,9 @@ export function getMetrics(redis: Redis): () => Promise<MetricsMap> {
             `${RedisPrefix.MetricsMessageCount}*`,
         );
 
+        // todo: censor current interval
+        // todo: cast to zero if not found (e.g. no messages received during interval)
+
         for (const key of messageCountKeys) {
             const timestamp = parseInt(key.split(':')[1], 10);
             const date = new Date(timestamp * 1000);

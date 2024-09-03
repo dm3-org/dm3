@@ -24,9 +24,9 @@ export enum RedisPrefix {
     NotificationChannel = 'notificationChannel:',
     GlobalNotification = 'globalNotification:',
     Otp = 'otp:',
-    MetricsMessageCount = 'metrics:messageCount:',
-    MetricsMessageSize = 'metrics:messageSize:',
-    MetricsNotificationCount = 'metrics:notificationCount:',
+    MetricsMessageCount = 'metricsMessageCount:',
+    MetricsMessageSize = 'metricsMessageSize:',
+    MetricsNotificationCount = 'metricsNotificationCount:',
 }
 
 export async function getRedisClient() {
