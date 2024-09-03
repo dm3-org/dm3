@@ -2408,6 +2408,7 @@ __metadata:
     "@dm3-org/dm3-lib-test-helper": "workspace:^"
     "@emoji-mart/data": ^1.1.2
     "@emoji-mart/react": ^1.1.1
+    "@ensdomains/ensjs": ^2.1.0
     "@popperjs/core": ^2.11.8
     "@rainbow-me/rainbowkit": ^1.0.6
     "@testing-library/dom": ^9.3.1
@@ -2643,7 +2644,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ensdomains/ensjs@npm:^2.0.1":
+"@ensdomains/ensjs@npm:^2.0.1, @ensdomains/ensjs@npm:^2.1.0":
   version: 2.1.0
   resolution: "@ensdomains/ensjs@npm:2.1.0"
   dependencies:

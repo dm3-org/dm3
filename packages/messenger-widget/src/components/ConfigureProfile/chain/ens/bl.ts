@@ -3,10 +3,11 @@ import { ethersHelper, stringify } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import { closeLoader, startLoader } from '../../../Loader/Loader';
 import { NAME_TYPE } from '../common';
+import ENS from '@ensdomains/ensjs';
 
 // method to check ENS name is valid or not
 const isEnsNameValid = async (
-    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
+    mainnetProvider: ethers.providers.JsonRpcProvider,
     ensName: string,
     ethAddress: string,
     setError: (type: NAME_TYPE | undefined, msg: string) => void,
@@ -17,14 +18,14 @@ const isEnsNameValid = async (
         return false;
     }
 
-    const address = await ethersHelper.resolveOwner(mainnetProvider!, ensName);
+    // Fetch owner of ENS name
+    const ens = getEnsUtils(mainnetProvider);
+    const owner = await ens.name(ensName).getAddress();
 
-    if (address === null) {
+    if (owner === null) {
         setError(NAME_TYPE.ENS_NAME, 'Resolver not found');
         return false;
     }
-
-    const owner = await ethersHelper.resolveName(mainnetProvider!, ensName);
 
     if (
         owner &&
@@ -109,10 +110,13 @@ export async function getPublishProfileOnchainTransaction(
         throw Error('No signature');
     }
 
-    const ethersResolver = await ethersHelper.getResolver(
-        mainnetProvider,
-        ensName,
-    );
+    const ens = getEnsUtils(mainnetProvider);
+
+    // Fetch owner of ENS name
+    const owner = await ens.name(ensName).getAddress();
+
+    // Fetch resolver of account
+    const ethersResolver = await ens.resolver(owner);
 
     if (!ethersResolver) {
         throw Error('No resolver found');
@@ -141,3 +145,12 @@ export async function getPublishProfileOnchainTransaction(
         args: [node, key, value],
     };
 }
+
+const getEnsUtils = (
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
+) => {
+    return new ENS({
+        provider: mainnetProvider,
+        ensAddress: '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e',
+    });
+};
