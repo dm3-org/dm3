@@ -1,5 +1,4 @@
-import { Redis, RedisPrefix } from '../getDatabase';
-import { MetricsMap, IntervalMetric } from './metricTypes';
+import { MetricsMap } from './metricTypes';
 
 // https://stackoverflow.com/questions/29085197/how-do-you-json-stringify-an-es6-map
 
