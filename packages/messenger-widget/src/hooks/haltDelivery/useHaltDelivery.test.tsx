@@ -90,7 +90,7 @@ describe('useConversation hook test cases', () => {
             });
             const deliveryServiceContext: DeliveryServiceContextType =
                 getMockedDeliveryServiceContext({
-                    fetchIncommingMessages: function (ensName: string) {
+                    fetchIncomingMessages: function (ensName: string) {
                         return Promise.resolve([]);
                     },
                     getDeliveryServiceProperties: function (): Promise<any[]> {

@@ -112,6 +112,7 @@ export interface IDatabase extends IAccountDatabase {
         limit: number,
     ) => Promise<EncryptionEnvelop[]>;
     createMessage: (
+        receiverAddress: string,
         conversationId: string,
         envelop: EncryptionEnvelop,
     ) => Promise<void>;

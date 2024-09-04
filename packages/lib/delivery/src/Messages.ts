@@ -20,7 +20,7 @@ import {
 } from '@dm3-org/dm3-lib-messaging';
 import { sha256 } from '@dm3-org/dm3-lib-shared';
 
-export interface Acknowledgment {
+export interface Acknowledgement {
     contactAddress: string;
     messageHash: string;
 }

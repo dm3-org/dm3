@@ -1,22 +1,16 @@
 import { decryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
 import {
-    createReadOpenMessage,
-    createReadReceiveMessage,
     EncryptionEnvelop,
     Envelop,
     MessageState,
 } from '@dm3-org/dm3-lib-messaging';
-import {
-    Account,
-    normalizeEnsName,
-    ProfileKeys,
-} from '@dm3-org/dm3-lib-profile';
+import { ProfileKeys } from '@dm3-org/dm3-lib-profile';
 import { ContactPreview } from '../../../interfaces/utils';
 import { StoreMessageAsync } from '../../storage/useStorage';
+import { ReceiptDispatcher } from '../receipt/ReceiptDispatcher';
 import { MessageModel, MessageSource, MessageStorage } from '../useMessage';
 
 export const handleMessagesFromWebSocket = async (
-    account: Account,
     addConversation: (
         contactEnsName: string,
     ) => Promise<ContactPreview | undefined>,
@@ -25,9 +19,8 @@ export const handleMessagesFromWebSocket = async (
     profileKeys: ProfileKeys,
     selectedContact: ContactPreview,
     encryptedEnvelop: EncryptionEnvelop,
-    resolveTLDtoAlias: Function,
+    acknowledgementManager: ReceiptDispatcher,
     updateConversationList: (conversation: string, updatedAt: number) => void,
-    addMessage: Function,
 ) => {
     const decryptedEnvelop: Envelop = {
         message: JSON.parse(
@@ -45,12 +38,15 @@ export const handleMessagesFromWebSocket = async (
         metadata: encryptedEnvelop.metadata,
     };
 
-    const contact = normalizeEnsName(
-        await resolveTLDtoAlias(decryptedEnvelop.message.metadata.from),
+    //we wait for the contact to be added to resolve TLD to alias
+    const contactPreview = await addConversation(
+        decryptedEnvelop.message.metadata.from,
     );
 
-    //TODO use TLD name
-    await addConversation(decryptedEnvelop.message.metadata.from);
+    // Resolve TLD to alias
+    const contact = contactPreview?.contactDetails.account.ensName!;
+
+    console.log('contactPreview MSGWS', contactPreview);
 
     const messageState =
         selectedContact?.contactDetails.account.ensName === contact
@@ -81,36 +77,12 @@ export const handleMessagesFromWebSocket = async (
         };
     });
 
-    // if contact is selected then send READ_OPENED acknowledgment to sender for new message received
-    if (
-        selectedContact &&
-        selectedContact.contactDetails.account.ensName ===
-            messageModel.envelop.message.metadata.from
-    ) {
-        const readedMsg = await createReadOpenMessage(
-            messageModel.envelop.message.metadata.from,
-            account!.ensName,
-            'READ_OPENED',
-            profileKeys?.signingKeyPair.privateKey!,
-            messageModel.envelop.metadata?.encryptedMessageHash as string,
-        );
-
-        await addMessage(messageModel.envelop.message.metadata.from, readedMsg);
-    } else if (
-        messageModel.envelop.message.metadata.type !== 'READ_RECEIVED' &&
-        messageModel.envelop.message.metadata.type !== 'READ_OPENED'
-    ) {
-        // send READ_RECEIVED acknowledgment to sender for new message received
-        const readedMsg = await createReadReceiveMessage(
-            messageModel.envelop.message.metadata.from,
-            account!.ensName,
-            'READ_RECEIVED',
-            profileKeys?.signingKeyPair.privateKey!,
-            messageModel.envelop.metadata?.encryptedMessageHash as string,
-        );
-
-        await addMessage(messageModel.envelop.message.metadata.from, readedMsg);
-    }
+    //Let the acknowledgement manager handle the message acknowledgement
+    await acknowledgementManager.sendSingle(
+        selectedContact,
+        contact,
+        messageModel,
+    );
 
     // Update the conversation with the latest message timestamp
     updateConversationList(

@@ -5,9 +5,8 @@ import {
     Message,
     MessageState,
     buildEnvelop,
-    createReadOpenMessage,
 } from '@dm3-org/dm3-lib-messaging';
-import { Account, normalizeEnsName } from '@dm3-org/dm3-lib-profile';
+import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { sha256, stringify } from '@dm3-org/dm3-lib-shared';
 import { StorageEnvelopContainer as StorageEnvelopContainerNew } from '@dm3-org/dm3-lib-storage';
 import { useCallback, useContext, useEffect, useState } from 'react';
@@ -16,8 +15,11 @@ import { ConversationContext } from '../../context/ConversationContext';
 import { DeliveryServiceContext } from '../../context/DeliveryServiceContext';
 import { StorageContext } from '../../context/StorageContext';
 import { TLDContext } from '../../context/TLDContext';
+import { ContactPreview } from '../../interfaces/utils';
 import { submitEnvelopsToReceiversDs } from '../../utils/deliveryService/submitEnvelopsToReceiversDs';
 import { useHaltDelivery } from '../haltDelivery/useHaltDelivery';
+import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
+import { ReceiptDispatcher } from './receipt/ReceiptDispatcher';
 import { renderMessage } from './renderer/renderMessage';
 import { checkIfEnvelopAreInSizeLimit } from './sizeLimit/checkIfEnvelopIsInSizeLimit';
 import { handleMessagesFromDeliveryService } from './sources/handleMessagesFromDeliveryService';
@@ -58,20 +60,22 @@ export type MessageStorage = {
 export const useMessage = () => {
     const {
         contacts,
+        initialized: conversationsInitialized,
         selectedContact,
         addConversation,
         updateConversationList,
+        hydrateExistingContactAsync,
     } = useContext(ConversationContext);
     const { account, profileKeys } = useContext(AuthContext);
-    const { fetchNewMessages, syncAcknowledgment } = useContext(
-        DeliveryServiceContext,
-    );
+    const {
+        fetchIncomingMessages,
+        syncAcknowledgement,
+        isInitialized: deliveryServiceInitialized,
+    } = useContext(DeliveryServiceContext);
 
     const { onNewMessage, removeOnNewMessageListener } = useContext(
         DeliveryServiceContext,
     );
-
-    const { resolveTLDtoAlias } = useContext(TLDContext);
 
     const {
         getMessages: getMessagesFromStorage,
@@ -100,6 +104,40 @@ export const useMessage = () => {
         });
     }, [contacts]);
 
+    useEffect(() => {
+        if (
+            !account ||
+            !storageInitialized ||
+            !deliveryServiceInitialized ||
+            !conversationsInitialized
+        )
+            return;
+        const getMessagesFromDs = async () => {
+            const messagesFromDs = await handleMessagesFromDeliveryService(
+                selectedContact,
+                account!,
+                profileKeys!,
+                addConversation,
+                storeMessageBatch,
+                fetchIncomingMessages,
+                syncAcknowledgement,
+                updateConversationList,
+                addMessage,
+            );
+            await Promise.all(
+                messagesFromDs.map(async (conversation) => {
+                    _addMessages(conversation.aliasName, conversation.messages);
+                }),
+            );
+        };
+        getMessagesFromDs();
+    }, [
+        storageInitialized,
+        account,
+        deliveryServiceInitialized,
+        conversationsInitialized,
+    ]);
+
     //Effect to reset the messages when the storage is initialized, i.e on account change
     useEffect(() => {
         setMessages({});
@@ -110,20 +148,19 @@ export const useMessage = () => {
     useEffect(() => {
         onNewMessage((encryptedEnvelop: EncryptionEnvelop) => {
             handleMessagesFromWebSocket(
-                account as Account,
                 addConversation,
                 setMessages,
                 storeMessage,
                 profileKeys!,
                 selectedContact!,
                 encryptedEnvelop,
-                resolveTLDtoAlias,
+                new ReceiptDispatcher(account!, profileKeys!, addMessage),
                 updateConversationList,
-                addMessage,
             );
         });
 
         return () => {
+            console.log('remove on new message listener');
             removeOnNewMessageListener();
         };
     }, [onNewMessage, selectedContact, contacts]);
@@ -157,34 +194,17 @@ export const useMessage = () => {
                 };
             });
 
-            const ackToSend = unreadMessages.filter(
-                (data) =>
-                    data.envelop.message.metadata.type !== 'READ_RECEIVED' &&
-                    data.envelop.message.metadata.type !== 'READ_OPENED',
+            //For every read message we sent a READ_OPENED acknowledgement to sender using acknowledgementManager
+            const receiptDispatcher = new ReceiptDispatcher(
+                account!,
+                profileKeys!,
+                addMessage,
             );
 
-            // send READ_OPENED acknowledgment to sender for all new messages received
-            const readedMsgs = await Promise.all(
-                ackToSend.map(async (message: MessageModel) => {
-                    return await createReadOpenMessage(
-                        message.envelop.message.metadata.from,
-                        account!.ensName,
-                        'READ_OPENED',
-                        profileKeys?.signingKeyPair.privateKey!,
-                        message.envelop.metadata
-                            ?.encryptedMessageHash as string,
-                    );
-                }),
-            );
-
-            // add messages
-            await Promise.all(
-                readedMsgs.map(async (msgs, index) => {
-                    await addMessage(
-                        ackToSend[index].envelop.message.metadata.from,
-                        msgs,
-                    );
-                }),
+            await receiptDispatcher.sendMultiple(
+                selectedContact,
+                contact,
+                unreadMessages,
             );
 
             editMessageBatchAsync(
@@ -273,40 +293,69 @@ export const useMessage = () => {
         const recipientIsDm3User =
             !!recipient?.contactDetails.account.profile?.publicEncryptionKey;
 
-        //If the recipient is not a dm3 user we can store the message in the storage.
-        //Ideally the message will be submitted once the receiver has created a profile.
-        //https://github.com/orgs/dm3-org/projects/5?pane=issue&itemId=64716043 will refine this
-        if (!recipientIsDm3User) {
-            //StorageEnvelopContainerNew to store the message in the storage
-            const messageModel: MessageModel = {
-                envelop: {
-                    message,
-                    metadata: {
-                        encryptionScheme: 'x25519-chacha20-poly1305',
-                        //since we don't have a recipient we can't encrypt the deliveryInformation
-                        deliveryInformation: '',
-                        //Because storing a message is always an internal process we dont need to sign it. The signature is only needed for the delivery service
-                        signature: '',
-                        encryptedMessageHash: sha256(stringify(message)),
-                        version: 'v1',
-                    },
-                },
-                messageState: MessageState.Created,
-                source: MessageSource.Client,
-                reactions: [],
-            };
-            setMessages((prev) => {
-                //Check message has been added previously
-                return {
-                    ...prev,
-                    [contact]: [...(prev[contact] ?? []), messageModel],
-                };
-            });
-            //Store the message and mark it as halted
-            storeMessage(contact, messageModel, true);
-            return { isSuccess: true };
+        //If the recipient is a dm3 user we can send the message to the delivery service
+        if (recipientIsDm3User) {
+            return await _dispatchMessage(contact, recipient, message);
         }
 
+        //There are cases were a messages is already to be send even though the contract hydration is not finished yet.
+        //This happens if a message has been picked up from the delivery service and the clients sends READ_RECEIVE or READ_OPENED acknowledgements
+        //In that case we've to check again to the if the user is a DM3 user, before we decide to keep the message
+        const potentialReceiver = contacts.find(
+            (c) => c.contactDetails.account.ensName === contact,
+        );
+
+        //This should normally not happen, since the contact should be already in the contact list
+        if (!potentialReceiver) {
+            return await haltMessage(contact, message);
+        }
+        const hydratedC = await hydrateExistingContactAsync(potentialReceiver);
+
+        //If the user is a DM3 user we can send the message to the delivery service
+        if (hydratedC.contactDetails.account.profile?.publicEncryptionKey) {
+            return await _dispatchMessage(contact, hydratedC, message);
+        }
+
+        //If neither the recipient nor the potential recipient is a DM3 user we store the message in the storage
+        return await haltMessage(contact, message);
+    };
+
+    const haltMessage = async (contact: string, message: Message) => {
+        //StorageEnvelopContainerNew to store the message in the storage
+        const messageModel: MessageModel = {
+            envelop: {
+                message,
+                metadata: {
+                    encryptionScheme: 'x25519-chacha20-poly1305',
+                    //since we don't have a recipient we can't encrypt the deliveryInformation
+                    deliveryInformation: '',
+                    //Because storing a message is always an internal process we dont need to sign it. The signature is only needed for the delivery service
+                    signature: '',
+                    encryptedMessageHash: sha256(stringify(message)),
+                    version: 'v1',
+                },
+            },
+            messageState: MessageState.Created,
+            source: MessageSource.Client,
+            reactions: [],
+        };
+        setMessages((prev) => {
+            //Check message has been added previously
+            return {
+                ...prev,
+                [contact]: [...(prev[contact] ?? []), messageModel],
+            };
+        });
+        //Store the message and mark it as halted
+        storeMessage(contact, messageModel, true);
+        return { isSuccess: true };
+    };
+
+    const _dispatchMessage = async (
+        contact: string,
+        recipient: ContactPreview,
+        message: Message,
+    ) => {
         //Build the envelops based on the message and the users profileKeys.
         //For each deliveryServiceProfile a envelop is created that will be sent to the delivery service
         const envelops = await Promise.all(
@@ -397,23 +446,13 @@ export const useMessage = () => {
                 //For the first page we use 0 as offset
                 0,
             ),
-            handleMessagesFromDeliveryService(
-                selectedContact,
-                account!,
-                profileKeys!,
-                addConversation,
-                storeMessageBatch,
-                contactName,
-                fetchNewMessages,
-                syncAcknowledgment,
-                updateConversationList,
-                addMessage,
-            ),
         ]);
         const flatten = initialMessages.reduce(
             (acc, val) => acc.concat(val),
             [],
         );
+
+        console.log('load initial messages for contact', contactName);
         await _addMessages(contactName, flatten);
     };
 
@@ -505,10 +544,8 @@ export const useMessage = () => {
                             metadata: {
                                 ...message.envelop.message.metadata,
                                 from: normalizeEnsName(
-                                    await resolveTLDtoAlias(
-                                        message.envelop.message.metadata
-                                            ?.from ?? '',
-                                    ),
+                                    message.envelop.message.metadata?.from ??
+                                        '',
                                 ),
                             },
                         },

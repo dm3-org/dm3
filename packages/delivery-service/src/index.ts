@@ -18,7 +18,6 @@ import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
 import webpush from 'web-push';
-import winston from 'winston';
 import { startCleanUpPendingMessagesJob } from './cleanup/cleanUpPendingMessages';
 import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
 import Delivery from './delivery';
@@ -92,15 +91,6 @@ const getDbWithAddressResolvedGetAccount = (
 //TODO remove
 app.use(cors());
 app.use(bodyParser.json());
-
-declare global {
-    var logger: winston.Logger;
-}
-
-global.logger = winston.createLogger({
-    level: process.env.LOG_LEVEL ?? 'info',
-    transports: [new winston.transports.Console()],
-});
 
 (async () => {
     // load environment

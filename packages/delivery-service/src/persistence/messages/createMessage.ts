@@ -1,12 +1,9 @@
+import { EncryptionEnvelop, schema } from '@dm3-org/dm3-lib-messaging';
+import { stringify, validateSchema } from '@dm3-org/dm3-lib-shared';
 import { Redis, RedisPrefix } from '../getDatabase';
-import {
-    schema,
-    DeliveryInformation,
-    EncryptionEnvelop,
-} from '@dm3-org/dm3-lib-messaging';
-import { validateSchema, stringify } from '@dm3-org/dm3-lib-shared';
 export function createMessage(redis: Redis) {
     return async (
+        receiverAddress: string,
         conversationId: string,
         envelop: EncryptionEnvelop,
         createdAt: number = new Date().getTime(),
@@ -25,31 +22,12 @@ export function createMessage(redis: Redis) {
             value: stringify(envelop),
         });
 
-        /**
-         * add a redis set key = envelop.metadata.deliveryInformation.to and value = conversationId
-         */
-        /**
-         * We can assume that the deliveryInformation is always encrypted because the
-         * DS must've encrypted it before persisting the message to the database.
-         *
-         *
-         *  In the future we have to refactor the DeliveryInformation Type
-         *  to we can ensure that on compile time. https://github.com/corpus-io/dm3/issues/479
-         */
-        const encryptedDeliverInformation = envelop.metadata
-            .deliveryInformation as DeliveryInformation;
+        console.debug('store incoming conversation for', receiverAddress);
 
-        console.debug(
-            'store incoming conversation for',
-            encryptedDeliverInformation.to,
-        );
-
-        await redis.zAdd(
-            RedisPrefix.IncomingConversations + encryptedDeliverInformation.to,
-            {
-                score: createdAt,
-                value: conversationId,
-            },
-        );
+        //We've to keep track of every incoming conversations for the address
+        await redis.zAdd(RedisPrefix.IncomingConversations + receiverAddress, {
+            score: createdAt,
+            value: conversationId,
+        });
     };
 }

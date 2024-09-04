@@ -51,7 +51,7 @@ export async function handleSubmitMessage(
     if (!isSchemaValid) {
         const error = 'invalid schema';
 
-        global.logger.warn({
+        console.warn({
             method: 'WS SUBMIT MESSAGE',
             error,
         });

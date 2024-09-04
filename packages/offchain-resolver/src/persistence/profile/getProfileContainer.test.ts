@@ -1,6 +1,6 @@
 import { SignedUserProfile } from '@dm3-org/dm3-lib-profile';
 import { ethers } from 'ethers';
-import winston from 'winston';
+
 import { getProfileContainer, setUserProfile } from '.';
 import { IDatabase } from '../IDatabase';
 import { getDatabase, getDbClient } from '../getDatabase';
@@ -47,8 +47,8 @@ describe('getUserProfile', () => {
         };
 
         await setUserProfile(prismaClient)(name, profile, address);
-        const retrivedProfile = await getProfileContainer(prismaClient)(name);
+        const retrievedProfile = await getProfileContainer(prismaClient)(name);
 
-        expect(retrivedProfile?.profile).to.eql(profile);
+        expect(retrievedProfile?.profile).to.eql(profile);
     });
 });
