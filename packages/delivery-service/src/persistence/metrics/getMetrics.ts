@@ -1,6 +1,14 @@
 import { Redis, RedisPrefix } from '../getDatabase';
 import { MetricsObject, IntervalMetric } from './metricTypes';
 
+const INTERVAL_SECONDS = parseInt(
+    process.env.METRICS_INTERVAL_SECONDS || '86400',
+); // 1 day
+
+function getCurrentIntervalTimestamp(): number {
+    return Math.floor(Date.now() / 1000 / INTERVAL_SECONDS) * INTERVAL_SECONDS;
+}
+
 export function getMetrics(redis: Redis): () => Promise<MetricsObject> {
     return async () => {
         const metrics: MetricsObject = {};
@@ -8,11 +16,16 @@ export function getMetrics(redis: Redis): () => Promise<MetricsObject> {
             `${RedisPrefix.MetricsMessageCount}*`,
         );
 
-        // todo: censor current interval
-        // todo: cast to zero if not found (e.g. no messages received during interval)
+        const currentTimestamp = getCurrentIntervalTimestamp();
 
         for (const key of messageCountKeys) {
             const timestamp = parseInt(key.split(':')[1], 10);
+
+            // Skip the current interval
+            if (timestamp === currentTimestamp) {
+                continue;
+            }
+
             const date = new Date(timestamp * 1000);
             const dateString = date.toISOString();
 
