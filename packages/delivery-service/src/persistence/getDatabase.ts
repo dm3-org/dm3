@@ -10,7 +10,7 @@ import Account from './account';
 import { getIdEnsName } from './getIdEnsName';
 import Messages from './messages';
 import { syncAcknowledge } from './messages/syncAcknowledge';
-import type { MetricsMap } from './metrics';
+import type { MetricsObject } from './metrics';
 import Metrics from './metrics';
 import Notification from './notification';
 import Otp from './otp';
@@ -161,7 +161,7 @@ export interface IDatabase extends IAccountDatabase {
         ensName: string,
         channelType: NotificationChannelType,
     ) => Promise<void>;
-    getMetrics: () => Promise<MetricsMap>;
+    getMetrics: () => Promise<MetricsObject>;
     countMessage: (messageSizeBytes: number) => Promise<void>;
     countNotification: () => Promise<void>;
 }
