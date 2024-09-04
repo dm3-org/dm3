@@ -78,7 +78,12 @@ export const submitEnsNameTransaction = async (
             const response = await ethersHelper.executeTransaction(tx);
             await response.wait();
             setEnsNameFromResolver(ensName);
+            // stop loader
+            closeLoader();
+            return true;
         } else {
+            // stop loader
+            closeLoader();
             throw Error('Error creating publish transaction');
         }
     } catch (e: any) {
@@ -89,10 +94,10 @@ export const submitEnsNameTransaction = async (
                 ? 'User rejected transaction'
                 : 'You are not the owner/manager of this name',
         );
+        // stop loader
+        closeLoader();
+        return false;
     }
-
-    // stop loader
-    closeLoader();
 };
 
 export async function getPublishProfileOnchainTransaction(

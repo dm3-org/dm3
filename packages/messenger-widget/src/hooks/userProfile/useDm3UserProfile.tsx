@@ -336,7 +336,9 @@ export const useDm3UserProfile = () => {
                 dm3Configuration.chainId,
             );
 
-            changeNetwork(chainId);
+            chainId !== connectedChainId
+                ? changeNetwork(chainId)
+                : executeTransaction(existingName);
         }
 
         // check its GNOSIS name
@@ -349,7 +351,9 @@ export const useDm3UserProfile = () => {
                 dm3Configuration.chainId,
             );
 
-            changeNetwork(chainId);
+            chainId !== connectedChainId
+                ? changeNetwork(chainId)
+                : executeTransaction(existingName);
         }
 
         // check its ENS name
@@ -358,15 +362,18 @@ export const useDm3UserProfile = () => {
                 NAME_SERVICES.ENS,
                 dm3Configuration.chainId,
             );
-
-            changeNetwork(chainId);
+            chainId !== connectedChainId
+                ? changeNetwork(chainId)
+                : executeTransaction(existingName);
         }
     };
 
     /**
      * Executes blockchain transaction to update profile on OP, GNO and ENS name
      */
-    const executeTransaction = async () => {
+    const executeTransaction = async (name?: string) => {
+        const profileNameToUpdate = name ? name : profileName;
+
         // extract array of delivery service nodes names
         const newNodes = nodes.dsNames.map((n) => n);
 
@@ -374,30 +381,63 @@ export const useDm3UserProfile = () => {
         const newProfile: UserProfile = { ...account?.profile! };
         newProfile.deliveryServices = newNodes;
 
-        // update account with new profile
-        const updatedAccount: Account = { ...account } as Account;
-        updatedAccount.profile = newProfile;
-
         const provider = new ethers.providers.Web3Provider(
             window.ethereum as ethers.providers.ExternalProvider,
         );
 
         // if no name found, don't update
-        if (!profileName) {
+        if (!profileNameToUpdate) {
             return;
         }
 
+        // fetch profile creation message to update the profile
+        const profileCreationMessage = getProfileCreationMessage(
+            stringify(newProfile),
+            ethAddress as string,
+        );
+
+        // sign the message to update the profile
+        const signature = await walletClient
+            ?.signMessage({
+                message: profileCreationMessage,
+            })
+            .catch((err) => {
+                console.log('signature error: ', err);
+                return;
+            });
+
+        // update account with new profile
+        const updatedAccount: Account = { ...account } as Account;
+        updatedAccount.profile = newProfile;
+        updatedAccount.profileSignature = signature as string;
+
         // check if its OPTIMISM name
-        if (profileName.endsWith('.op.dm3.eth')) {
+        if (profileNameToUpdate.endsWith('.op.dm3.eth')) {
             // start loader
             setLoaderContent('Updating profile...');
             startLoader();
 
             try {
-                await registerOpName(provider, () => {}, profileName);
+                await registerOpName(provider, () => {}, profileNameToUpdate);
 
                 // do transaction
-                await publishProfile(provider, updatedAccount, profileName);
+                const response = await publishProfile(
+                    provider,
+                    updatedAccount,
+                    profileNameToUpdate,
+                );
+
+                if (response) {
+                    setNamesWithProfile((prev) => {
+                        return {
+                            ...prev,
+                            opName: {
+                                profile: newProfile,
+                                isActive: true,
+                            },
+                        };
+                    });
+                }
 
                 setProfileName(null);
                 closeLoader();
@@ -409,23 +449,35 @@ export const useDm3UserProfile = () => {
 
         // check if its GNOSIS name
         if (
-            profileName?.endsWith('.gno') ||
-            profileName?.endsWith('.gnosis.eth')
+            profileNameToUpdate?.endsWith('.gno') ||
+            profileNameToUpdate?.endsWith('.gnosis.eth')
         ) {
             // start loader
             setLoaderContent('Updating profile...');
             startLoader();
 
             try {
-                await submitGenomeNameTransaction(
+                const response = await submitGenomeNameTransaction(
                     provider,
-                    account!,
+                    updatedAccount!,
                     setLoaderContent,
-                    profileName,
+                    profileNameToUpdate,
                     ethAddress!,
                     () => {},
                     () => {},
                 );
+
+                if (response) {
+                    setNamesWithProfile((prev) => {
+                        return {
+                            ...prev,
+                            gnosisName: {
+                                profile: newProfile,
+                                isActive: true,
+                            },
+                        };
+                    });
+                }
 
                 setProfileName(null);
                 closeLoader();
@@ -436,21 +488,33 @@ export const useDm3UserProfile = () => {
         }
 
         // check if its ENS name
-        if (profileName?.endsWith('.eth')) {
+        if (profileNameToUpdate?.endsWith('.eth')) {
             // start loader
             setLoaderContent('Updating profile...');
             startLoader();
 
             try {
-                await submitEnsNameTransaction(
+                const response = await submitEnsNameTransaction(
                     provider!,
-                    account!,
+                    updatedAccount!,
                     ethAddress!,
                     setLoaderContent,
-                    profileName,
+                    profileNameToUpdate,
                     () => {},
                     () => {},
                 );
+
+                if (response) {
+                    setNamesWithProfile((prev) => {
+                        return {
+                            ...prev,
+                            ensName: {
+                                profile: newProfile,
+                                isActive: true,
+                            },
+                        };
+                    });
+                }
 
                 setProfileName(null);
                 closeLoader();

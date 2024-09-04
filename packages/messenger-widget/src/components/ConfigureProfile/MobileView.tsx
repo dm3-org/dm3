@@ -238,7 +238,7 @@ export function MobileView() {
                         </span>
                     </p>
                     <p
-                        className={'dm3-address m-0 ms-0 font-size-14 font-weight-500 line-height-24 grey-text'.concat(
+                        className={'dm3-address m-0 ms-0 font-size-14 font-weight-500 line-height-24'.concat(
                             ' ',
                             !isProfileUpdatedForEnsName()
                                 ? 'error-text'
