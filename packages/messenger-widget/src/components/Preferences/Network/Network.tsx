@@ -67,7 +67,7 @@ export function Network() {
                         })}
                     </div>
 
-                    {!isProfileUpdated() && (
+                    {!isProfileUpdated && (
                         <div className="col-xxl-6 col-xl-6 col-lg-6 col-md-12 col-sm-12">
                             <span className="update-profile-box">
                                 <div>

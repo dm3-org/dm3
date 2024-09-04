@@ -93,7 +93,7 @@ export function NormalView() {
                         <p
                             className={'m-0 font-size-14 font-weight-500 line-height-24 title-content'.concat(
                                 ' ',
-                                !isProfileUpdatedForAddrName()
+                                !isProfileUpdatedForAddrName
                                     ? 'error-text'
                                     : '',
                             )}
@@ -119,7 +119,7 @@ export function NormalView() {
                         <p
                             className={'dm3-address m-0 ms-5 font-size-14 font-weight-500 line-height-24'.concat(
                                 ' ',
-                                !isProfileUpdatedForAddrName()
+                                !isProfileUpdatedForAddrName
                                     ? 'error-text'
                                     : 'grey-text',
                             )}
@@ -128,7 +128,7 @@ export function NormalView() {
                                 ethAddress +
                                     dm3Configuration.addressEnsSubdomain}
                         </p>
-                        {!isProfileUpdatedForAddrName() && (
+                        {!isProfileUpdatedForAddrName && (
                             <button
                                 className="add-prof-btn-active update-btn"
                                 onClick={() => updateProfileForAddressName()}
@@ -149,7 +149,7 @@ export function NormalView() {
                             <p
                                 className={'m-0 font-size-14 font-weight-500 line-height-24 title-content'.concat(
                                     ' ',
-                                    !isProfileUpdatedForDm3Name()
+                                    !isProfileUpdatedForDm3Name
                                         ? 'error-text'
                                         : '',
                                 )}
@@ -173,7 +173,7 @@ export function NormalView() {
                             <p
                                 className={'dm3-address m-0 ms-5 font-size-14 font-weight-500 line-height-24'.concat(
                                     ' ',
-                                    !isProfileUpdatedForDm3Name()
+                                    !isProfileUpdatedForDm3Name
                                         ? 'error-text'
                                         : 'grey-text',
                                 )}
@@ -188,7 +188,7 @@ export function NormalView() {
                                 onClick={() => setShowDeleteConfirmation(true)}
                             />
 
-                            {!isProfileUpdatedForDm3Name() && (
+                            {!isProfileUpdatedForDm3Name && (
                                 <button
                                     className="add-prof-btn-active update-btn"
                                     onClick={() => {
@@ -224,7 +224,7 @@ export function NormalView() {
                             <p
                                 className={'m-0 font-size-14 font-weight-500 line-height-24 title-content'.concat(
                                     ' ',
-                                    !isProfileUpdatedForEnsName()
+                                    !isProfileUpdatedForEnsName
                                         ? 'error-text'
                                         : '',
                                 )}
@@ -249,14 +249,14 @@ export function NormalView() {
                             <p
                                 className={'dm3-address m-0 ms-5 font-size-14 font-weight-500 line-height-24'.concat(
                                     ' ',
-                                    !isProfileUpdatedForEnsName()
+                                    !isProfileUpdatedForEnsName
                                         ? 'error-text'
                                         : 'grey-text',
                                 )}
                             >
                                 {existingEnsName}
                             </p>
-                            {!isProfileUpdatedForEnsName() && (
+                            {!isProfileUpdatedForEnsName && (
                                 <button
                                     className="add-prof-btn-active update-btn"
                                     onClick={() =>

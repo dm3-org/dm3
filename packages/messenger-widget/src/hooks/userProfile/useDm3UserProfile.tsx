@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useMemo, useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { isValidName } from 'ethers/lib/utils';
 import { updateProfile } from './../../adapters/offchainResolverApi';
@@ -616,18 +616,87 @@ export const useDm3UserProfile = () => {
     };
 
     /**
+     * Checks the address name profile is updated or not
+     */
+    const isProfileUpdatedForAddrName = useMemo(() => {
+        const { addrName } = namesWithProfile;
+        if (
+            addrName &&
+            addrName.isActive &&
+            addrName.profile &&
+            JSON.stringify(addrName.profile.deliveryServices) !==
+                JSON.stringify(nodes.dsNames)
+        ) {
+            return false;
+        }
+        return true;
+    }, [nodes, namesWithProfile]);
+
+    /**
+     * Checks the DM3/OP name profile is updated or not
+     */
+    const isProfileUpdatedForDm3Name = useMemo(() => {
+        const { dm3Name, opName } = namesWithProfile;
+        if (
+            dm3Name &&
+            dm3Name.isActive &&
+            dm3Name.profile &&
+            JSON.stringify(dm3Name.profile.deliveryServices) !==
+                JSON.stringify(nodes.dsNames)
+        ) {
+            return false;
+        }
+        if (
+            opName &&
+            opName.isActive &&
+            opName.profile &&
+            JSON.stringify(opName.profile.deliveryServices) !==
+                JSON.stringify(nodes.dsNames)
+        ) {
+            return false;
+        }
+        return true;
+    }, [nodes, namesWithProfile]);
+
+    /**
+     * Checks the ENS/GNO name profile is updated or not
+     */
+    const isProfileUpdatedForEnsName = useMemo(() => {
+        const { ensName, gnosisName } = namesWithProfile;
+        if (
+            ensName &&
+            ensName.isActive &&
+            ensName.profile &&
+            JSON.stringify(ensName.profile.deliveryServices) !==
+                JSON.stringify(nodes.dsNames)
+        ) {
+            return false;
+        }
+        if (
+            gnosisName &&
+            gnosisName.isActive &&
+            gnosisName.profile &&
+            JSON.stringify(gnosisName.profile.deliveryServices) !==
+                JSON.stringify(nodes.dsNames)
+        ) {
+            return false;
+        }
+        return true;
+    }, [nodes, namesWithProfile]);
+
+    /**
      * Check profile is updated for ADDR name or not.
      * If its not updated return false.
      * Check profile is updated for DM3 name or not.
      * If its not updated return false.
      * If DM3 name profile is updated, then check ENS name profile and return true/false.
      */
-    const isProfileUpdated = useCallback(() => {
-        return !isProfileUpdatedForAddrName()
+    const isProfileUpdated = useMemo(() => {
+        return !isProfileUpdatedForAddrName
             ? false
-            : !isProfileUpdatedForDm3Name()
+            : !isProfileUpdatedForDm3Name
             ? false
-            : isProfileUpdatedForEnsName();
+            : isProfileUpdatedForEnsName;
     }, [nodes, namesWithProfile]);
 
     const handleNodeNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -659,75 +728,6 @@ export const useDm3UserProfile = () => {
             return false;
         }
     };
-
-    /**
-     * Checks the address name profile is updated or not
-     */
-    const isProfileUpdatedForAddrName = useCallback(() => {
-        const { addrName } = namesWithProfile;
-        if (
-            addrName &&
-            addrName.isActive &&
-            addrName.profile &&
-            JSON.stringify(addrName.profile.deliveryServices) !==
-                JSON.stringify(nodes.dsNames)
-        ) {
-            return false;
-        }
-        return true;
-    }, [nodes, namesWithProfile]);
-
-    /**
-     * Checks the DM3/OP name profile is updated or not
-     */
-    const isProfileUpdatedForDm3Name = useCallback(() => {
-        const { dm3Name, opName } = namesWithProfile;
-        if (
-            dm3Name &&
-            dm3Name.isActive &&
-            dm3Name.profile &&
-            JSON.stringify(dm3Name.profile.deliveryServices) !==
-                JSON.stringify(nodes.dsNames)
-        ) {
-            return false;
-        }
-        if (
-            opName &&
-            opName.isActive &&
-            opName.profile &&
-            JSON.stringify(opName.profile.deliveryServices) !==
-                JSON.stringify(nodes.dsNames)
-        ) {
-            return false;
-        }
-        return true;
-    }, [nodes, namesWithProfile]);
-
-    /**
-     * Checks the ENS/GNO name profile is updated or not
-     */
-    const isProfileUpdatedForEnsName = useCallback(() => {
-        const { ensName, gnosisName } = namesWithProfile;
-        if (
-            ensName &&
-            ensName.isActive &&
-            ensName.profile &&
-            JSON.stringify(ensName.profile.deliveryServices) !==
-                JSON.stringify(nodes.dsNames)
-        ) {
-            return false;
-        }
-        if (
-            gnosisName &&
-            gnosisName.isActive &&
-            gnosisName.profile &&
-            JSON.stringify(gnosisName.profile.deliveryServices) !==
-                JSON.stringify(nodes.dsNames)
-        ) {
-            return false;
-        }
-        return true;
-    }, [nodes, namesWithProfile]);
 
     useEffect(() => {
         initialize();

@@ -17,10 +17,10 @@ export type DM3UserProfileContextType = {
     setError: (msg: string) => void;
     nodeName: string;
     handleNodeNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    isProfileUpdated: () => boolean;
-    isProfileUpdatedForAddrName: () => boolean;
-    isProfileUpdatedForDm3Name: () => boolean;
-    isProfileUpdatedForEnsName: () => boolean;
+    isProfileUpdated: boolean;
+    isProfileUpdatedForAddrName: boolean;
+    isProfileUpdatedForDm3Name: boolean;
+    isProfileUpdatedForEnsName: boolean;
 };
 
 export const DM3UserProfileContext =
@@ -39,10 +39,10 @@ export const DM3UserProfileContext =
         setError: (msg: string) => {},
         nodeName: '',
         handleNodeNameChange: (e: React.ChangeEvent<HTMLInputElement>) => {},
-        isProfileUpdated: () => true,
-        isProfileUpdatedForAddrName: () => true,
-        isProfileUpdatedForDm3Name: () => true,
-        isProfileUpdatedForEnsName: () => true,
+        isProfileUpdated: true,
+        isProfileUpdatedForAddrName: true,
+        isProfileUpdatedForDm3Name: true,
+        isProfileUpdatedForEnsName: true,
     });
 
 export const DM3UserProfileContextProvider = ({
