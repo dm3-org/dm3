@@ -22,9 +22,9 @@ export function getMetrics(redis: Redis): () => Promise<MetricsObject> {
             const timestamp = parseInt(key.split(':')[1], 10);
 
             // Skip the current interval
-            if (timestamp === currentTimestamp) {
-                continue;
-            }
+            // if (timestamp === currentTimestamp) {
+            //     continue;
+            // }
 
             const date = new Date(timestamp * 1000);
             const dateString = date.toISOString();
