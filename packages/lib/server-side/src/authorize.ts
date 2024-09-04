@@ -57,7 +57,7 @@ export async function checkToken(
         return false;
     }
 
-    console.debug('checkToken - ensName', ensName);
+    //console.debug('checkToken - ensName', ensName);
 
     // check jwt for validity
     try {
@@ -66,7 +66,7 @@ export async function checkToken(
             algorithms: ['HS256'],
         });
 
-        console.debug('checkToken - jwtPayload', jwtPayload);
+        //console.debug('checkToken - jwtPayload', jwtPayload);
 
         // check if payload is well formed
         if (
