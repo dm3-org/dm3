@@ -1,9 +1,9 @@
 import { Redis, RedisPrefix } from '../getDatabase';
-import { MetricsMap, IntervalMetric } from './metricTypes';
+import { MetricsObject, IntervalMetric } from './metricTypes';
 
-export function getMetrics(redis: Redis): () => Promise<MetricsMap> {
+export function getMetrics(redis: Redis): () => Promise<MetricsObject> {
     return async () => {
-        const metrics: MetricsMap = new Map<Date, IntervalMetric>();
+        const metrics: MetricsObject = {};
         const messageCountKeys = await redis.keys(
             `${RedisPrefix.MetricsMessageCount}*`,
         );
@@ -14,6 +14,7 @@ export function getMetrics(redis: Redis): () => Promise<MetricsMap> {
         for (const key of messageCountKeys) {
             const timestamp = parseInt(key.split(':')[1], 10);
             const date = new Date(timestamp * 1000);
+            const dateString = date.toISOString();
 
             const messageCount = await redis.get(key);
             const messageSizeBytes = await redis.get(
@@ -23,11 +24,11 @@ export function getMetrics(redis: Redis): () => Promise<MetricsMap> {
                 `${RedisPrefix.MetricsNotificationCount}${timestamp}`,
             );
 
-            metrics.set(date, {
+            metrics[dateString] = {
                 messageCount: parseInt(messageCount || '0', 10),
                 messageSizeBytes: parseInt(messageSizeBytes || '0', 10),
                 notificationCount: parseInt(notificationCount || '0', 10),
-            });
+            };
         }
 
         return metrics;

@@ -13,7 +13,7 @@ export default (db: IDatabase) => {
     router.get('', async (req, res) => {
         const metrics = await db.getMetrics();
 
-        return res.status(200).send(stringifyMetrics(metrics));
+        return res.status(200).send(JSON.stringify(metrics));
     });
 
     return router;
