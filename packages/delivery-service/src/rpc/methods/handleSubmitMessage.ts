@@ -73,11 +73,27 @@ export async function handleSubmitMessage(
     );
 
     try {
+        const startTime = performance.now();
         await messageProcessor.processEnvelop(envelop);
+
+        const middleTime = performance.now();
         await db.countMessage(
             getEnvelopSize(envelop),
             deliveryServiceProperties,
         );
+        const endTime = performance.now();
+        const durationCountMessage = endTime - middleTime;
+        const durationMessageProcessor = middleTime - startTime;
+        console.log(
+            `db.countMessage took ${durationCountMessage.toFixed(
+                2,
+            )} milliseconds, messageProcessor took ${durationMessageProcessor.toFixed(
+                2,
+            )} milliseconds. Total time: ${
+                durationCountMessage + durationMessageProcessor
+            } milliseconds`,
+        );
+
         res.sendStatus(200);
     } catch (error) {
         console.error('handle submit message error');
