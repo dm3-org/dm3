@@ -1,20 +1,17 @@
 import { Redis, RedisPrefix } from '../getDatabase';
 import { countMessage, countNotification } from './setMetrics';
-
-// these are currently not used, as the environment variables are loaded
-// before the tests are run
-// const intervalSeconds = 3600 * 48;
-// const intervalRetentionCount = 10;
-// process.env.METRICS_INTERVAL_SECONDS = `${intervalSeconds}`;
-// process.env.METRICS_INTERVAL_RETENTION_COUNT = `${intervalRetentionCount}`;
+import { DeliveryServiceProperties } from '@dm3-org/dm3-lib-delivery';
 
 describe('setMetrics', () => {
     let mockRedis: jest.Mocked<Redis>;
     const mockDate = new Date('2023-04-01T12:00:00Z');
+    //@ts-ignore
+    const mockDeliveryServiceProperties: DeliveryServiceProperties = {
+        metricsCollectionIntervalInSeconds: 3600,
+        metricsRetentionDurationInSeconds: 864000,
+    };
 
-    // const mockExpireDate = new Date(
-    //     mockDate.getTime() + intervalSeconds * intervalRetentionCount * 1000,
-    // );
+    const expectedTimestamp = '1680350400';
 
     beforeEach(() => {
         jest.useFakeTimers().setSystemTime(mockDate);
@@ -31,11 +28,13 @@ describe('setMetrics', () => {
     describe('countMessage', () => {
         it('should increment message count and size, and set expiration', async () => {
             const messageSizeBytes = 100;
-            const expectedTimestamp = '1680307200';
 
             const countMessageFunction = countMessage(mockRedis);
 
-            await countMessageFunction(messageSizeBytes);
+            await countMessageFunction(
+                messageSizeBytes,
+                mockDeliveryServiceProperties,
+            );
 
             expect(mockRedis.incrBy).toHaveBeenCalledTimes(2);
             expect(mockRedis.incrBy).toHaveBeenCalledWith(
@@ -50,22 +49,20 @@ describe('setMetrics', () => {
             expect(mockRedis.expire).toHaveBeenCalledTimes(2);
             expect(mockRedis.expire).toHaveBeenCalledWith(
                 `${RedisPrefix.MetricsMessageCount}${expectedTimestamp}`,
-                864000,
+                mockDeliveryServiceProperties.metricsRetentionDurationInSeconds,
             );
             expect(mockRedis.expire).toHaveBeenCalledWith(
                 `${RedisPrefix.MetricsMessageSize}${expectedTimestamp}`,
-                864000,
+                mockDeliveryServiceProperties.metricsRetentionDurationInSeconds,
             );
         });
     });
 
     describe('countNotification', () => {
         it('should increment notification count and set expiration', async () => {
-            const expectedTimestamp = '1680307200';
-
             const countNotificationFunction = countNotification(mockRedis);
 
-            await countNotificationFunction();
+            await countNotificationFunction(mockDeliveryServiceProperties);
 
             expect(mockRedis.incrBy).toHaveBeenCalledTimes(1);
             expect(mockRedis.incrBy).toHaveBeenCalledWith(
@@ -76,7 +73,7 @@ describe('setMetrics', () => {
             expect(mockRedis.expire).toHaveBeenCalledTimes(1);
             expect(mockRedis.expire).toHaveBeenCalledWith(
                 `${RedisPrefix.MetricsNotificationCount}${expectedTimestamp}`,
-                864000,
+                mockDeliveryServiceProperties.metricsRetentionDurationInSeconds,
             );
         });
     });
