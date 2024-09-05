@@ -1,18 +1,22 @@
+import { DeliveryServiceProperties } from '@dm3-org/dm3-lib-delivery';
 import { Redis, RedisPrefix } from '../getDatabase';
-import { MetricsObject, IntervalMetric } from './metricTypes';
+import { getCurrentIntervalTimestamp } from './getCurrentIntervalTimestamp';
+import { MetricsObject } from './metricTypes';
 
-function getCurrentIntervalTimestamp(): number {
-    return Math.floor(Date.now() / 1000 / INTERVAL_SECONDS) * INTERVAL_SECONDS;
-}
-
-export function getMetrics(redis: Redis): () => Promise<MetricsObject> {
-    return async () => {
+export function getMetrics(
+    redis: Redis,
+): (
+    deliveryServiceProperties: DeliveryServiceProperties,
+) => Promise<MetricsObject> {
+    return async (deliveryServiceProperties: DeliveryServiceProperties) => {
         const metrics: MetricsObject = {};
         const messageCountKeys = await redis.keys(
             `${RedisPrefix.MetricsMessageCount}*`,
         );
 
-        const currentTimestamp = getCurrentIntervalTimestamp();
+        const currentTimestamp = getCurrentIntervalTimestamp(
+            deliveryServiceProperties.metricsCollectionIntervalInSeconds,
+        );
 
         for (const key of messageCountKeys) {
             const timestamp = parseInt(key.split(':')[1], 10);

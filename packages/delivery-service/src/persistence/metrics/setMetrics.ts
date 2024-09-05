@@ -1,20 +1,13 @@
 import { Redis, RedisPrefix } from '../getDatabase';
 import { DeliveryServiceProperties } from '@dm3-org/dm3-lib-delivery';
-
-function getKeyIntervalTimestamp(collectionIntervalInSeconds: number): string {
-    const currentDate = new Date();
-    const timestamp =
-        Math.floor(currentDate.getTime() / 1000 / collectionIntervalInSeconds) *
-        collectionIntervalInSeconds;
-    return `${timestamp}`;
-}
+import { getCurrentIntervalTimestamp } from './getCurrentIntervalTimestamp';
 
 export function countMessage(redis: Redis) {
     return async (
         messageSizeBytes: number,
         deliveryServiceProperties: DeliveryServiceProperties,
     ) => {
-        const timestamp = getKeyIntervalTimestamp(
+        const timestamp = getCurrentIntervalTimestamp(
             deliveryServiceProperties.metricsCollectionIntervalInSeconds,
         );
 
@@ -50,7 +43,7 @@ export function countMessage(redis: Redis) {
 
 export function countNotification(redis: Redis) {
     return async (deliveryServiceProperties: DeliveryServiceProperties) => {
-        const timestamp = getKeyIntervalTimestamp(
+        const timestamp = getCurrentIntervalTimestamp(
             deliveryServiceProperties.metricsCollectionIntervalInSeconds,
         );
 
