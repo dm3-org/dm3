@@ -1,4 +1,9 @@
-import { IGlobalNotification, IOtp, Session } from '@dm3-org/dm3-lib-delivery';
+import {
+    DeliveryServiceProperties,
+    IGlobalNotification,
+    IOtp,
+    Session,
+} from '@dm3-org/dm3-lib-delivery';
 import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
 import { IAccountDatabase } from '@dm3-org/dm3-lib-server-side';
 import {
@@ -161,9 +166,16 @@ export interface IDatabase extends IAccountDatabase {
         ensName: string,
         channelType: NotificationChannelType,
     ) => Promise<void>;
-    getMetrics: () => Promise<MetricsObject>;
-    countMessage: (messageSizeBytes: number) => Promise<void>;
-    countNotification: () => Promise<void>;
+    getMetrics: (
+        deliveryServiceProperties: DeliveryServiceProperties,
+    ) => Promise<MetricsObject>;
+    countMessage: (
+        messageSizeBytes: number,
+        deliveryServiceProperties: DeliveryServiceProperties,
+    ) => Promise<void>;
+    countNotification: (
+        deliveryServiceProperties: DeliveryServiceProperties,
+    ) => Promise<void>;
 }
 
 export type Redis = Awaited<ReturnType<typeof getRedisClient>>;

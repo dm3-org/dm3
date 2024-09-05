@@ -1,24 +1,22 @@
 import { Redis, RedisPrefix } from '../getDatabase';
+import { DeliveryServiceProperties } from '@dm3-org/dm3-lib-delivery';
 
-// todo: add loader function like in server-side utils
-const INTERVAL_SECONDS = parseInt(
-    process.env.METRICS_INTERVAL_SECONDS || '86400',
-); // 1 day
-const RETAIN_INTERVALS = parseInt(
-    process.env.METRICS_INTERVAL_RETENTION_COUNT || '10',
-);
-
-function getKeyIntervalTimestamp(): string {
+function getKeyIntervalTimestamp(collectionIntervalInSeconds: number): string {
     const currentDate = new Date();
     const timestamp =
-        Math.floor(currentDate.getTime() / 1000 / INTERVAL_SECONDS) *
-        INTERVAL_SECONDS;
+        Math.floor(currentDate.getTime() / 1000 / collectionIntervalInSeconds) *
+        collectionIntervalInSeconds;
     return `${timestamp}`;
 }
 
 export function countMessage(redis: Redis) {
-    return async (messageSizeBytes: number) => {
-        const timestamp = getKeyIntervalTimestamp();
+    return async (
+        messageSizeBytes: number,
+        deliveryServiceProperties: DeliveryServiceProperties,
+    ) => {
+        const timestamp = getKeyIntervalTimestamp(
+            deliveryServiceProperties.metricsCollectionIntervalInSeconds,
+        );
 
         console.log(
             'countMessage at',
@@ -36,14 +34,14 @@ export function countMessage(redis: Redis) {
             messageSizeBytes,
         );
 
-        // Set expiration
+        // Set expiration. After this time the metrics are automatically deleted by redis.
         await redis.expire(
             `${RedisPrefix.MetricsMessageCount}${timestamp}`,
-            INTERVAL_SECONDS * RETAIN_INTERVALS,
+            deliveryServiceProperties.metricsRetentionDurationInSeconds,
         );
         await redis.expire(
             `${RedisPrefix.MetricsMessageSize}${timestamp}`,
-            INTERVAL_SECONDS * RETAIN_INTERVALS,
+            deliveryServiceProperties.metricsRetentionDurationInSeconds,
         );
 
         console.log('countMessage of size', messageSizeBytes, 'at', timestamp);
@@ -51,8 +49,10 @@ export function countMessage(redis: Redis) {
 }
 
 export function countNotification(redis: Redis) {
-    return async () => {
-        const timestamp = getKeyIntervalTimestamp();
+    return async (deliveryServiceProperties: DeliveryServiceProperties) => {
+        const timestamp = getKeyIntervalTimestamp(
+            deliveryServiceProperties.metricsCollectionIntervalInSeconds,
+        );
 
         // Increment the notification count, starting at 0 if the key doesn't exist
         await redis.incrBy(
@@ -60,10 +60,10 @@ export function countNotification(redis: Redis) {
             1,
         );
 
-        // Set expiration
+        // Set expiration. After this time the metrics are automatically deleted by redis.
         await redis.expire(
             `${RedisPrefix.MetricsNotificationCount}${timestamp}`,
-            INTERVAL_SECONDS * RETAIN_INTERVALS,
+            deliveryServiceProperties.metricsRetentionDurationInSeconds,
         );
 
         console.log('countNotification at', timestamp);

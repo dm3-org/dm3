@@ -140,7 +140,7 @@ app.use(bodyParser.json());
         return res.status(200).send('Hello DM3');
     });
 
-    app.use('/metrics', Metrics(db));
+    app.use('/metrics', Metrics(db, deliveryServiceProperties));
     app.use('/auth', Auth(db, serverSecret, web3Provider));
     app.use('/profile', Profile(db, web3Provider, serverSecret));
     app.use('/delivery', Delivery(web3Provider, db, serverSecret));

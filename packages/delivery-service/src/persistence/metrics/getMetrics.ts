@@ -1,10 +1,6 @@
 import { Redis, RedisPrefix } from '../getDatabase';
 import { MetricsObject, IntervalMetric } from './metricTypes';
 
-const INTERVAL_SECONDS = parseInt(
-    process.env.METRICS_INTERVAL_SECONDS || '86400',
-); // 1 day
-
 function getCurrentIntervalTimestamp(): number {
     return Math.floor(Date.now() / 1000 / INTERVAL_SECONDS) * INTERVAL_SECONDS;
 }
