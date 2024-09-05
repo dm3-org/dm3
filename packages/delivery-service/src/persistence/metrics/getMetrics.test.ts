@@ -94,7 +94,7 @@ describe('getMetrics', () => {
         });
     });
 
-    it.only('should censor the current interval', async () => {
+    it('should censor the current interval', async () => {
         const currentTimestamp = Math.floor(mockDate.getTime() / 1000);
         const mockKeys = [
             `${RedisPrefix.MetricsMessageCount}${currentTimestamp}`,
