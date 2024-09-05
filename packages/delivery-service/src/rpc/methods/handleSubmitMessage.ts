@@ -1,5 +1,9 @@
 import { DeliveryServiceProperties } from '@dm3-org/dm3-lib-delivery';
-import { EncryptionEnvelop, schema } from '@dm3-org/dm3-lib-messaging';
+import {
+    EncryptionEnvelop,
+    getEnvelopSize,
+    schema,
+} from '@dm3-org/dm3-lib-messaging';
 import { DeliveryServiceProfileKeys } from '@dm3-org/dm3-lib-profile';
 import {
     IWebSocketManager,
@@ -70,6 +74,10 @@ export async function handleSubmitMessage(
 
     try {
         await messageProcessor.processEnvelop(envelop);
+        await db.countMessage(
+            getEnvelopSize(envelop),
+            deliveryServiceProperties,
+        );
         res.sendStatus(200);
     } catch (error) {
         console.error('handle submit message error');

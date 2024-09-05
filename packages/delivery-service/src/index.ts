@@ -28,6 +28,7 @@ import { Profile } from './profile/profile';
 import RpcProxy from './rpc/rpc-proxy';
 import { WebSocketManager } from './ws/WebSocketManager';
 import { socketAuth } from './socketAuth';
+import Metrics from './metrics';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -139,10 +140,7 @@ app.use(bodyParser.json());
         return res.status(200).send('Hello DM3');
     });
 
-    //Auth
-    //socketAuth
-    //restAuth
-
+    app.use('/metrics', Metrics(db, deliveryServiceProperties));
     app.use('/auth', Auth(db, serverSecret, web3Provider));
     app.use('/profile', Profile(db, web3Provider, serverSecret));
     app.use('/delivery', Delivery(web3Provider, db, serverSecret));

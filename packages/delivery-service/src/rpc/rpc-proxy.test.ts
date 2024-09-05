@@ -154,6 +154,7 @@ describe('rpc-Proxy', () => {
                 getAccount,
                 getIdEnsName: async (ensName: string) => ensName,
                 getUsersNotificationChannels: () => Promise.resolve([]),
+                countMessage: () => {},
             };
             const io = {
                 sockets: {
@@ -227,6 +228,7 @@ describe('rpc-Proxy', () => {
                 getAccount,
                 getIdEnsName: async (ensName: string) => ensName,
                 getUsersNotificationChannels: () => Promise.resolve([]),
+                countMessage: () => {},
             };
             const io = {
                 sockets: {
