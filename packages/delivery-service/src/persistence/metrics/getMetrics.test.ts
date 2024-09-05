@@ -93,4 +93,21 @@ describe('getMetrics', () => {
             notificationCount: 5,
         });
     });
+
+    it.only('should censor the current interval', async () => {
+        const currentTimestamp = Math.floor(mockDate.getTime() / 1000);
+        const mockKeys = [
+            `${RedisPrefix.MetricsMessageCount}${currentTimestamp}`,
+            `${RedisPrefix.MetricsMessageCount}${currentTimestamp - 3600}`,
+        ];
+        mockRedis.keys.mockResolvedValue(mockKeys);
+        mockRedis.get.mockResolvedValue('10');
+
+        const getMetricsFunction = getMetrics(mockRedis);
+        const result = await getMetricsFunction(mockDeliveryServiceProperties);
+
+        expect(Object.keys(result)).toHaveLength(1);
+        expect(Object.keys(result)[0]).toBe('2023-04-01T11:00:00.000Z');
+        expect(result).not.toHaveProperty(mockDate.toISOString());
+    });
 });

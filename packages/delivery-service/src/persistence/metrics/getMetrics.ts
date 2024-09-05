@@ -3,6 +3,14 @@ import { Redis, RedisPrefix } from '../getDatabase';
 import { getCurrentIntervalTimestamp } from './getCurrentIntervalTimestamp';
 import { MetricsObject } from './metricTypes';
 
+/**
+ * Get the metrics from the database, excluding the current interval.
+ * (The current interval is excluded because monitoring it closely allows
+ * third parties to gain too much information about the current activity on the
+ * DM3 network.)
+ * @param redis - The Redis instance.
+ * @returns The metrics object.
+ */
 export function getMetrics(
     redis: Redis,
 ): (
@@ -22,9 +30,9 @@ export function getMetrics(
             const timestamp = parseInt(key.split(':')[1], 10);
 
             // Skip the current interval
-            // if (timestamp === currentTimestamp) {
-            //     continue;
-            // }
+            if (String(timestamp) === currentTimestamp) {
+                continue;
+            }
 
             const date = new Date(timestamp * 1000);
             const dateString = date.toISOString();
