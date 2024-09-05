@@ -16,6 +16,7 @@ import express from 'express';
 import { Server } from 'socket.io';
 import { MessageProcessor } from '../../message/MessageProcessor';
 import { IDatabase } from '../../persistence/getDatabase';
+import { performance } from 'perf_hooks';
 
 export async function handleSubmitMessage(
     req: express.Request,
