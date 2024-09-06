@@ -10,9 +10,9 @@ export class UniversalProfile implements ITLDResolver {
         this.addrEnsSubdomain = addrEnsSubdomain;
     }
 
-    //e.g. alexcv#d7ab.lukso => 0x1234.addr.dm3.eth
+    //e.g. alexcv#d7ab.up => 0x1234.addr.dm3.eth
     async isResolverForTldName(ensName: string): Promise<boolean> {
-        //trim .lukso
+        //trim .up
         const [lspFullName] = ensName.split('.');
         const isUniversalProfile = await this.luksoIndexer.resolveName(
             lspFullName,
@@ -20,7 +20,7 @@ export class UniversalProfile implements ITLDResolver {
         return !!isUniversalProfile;
     }
 
-    //e.g. 0x1234.addr.dm3.eth => alexcv#d7ab.lukso
+    //e.g. 0x1234.addr.dm3.eth => alexcv#d7ab.up
     async isResolverForAliasName(
         ensName: string,
         foreignTldName?: string,
@@ -32,19 +32,19 @@ export class UniversalProfile implements ITLDResolver {
         return !!isUniversalProfile;
     }
 
-    //e.g. 0x1234.addr.dm3.eth => alexcv#d7ab.lukso
+    //e.g. 0x1234.addr.dm3.eth => alexcv#d7ab.up
     async resolveAliasToTLD(
         ensName: string,
         foreignTldName?: string,
     ): Promise<string> {
         const [address] = ensName.split('.');
         const aliasName = await this.luksoIndexer.resolveAddress(address);
-        return aliasName! + '.lukso';
+        return aliasName! + '.up';
     }
 
-    //e.g. alexcv#d7ab.lukso => 0x1234.addr.dm3.eth
+    //e.g. alexcv#d7ab.up => 0x1234.addr.dm3.eth
     async resolveTLDtoAlias(ensName: string): Promise<string> {
-        //trim .lukso
+        //trim .up
         const [lspFullName] = ensName.split('.');
         const addr = await this.luksoIndexer.resolveName(lspFullName);
         if (!addr) {
