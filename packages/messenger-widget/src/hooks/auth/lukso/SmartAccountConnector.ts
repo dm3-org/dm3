@@ -31,6 +31,22 @@ export type NewDevice = {
     controllers: string[];
 };
 
+export enum LoginStages {
+    //The account has never used dm3 before. The KeyStore has to be created yet
+    'NEW',
+    //The keyStore already contains encrypted profileKeys for the controller
+    'CONTROLLER_KNOWN',
+    //The keyStore already contains encrypted profileKeys but not for the controller. The controller has to publish its publicKey
+    'CONTROLLER_UNKNOWN',
+    //The keyStore already contains encrypted profileKeys for the controller. But another controller has requested the profileKeys.
+    'OPEN_KEY_EXCHANGE_REQUEST',
+    //The controller has requested the profileKeys of another controller but the request has not been accepted yet
+    'KEY_EXCHANGE_PENDING',
+    //Something went wrong. Should not happen if the KeyExchange has been done correctly.
+    //However there might be edge cases (someone publishing an invalid keyStore on their own) that could lead to this state
+    'ERROR',
+}
+
 export class SmartAccountConnector {
     //The controller is a EOA that can sign on behalf of the Smart Account
     private readonly controller: ethers.Signer;
@@ -135,6 +151,41 @@ export class SmartAccountConnector {
         return await this.signInExistingSigner(
             encryptedControllerKeyStore.encryptedProfileKeys,
         );
+    }
+    public async getLoginStages(): Promise<LoginStages> {
+        const keyStore = await this.keyStoreService.readDm3KeyStore();
+        if (Object.keys(keyStore).length === 0) {
+            return LoginStages.NEW;
+        }
+        const encryptedControllerKeyStore =
+            keyStore[await this.controller.getAddress()];
+
+        if (!encryptedControllerKeyStore) {
+            return LoginStages.CONTROLLER_UNKNOWN;
+        }
+        const { encryptedProfileKeys } = encryptedControllerKeyStore;
+
+        if (!encryptedProfileKeys) {
+            return LoginStages.KEY_EXCHANGE_PENDING;
+        }
+
+        //Find out if there are other controllers that have requested the profileKeys
+
+        const _controllerAddress = await this.controller.getAddress();
+        const openKeyExchangeRequest = Object.keys(keyStore).some(
+            (key) =>
+                key !== _controllerAddress &&
+                !keyStore[key].encryptedProfileKeys,
+        );
+
+        if (openKeyExchangeRequest) {
+            return LoginStages.OPEN_KEY_EXCHANGE_REQUEST;
+        }
+
+        if (encryptedProfileKeys) {
+            return LoginStages.CONTROLLER_KNOWN;
+        }
+        return LoginStages.ERROR;
     }
     private async createProfileKeys() {
         //TODO replace with crytpo graphically secure random bytes

@@ -3,7 +3,11 @@ import { Constants, Lukso } from '@dm3-org/dm3-lib-smart-account';
 import { mockUserProfile } from '@dm3-org/dm3-lib-test-helper';
 import { ethers } from 'ethers';
 import ERC725Abi from './ERC725Abi.json';
-import { SmartAccountConnector, Success } from './SmartAccountConnector';
+import {
+    LoginStages,
+    SmartAccountConnector,
+    Success,
+} from './SmartAccountConnector';
 
 describe('SmartAccountConnector', () => {
     describe('SignUp', () => {
@@ -38,48 +42,50 @@ describe('SmartAccountConnector', () => {
             } as unknown as ethers.Contract;
         });
 
-        it('should write initial profile to KV store', async () => {
-            const luksoKeyStore = new Lukso.LuksoKeyStore(universalProfile);
-            const connector = new SmartAccountConnector(
-                luksoKeyStore,
-                upController1,
-                DEFAULT_NONCE,
-                'ds.eth',
-            );
-            const loginResult = (await connector.login()) as Success;
+        describe('KeyStore', () => {
+            it('should write initial profile to KV store', async () => {
+                const luksoKeyStore = new Lukso.LuksoKeyStore(universalProfile);
+                const connector = new SmartAccountConnector(
+                    luksoKeyStore,
+                    upController1,
+                    DEFAULT_NONCE,
+                    'ds.eth',
+                );
+                const loginResult = (await connector.login()) as Success;
 
-            const profileKeys = loginResult.profileKeys;
+                const profileKeys = loginResult.profileKeys;
 
-            const data = JSON.parse(
-                ethers.utils.toUtf8String(
-                    universalProfile.getData(Constants.DM3_KEYSTORE_KEY),
-                ),
-            );
+                const data = JSON.parse(
+                    ethers.utils.toUtf8String(
+                        universalProfile.getData(Constants.DM3_KEYSTORE_KEY),
+                    ),
+                );
 
-            const signerKeyStore = data[await upController1.getAddress()];
-            expect(signerKeyStore).toBeDefined();
+                const signerKeyStore = data[await upController1.getAddress()];
+                expect(signerKeyStore).toBeDefined();
 
-            expect(profileKeys!.encryptionKeyPair.publicKey).toBe(
-                signerKeyStore.signerPublicKey,
-            );
-        });
-        it('device 1 can decrypt profile from previous signUp', async () => {
-            const luksoKeyStore = new Lukso.LuksoKeyStore(universalProfile);
-            const connector = new SmartAccountConnector(
-                luksoKeyStore,
-                upController1,
-                DEFAULT_NONCE,
-                'ds.eth',
-            );
-            //First call of login performs the signUp
-            const loginResult1 = (await connector.login()) as Success;
-            const initialProfileKeys = loginResult1.profileKeys;
+                expect(profileKeys!.encryptionKeyPair.publicKey).toBe(
+                    signerKeyStore.signerPublicKey,
+                );
+            });
+            it('device 1 can decrypt profile from previous signUp', async () => {
+                const luksoKeyStore = new Lukso.LuksoKeyStore(universalProfile);
+                const connector = new SmartAccountConnector(
+                    luksoKeyStore,
+                    upController1,
+                    DEFAULT_NONCE,
+                    'ds.eth',
+                );
+                //First call of login performs the signUp
+                const loginResult1 = (await connector.login()) as Success;
+                const initialProfileKeys = loginResult1.profileKeys;
 
-            //Second call of login perfroms the signIn using the same keyStore
-            const loginResult2 = (await connector.login()) as Success;
-            const profileKeys = loginResult2.profileKeys;
+                //Second call of login perfroms the signIn using the same keyStore
+                const loginResult2 = (await connector.login()) as Success;
+                const profileKeys = loginResult2.profileKeys;
 
-            expect(initialProfileKeys).toStrictEqual(profileKeys);
+                expect(initialProfileKeys).toStrictEqual(profileKeys);
+            });
         });
 
         describe('New Device', () => {
@@ -177,7 +183,6 @@ describe('SmartAccountConnector', () => {
                         universalProfile.getData(Constants.DM3_KEYSTORE_KEY),
                     ),
                 );
-                console.log(data);
 
                 //Now the decives can login again and should be able to decrypt the profile
                 const loginResult21 = (await connector2.login()) as Success;
@@ -194,6 +199,102 @@ describe('SmartAccountConnector', () => {
                 expect(loginResult21.profileKeys).toStrictEqual(
                     loginResult1.profileKeys,
                 );
+            });
+        });
+
+        describe('getLoginStates', () => {
+            it('returns new if a controller has never used dm3 before', async () => {
+                const luksoKeyStore = new Lukso.LuksoKeyStore(universalProfile);
+                const connector = new SmartAccountConnector(
+                    luksoKeyStore,
+                    upController1,
+                    DEFAULT_NONCE,
+                    'ds.eth',
+                );
+                const loginState = await connector.getLoginStages();
+
+                expect(loginState).toEqual(LoginStages.NEW);
+            });
+            it('returns CONTROLLER_KNOWN if a controller already retrived the profile keys', async () => {
+                const luksoKeyStore = new Lukso.LuksoKeyStore(universalProfile);
+                const connector = new SmartAccountConnector(
+                    luksoKeyStore,
+                    upController1,
+                    DEFAULT_NONCE,
+                    'ds.eth',
+                );
+                await connector.login();
+                const loginState = await connector.getLoginStages();
+
+                expect(loginState).toEqual(LoginStages.CONTROLLER_KNOWN);
+            });
+            it('returns CONTROLLER_UNKNOWN if a a new controller is connected', async () => {
+                const luksoKeyStore = new Lukso.LuksoKeyStore(universalProfile);
+                const connector1 = new SmartAccountConnector(
+                    luksoKeyStore,
+                    upController1,
+                    DEFAULT_NONCE,
+                    'ds.eth',
+                );
+
+                const connector2 = new SmartAccountConnector(
+                    luksoKeyStore,
+                    upController2,
+                    DEFAULT_NONCE,
+                    'ds.eth',
+                );
+                await connector1.login();
+                const loginState = await connector2.getLoginStages();
+
+                expect(loginState).toEqual(LoginStages.CONTROLLER_UNKNOWN);
+            });
+            it('returns OPEN_KEY_EXCHANGE_REQUEST if a keyRequest is pending', async () => {
+                const luksoKeyStore = new Lukso.LuksoKeyStore(universalProfile);
+                const connector1 = new SmartAccountConnector(
+                    luksoKeyStore,
+                    upController1,
+                    DEFAULT_NONCE,
+                    'ds.eth',
+                );
+
+                const connector2 = new SmartAccountConnector(
+                    luksoKeyStore,
+                    upController2,
+                    DEFAULT_NONCE,
+                    'ds.eth',
+                );
+                await connector1.login();
+                await connector2.login();
+
+                //Controller 1 has to execute the keyExchangeRequest
+                const loginState = await connector1.getLoginStages();
+
+                expect(loginState).toEqual(
+                    LoginStages.OPEN_KEY_EXCHANGE_REQUEST,
+                );
+            });
+            it('returns KEY_EXCHANGE_PENDING if a keyRequest is pending', async () => {
+                const luksoKeyStore = new Lukso.LuksoKeyStore(universalProfile);
+                const connector1 = new SmartAccountConnector(
+                    luksoKeyStore,
+                    upController1,
+                    DEFAULT_NONCE,
+                    'ds.eth',
+                );
+
+                const connector2 = new SmartAccountConnector(
+                    luksoKeyStore,
+                    upController2,
+                    DEFAULT_NONCE,
+                    'ds.eth',
+                );
+                await connector1.login();
+                await connector2.login();
+
+                //Controller 1 has to execute the keyExchangeRequest
+                const loginState = await connector2.getLoginStages();
+
+                expect(loginState).toEqual(LoginStages.KEY_EXCHANGE_PENDING);
             });
         });
     });
