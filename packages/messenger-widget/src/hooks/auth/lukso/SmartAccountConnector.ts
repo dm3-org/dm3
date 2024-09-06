@@ -4,6 +4,7 @@ import {
     encryptAsymmetric,
     EncryptedPayload,
     getStorageKeyCreationMessage,
+    KeyPair,
 } from '@dm3-org/dm3-lib-crypto';
 import {
     createProfileKeys as _createProfileKeys,
@@ -57,6 +58,9 @@ export class SmartAccountConnector {
 
     private readonly defaultDeliveryService;
 
+    //After the user created the encryptionKeyPair once, it can be reused to decrypt the profileKeys of other controllers
+    private encryptioinKeyPair: KeyPair;
+
     constructor(
         keyStoreService: KeyStore.IKeyStoreService,
         upController: ethers.Signer,
@@ -70,7 +74,7 @@ export class SmartAccountConnector {
     }
     //KeySync can be triggered by controller that has used dm3 before.
     //This function will normally be called after login on behalf of the user
-    public async syncKeys(encryptionKeys: ProfileKeys) {
+    public async syncKeys() {
         //1. Get the current keyStore
         const keyStore = await this.keyStoreService.readDm3KeyStore();
 
@@ -86,16 +90,19 @@ export class SmartAccountConnector {
         }
 
         //2. Decrypt the profileKeys of the controller
-
         const payload: EncryptedPayload = JSON.parse(
             atob(encryptedControllerKeyStore.encryptedProfileKeys),
         ) as EncryptedPayload;
+
+        const _encryptionKeys = await this.createEncryptionKeys();
+
         //Decrpyt the profileKeys of the controller
         const profileKeys = await decryptAsymmetric(
-            encryptionKeys.encryptionKeyPair,
+            _encryptionKeys,
             payload,
             1,
         );
+        console.log('check6');
 
         //For each device in the keyStore, encrypt the profileKeys of the controller
         //That only applies for controllers that have a publicKey but not encryptedProfileKeys yet
@@ -201,6 +208,10 @@ export class SmartAccountConnector {
 
     //Returns Keys to encrypt the actual profile at UP
     private async createEncryptionKeys() {
+        //If the user has created its encryption keys before, we can reuse them. That way we don't have to ask the user to sign again
+        if (this.encryptioinKeyPair) {
+            return this.encryptioinKeyPair;
+        }
         const controllerAddress = await this.controller.getAddress();
         const statement =
             `Connect the DM3 MESSENGER with your wallet. ` +
@@ -225,7 +236,12 @@ export class SmartAccountConnector {
         );
         const storageKey = await createStorageKey(signature);
 
-        return await _createProfileKeys(storageKey, this.nonce);
+        const keys = await _createProfileKeys(storageKey, this.nonce);
+
+        //Keep the encryptionKeyPair for later use
+        this.encryptioinKeyPair = keys.encryptionKeyPair;
+
+        return keys.encryptionKeyPair;
     }
 
     private async createNewSignedUserProfile(
@@ -262,7 +278,7 @@ export class SmartAccountConnector {
         ) as EncryptedPayload;
 
         const profileKeys = await decryptAsymmetric(
-            encryptionKeys?.encryptionKeyPair!,
+            encryptionKeys!,
             payload,
             1,
         );
@@ -290,7 +306,7 @@ export class SmartAccountConnector {
         const newKeyStore = {
             ...keyStore,
             [await this.controller.getAddress()]: {
-                signerPublicKey: encryptionKeys.encryptionKeyPair.publicKey,
+                signerPublicKey: encryptionKeys.publicKey,
             },
         };
 
@@ -314,7 +330,7 @@ export class SmartAccountConnector {
         const encryptionKeys = await this.createEncryptionKeys();
 
         const encryptedPayload: EncryptedPayload = await encryptAsymmetric(
-            encryptionKeys?.encryptionKeyPair?.publicKey!,
+            encryptionKeys?.publicKey!,
             stringify(profileKeys),
             1,
         );

@@ -164,19 +164,15 @@ describe('SmartAccountConnector', () => {
                 const loginResult2 = await connector2.login();
                 //Thrid device has to post its public key to the UP. So device 1 can share the profile keys
                 const loginResult3 = await connector3.login();
+                console.log('check3');
                 expect(loginResult1.type).toBe('SUCCESS');
                 expect(loginResult2.type).toBe('NEW_DEVICE');
                 expect(loginResult3.type).toBe('NEW_DEVICE');
 
                 //Connector 1 is the only connector capable of sharing the profile keys
 
-                const profile = await mockUserProfile(
-                    upController1 as ethers.Wallet,
-                    'foo.eth',
-                    [],
-                );
                 //profileKeys from mockUserProfile are the same as the encryption keys of the connector
-                await connector1.syncKeys(profile.profileKeys);
+                await connector1.syncKeys();
 
                 const data = JSON.parse(
                     ethers.utils.toUtf8String(
