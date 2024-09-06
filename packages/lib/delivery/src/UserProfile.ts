@@ -32,6 +32,7 @@ export async function submitUserProfile(
     );
 
     if (!isValidProfile) {
+        console.error({ signedUserProfile, _address });
         throw Error('submit user profile failed - invalid profile');
     }
 
