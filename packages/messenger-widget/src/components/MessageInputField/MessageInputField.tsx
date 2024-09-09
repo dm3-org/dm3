@@ -20,13 +20,13 @@ export function MessageInputField(props: MessageDataProps) {
         messageData: undefined,
     };
 
-    function setMessageContent(e: React.ChangeEvent<HTMLInputElement>) {
+    function setMessageContent(e: string) {
         // if message action is edit and message length is 0, update message action
-        if (!e.target.value.length) {
+        if (!e.length) {
             setMessageView(resetMessageView);
             props.setFiles([]);
         }
-        props.setMessageText(e.target.value);
+        props.setMessageText(e);
     }
 
     async function submit(event: React.FormEvent<HTMLFormElement>) {
@@ -77,18 +77,15 @@ export function MessageInputField(props: MessageDataProps) {
                 submit(event)
             }
         >
-            <input
+            <textarea
                 data-testid="msg-input"
                 id="msg-input"
                 className="text-input-field width-fill height-fill font-size-14"
                 value={props.message}
-                type="text"
                 autoComplete="off"
                 placeholder="Write a message..."
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setMessageContent(e)
-                }
-            ></input>
+                onChange={(e) => setMessageContent(e.target.value)}
+            ></textarea>
         </form>
     );
 }

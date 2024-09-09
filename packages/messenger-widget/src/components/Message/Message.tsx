@@ -13,6 +13,7 @@ import { ReplyMessagePreview } from './ReplyMessagePreview';
 import { MessageReactions } from './MessageReactions';
 import { Action } from './Action';
 import { MessageDetail } from './MessageDetail';
+import Markdown from 'react-markdown';
 
 export function Message(props: MessageProps) {
     const { messageView } = useContext(UiViewContext);
@@ -28,7 +29,11 @@ export function Message(props: MessageProps) {
             )}
         >
             <div className="d-flex">
-                <div className={getMessageStyleClasses(props, messageView)}>
+                <div
+                    className={
+                        getMessageStyleClasses(props, messageView) + 'mb-0'
+                    }
+                >
                     {/* Reply message preview */}
                     <ReplyMessagePreview {...props} />
 
@@ -46,16 +51,18 @@ export function Message(props: MessageProps) {
                         )}
 
                     {/* actual message */}
-                    {props.message
-                        ? props.message
-                        : props.envelop.message.attachments &&
-                          props.envelop.message.attachments.length > 0 &&
-                          props.envelop.message.metadata.type !==
-                              MessageActionType.DELETE
-                        ? ''
-                        : props.ownMessage
-                        ? 'You deleted this message.'
-                        : 'This message was deleted.'}
+                    {props.message ? (
+                        <Markdown>{props.message}</Markdown>
+                    ) : props.envelop.message.attachments &&
+                      props.envelop.message.attachments.length > 0 &&
+                      props.envelop.message.metadata.type !==
+                          MessageActionType.DELETE ? (
+                        ''
+                    ) : props.ownMessage ? (
+                        'You deleted this message.'
+                    ) : (
+                        'This message was deleted.'
+                    )}
                 </div>
                 {/* action 3 dots */}
                 <Action {...props} />
