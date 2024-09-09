@@ -21,9 +21,6 @@ export const renderMessage = (messages: MessageModel[]) => {
     const withReply = renderReply(withReactions);
     const withReplyC = renderReply(withReactions);
 
-    console.log('withReply', withReply);
-    console.log('withReplyC', withReplyC);
-
     const withoutEdited = renderEdit(withReply);
     //Sort the messages by timestamp DESC to show them in the right order
     // withoutEdited.sort(
