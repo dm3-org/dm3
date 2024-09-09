@@ -46,8 +46,6 @@ export const handleMessagesFromWebSocket = async (
     // Resolve TLD to alias
     const contact = contactPreview?.contactDetails.account.ensName!;
 
-    console.log('contactPreview MSGWS', contactPreview);
-
     const messageState =
         selectedContact?.contactDetails.account.ensName === contact
             ? MessageState.Read
