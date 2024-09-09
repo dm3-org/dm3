@@ -21,6 +21,15 @@ export const onSubmitMessage = async (
     account: Account,
     selectedContact: ContactPreview,
 ) => {
+    // Message can't be empty if no files are selected & its not DELETE msg.
+    if (
+        messageView.actionType !== MessageActionType.DELETE &&
+        !props.filesSelected.length &&
+        (!props.message || props.message.trim() === '')
+    ) {
+        return;
+    }
+
     if (messageView.actionType === MessageActionType.REPLY) {
         const referenceMessageHash =
             messageView.messageData?.envelop.metadata?.encryptedMessageHash;
