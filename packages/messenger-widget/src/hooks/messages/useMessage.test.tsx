@@ -92,7 +92,7 @@ describe('useMessage hook test cases', () => {
         });
         const config: DM3Configuration = configurationContext.dm3Configuration!;
 
-        it('should not add empty message', async () => {
+        it('should add message', async () => {
             const storageContext = getMockedStorageContext({
                 editMessageBatchAsync: jest.fn(),
                 storeMessageBatch: jest.fn(),
@@ -145,15 +145,16 @@ describe('useMessage hook test cases', () => {
             );
 
             const messageFactory = MockMessageFactory(sender, receiver, ds1);
-            const message = await messageFactory.createMessage('');
+            const message = await messageFactory.createMessage('hello dm3');
             const addMessageResult = await waitFor(() =>
-                result.current.addMessage('max.eth', message),
+                result.current.addMessage('alice.eth', message),
             );
 
             expect(addMessageResult).toEqual({
-                isSuccess: false,
-                error: 'Message is empty',
+                isSuccess: true,
+                error: undefined,
             });
+            expect(result.current.messages['alice.eth'].length).toBe(1);
         });
         it('should send message to ds', async () => {
             axiosMock = new MockAdapter(axios);
