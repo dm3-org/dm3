@@ -150,6 +150,11 @@
     color: var(--text-primary-color);
 }
 
+/* Disables margin bottom of paragraph tag by default 1rem coming from markdown library*/
+.markdown-msg p{
+    margin-bottom: 0rem;
+}
+
 /* =================== Mobile Responsive CSS =================== */
 @media only screen and (max-width: 800px) {
     .content-style {

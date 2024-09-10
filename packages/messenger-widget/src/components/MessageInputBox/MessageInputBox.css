@@ -24,6 +24,8 @@
     padding-top: 0rem;
     padding-bottom: 0rem;
     background: none;
+    resize: none;
+    height: 1.5rem;
 }
 
 .reply-msg-active {
