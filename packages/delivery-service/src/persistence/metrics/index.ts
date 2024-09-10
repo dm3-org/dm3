@@ -1,5 +1,5 @@
 import { getMetrics } from './getMetrics';
-import type { IntervalMetric, MetricsMap, MetricsObject } from './metricTypes';
+import type { IntervalMetric } from './metricTypes';
 import { countMessage, countNotification } from './setMetrics';
 
 export default {
@@ -8,4 +8,4 @@ export default {
     countNotification,
 };
 
-export type { IntervalMetric, MetricsMap, MetricsObject };
+export type { IntervalMetric };
