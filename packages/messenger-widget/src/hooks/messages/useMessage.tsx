@@ -276,12 +276,6 @@ export const useMessage = () => {
         message: Message,
     ): Promise<{ isSuccess: boolean; error?: string }> => {
         const contact = normalizeEnsName(_contactName);
-        //If a message is empty it should not be added
-
-        if (!message.message || message.message.trim() === '') {
-            return { isSuccess: false, error: 'Message is empty' };
-        }
-
         //Find the recipient of the message in the contact list
         const recipient = contacts.find(
             (c) => c.contactDetails.account.ensName === contact,
