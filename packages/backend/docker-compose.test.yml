@@ -1,0 +1,20 @@
+version: '3.6'
+
+# The containers that compose the project
+services:
+    db:
+        image: redis
+        restart: always
+        container_name: redis-backend
+        ports:
+            - '6380:6379' # map to host port 6380
+    postgres:
+        image: postgres:13
+        restart: always
+        container_name: integration-tests-prisma
+        ports:
+            - '5433:5432'
+        environment:
+            POSTGRES_USER: prisma
+            POSTGRES_PASSWORD: prisma
+            POSTGRES_DB: tests

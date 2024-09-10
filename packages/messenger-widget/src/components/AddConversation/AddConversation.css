@@ -1,0 +1,92 @@
+.conversation-modal-content {
+    margin: auto;
+    padding: 2rem;
+    border: none;
+    width: fit-content;
+    top: 15%;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.conversation-description {
+    width: 30rem;
+    font-size: 10px;
+    line-height: 14px;
+    margin: 1rem 0rem 0rem 0rem;
+}
+
+.conversation-name {
+    border: 1px solid var(--input-field-border-color);
+    padding: 0.3rem 1rem 0.3rem 1rem;
+    color: var(--input-field-text-color);
+    background: var(--input-field-background-color);
+    margin: 0rem 0rem 0rem 1rem;
+    font-size: 14px;
+}
+
+.conversation-name::placeholder {
+    font-size: 12px;
+    font-weight: 300;
+    font-style: italic;
+    line-height: 24px;
+    color: var(--text-secondary-color);
+}
+
+.add-btn {
+    padding: 4px 12px 4px 12px;
+    box-shadow: 0px 0px 44px 0px var(--button-shadow);
+    margin-top: 1.3rem;
+}
+
+.separator {
+    margin: 1rem 0rem 2rem 0rem;
+}
+
+.conversation-error {
+    font-size: 0.8rem;
+    line-height: 14px;
+    font-style: italic;
+    color: var(--error-text);
+    margin-left: 1rem;
+}
+
+.add-name-container {
+    align-items: center;
+}
+
+/* =================== Mobile Responsive CSS =================== */
+
+@media only screen and (max-width: 650px) {
+    .add-name-container {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .conversation-description {
+        word-break: break-word;
+        hyphens: auto;
+        width: fit-content;
+    }
+
+    .conversation-name {
+        margin: 0rem;
+        font-size: 12px;
+    }
+
+    .add-btn {
+        margin-top: 2.7rem;
+    }
+
+    .conversation-error {
+        margin-left: -2.4rem;
+    }
+
+    .conversation-name::placeholder{
+        font-size: 10px;
+    }
+
+    #conversation-modal{
+        padding: 1rem;
+    }
+}

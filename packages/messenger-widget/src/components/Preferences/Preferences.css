@@ -1,0 +1,146 @@
+.preferences-modal-content {
+    margin: auto;
+    border: none;
+    position: relative;
+    width: 80%;
+    height: 90%;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.preferences-close-icon {
+    width: 1.8rem;
+    height: auto;
+    cursor: pointer;
+}
+
+.preferences-heading {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.preferences-name {
+    border: 1px solid var(--text-secondary-color);
+    padding: 0.3rem 1rem 0.3rem 1rem;
+    color: var(--text-primary-color);
+    background: var(--background-chat);
+    margin: 0rem 0rem 0rem 1rem;
+}
+
+.preferences-separator {
+    margin: 0.7rem 0.5rem 0.7rem 0.5rem;
+}
+
+.preferences-item {
+    cursor: pointer;
+    padding: 0.5rem 1.3rem 0.5rem 1.3rem;
+    font-size: 1rem;
+}
+
+.preferences-aside-content {
+    box-shadow: 0px 0px 20px 0px #000000;
+    background: linear-gradient(
+        176deg,
+        var(--info-box-background-color) 35%,
+        rgba(58, 60, 80, 0) 99.77%
+    );
+    position: relative;
+}
+
+.preferences-item:hover {
+    background-color: var(--normal-btn-hover);
+}
+
+.info-no-highlight:hover {
+    background-color: unset;
+}
+
+.preferences-info {
+    position: absolute;
+    bottom: 1rem;
+    width: 100%;
+    justify-content: center;
+}
+
+.back-icon {
+    width: 2rem;
+    margin-left: 0.6rem;
+    margin-right: 0.3rem;
+}
+
+.preferences-text-highlighted {
+    color: var(--preferences-highlighted-color);
+}
+
+.preferences-content {
+    border-top-right-radius: 6px;
+    padding: 0.5rem 0rem 0.5rem 2rem;
+}
+
+/* =================== Mobile Responsive CSS =================== */
+
+@media only screen and (min-width: 1041px) and (max-width: 1340px) {
+    .back-icon{
+        width: 1.3rem;
+        margin-left: 0.2rem;
+        margin-right: 0.2rem;
+    }
+
+    .preferences-heading{
+        font-size: 1.2rem !important;
+    }
+}
+
+@media only screen and (min-width: 801px) and (max-width: 1040px) {
+    .back-icon{
+        width: 1rem;
+        margin-left: 0.1rem;
+        margin-right: 0.1rem;
+    }
+
+    .preferences-item {
+        font-size: 12px ;
+    }
+
+    .pref-icon{
+        width: 1.2rem !important;
+    }
+
+    .preferences-heading{
+        font-size: 1rem !important;
+    }
+}
+
+@media only screen and (max-width: 800px) {
+    .preferences-component {
+        background: var(--background-container);
+    }
+
+    .preferences-topic {
+        font-size: 1rem;
+    }
+
+    .preferences-content {
+        padding: 0.5rem 0rem 0.5rem 0.5rem;
+    }
+
+    .preferences-aside-content {
+        display: flex;
+        justify-content: space-between;
+        background: var(--info-box-background-color);
+        height: fit-content;
+    }
+
+    .preferences-item {
+        padding: 0.5rem 0rem 0.5rem 0.5rem;
+        margin: 0.4rem;
+        border-radius: 7px;
+    }
+
+    .preferences-modal-content {
+        width: 90%;
+        height: 95%;
+        background: var(--background-container);
+    }
+
+}

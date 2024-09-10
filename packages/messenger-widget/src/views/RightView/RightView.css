@@ -1,0 +1,13 @@
+.chat-screen-container {
+    display: flex;
+    flex-direction: column;
+    border-radius: 0px !important;
+}
+
+.right-view-outer-container {
+    margin-left: 0rem;
+}
+
+.default-screen {
+    height: 88vh;
+}

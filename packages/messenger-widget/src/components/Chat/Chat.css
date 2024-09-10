@@ -1,0 +1,68 @@
+.highlight-chat-border {
+    border-top: 2px solid var(--selected-contact-border-color);
+}
+
+.highlight-chat-border-none {
+    border-top: none;
+}
+
+.chat-container {
+    height: 100%;
+}
+
+.chat-items {
+    overflow-y: scroll;
+    margin-top: 0.5rem;
+    height: 100% !important;
+}
+
+.chat-height-small {
+    height: 80%;
+}
+
+.chat-height-high {
+    height: 91%;
+}
+
+.skeletion-chat-height {
+    height: 86vh;
+}
+
+.skeleton-message {
+    width: 15rem;
+    height: 2.5rem;
+    animation-iteration-count: infinite;
+    animation-name: shimmer;
+    animation-duration: 1.2s;
+    background: linear-gradient(-44deg, #3a3c50 30%, #acacac, #3a3c50 70%)
+        right/300% 100%;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -468px 0;
+    }
+    100% {
+        background-position: 468px 0;
+    }
+}
+
+.chat-msgs {
+    height: calc(100% - 65px);
+    display: flex;
+    flex-direction: column;
+}
+
+.infinite-scroll-component__outerdiv{
+    height: auto;
+}
+
+/* =================== Mobile Responsive CSS =================== */
+
+@media only screen and (max-width: 800px) {
+    .skeleton-message{
+        width: 12rem;
+        height: 2rem;
+        margin-top: 8px;
+    }
+}

@@ -1,0 +1,40 @@
+datasource db {
+    //Use this URL for local development
+    //url      = "postgresql://prisma:prisma@localhost:5433/tests"
+    url      = env("DATABASE_URL")
+    provider = "postgresql"
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model EncryptedMessage {
+    id                        String       @id
+    createdAt                 DateTime     @default(now())
+    encryptedEnvelopContainer String
+    encryptedContactName      String
+    conversationId            String
+    conversation              Conversation @relation(fields: [conversationId], references: [id])
+    ownerId                   String
+    owner                     Account      @relation(fields: [ownerId], references: [id])
+    isHalted                  Boolean      @default(false)
+}
+
+model Conversation {
+    id                       String             @id @default(uuid())
+    updatedAt                DateTime           @default(now())
+    encryptedContactName     String
+    encryptedProfileLocation String             @default("")
+    Message                  EncryptedMessage[]
+    Account                  Account            @relation(fields: [accountId], references: [id])
+    accountId                String
+    isHidden                 Boolean            @default(false)
+}
+
+model Account {
+    id               String             @id
+    createdAt        DateTime           @default(now())
+    conversations    Conversation[]
+    EncryptedMessage EncryptedMessage[]
+}

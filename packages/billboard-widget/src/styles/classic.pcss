@@ -1,0 +1,73 @@
+.common-styles {
+    --mainBg: #fff;
+    --messageBg: #f8f8f8;
+    --messageBgOwn: #dfdfdf;
+    --messageBg25: #fff;
+    --borderInputColor: #e0e0e0;
+    --inputBg: #fff;
+    --textColorPrimary: #000;
+    --textColorSecondary: #808080;
+    --borderRadiusS: 0;
+    --borderRadiusM: 0;
+    --borderRadiusL: 0;
+}
+
+.styled-scrollbars {
+    --scrollbar-foreground: #ff0050;
+    --scrollbar-background: #f8f8f8;
+}
+
+.dm3-loading-btn {
+    --timeoutActiveForeground: #ffffff;
+    --timeoutRunningForeground: #ff0050;
+    --timeoutCircleBackground: #e0e0e0;
+}
+
+.create-message {
+    box-shadow: none;
+}
+
+.message-list {
+    .avatar img {
+        border-radius: 50%;
+    }
+}
+
+.viewers-count img,
+.dm3-loading-btn .button-icon img {
+    /* TODO: better put all svg-icons into custom icon font */
+    filter: invert(100%);
+}
+
+.gradient-shadow {
+    display: none;
+}
+
+.create-message .message-create-area .text-area-wrapper .text-area-input {
+    border-width: 2px;
+
+    &:focus {
+        outline: none;
+        border-color: #ccc;
+    }
+}
+
+.branding-items {
+    display: flex;
+    flex-direction: column;
+    width: 100px;
+    margin: 32px;
+
+    .branding-slogan {
+        color: var(--textColorSecondary);
+        line-height: 2em;
+        white-space: nowrap;
+    }
+}
+
+.dm3-send-message-btn {
+    background-color: #ff0050;
+}
+.dm3-send-message-btn:disabled {
+    background-color: #ffcada;
+}

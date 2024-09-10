@@ -1,0 +1,55 @@
+.menu-container {
+    padding-top: 1rem;
+    background: var(--menu-background-color);
+    position: absolute;
+    width: 100%;
+}
+
+.menu-items {
+    font-size: 1.2rem;
+    line-height: 1.5rem;
+    padding: 0.7rem 0.5rem 0.7rem 0.8rem;
+}
+
+.menu-items:hover {
+    background-color: var(--normal-btn);
+}
+
+.menu-item-icon {
+    padding: 0rem 0.5rem 0rem 1rem;
+}
+
+.menu-item-cancel {
+    padding: 0.1rem 0.5rem 0.45rem 0.5rem;
+}
+
+.version-container {
+    position: absolute;
+    bottom: 0;
+}
+
+.menu-container {
+    animation: slide 0.6s ease-out 1;
+}
+
+@keyframes slide {
+    0% {
+        transform: translateX(-100px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0px);
+        opacity: 1;
+    }
+}
+
+/* =================== Mobile Responsive CSS =================== */
+
+@media only screen and (max-width: 800px) {
+
+    .menu-container {
+        width: 70%;
+        box-shadow: 4px 4px 10px 0px #000000B2;
+    }
+
+}

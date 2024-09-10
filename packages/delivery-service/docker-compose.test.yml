@@ -1,0 +1,10 @@
+version: '3.6'
+
+# The containers that compose the project
+services:
+    db:
+        image: redis
+        restart: always
+        container_name: redis-delivery-service
+        ports:
+            - '6379:6379'

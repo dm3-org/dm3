@@ -1,0 +1,32 @@
+{
+  "name": "@dm3-org/dm3-lib-server-side",
+  "license": "BSD-2-Clause",
+  "version": "1.6.0",
+  "main": "dist/index.js",
+  "module": "dist-backend/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "@dm3-org/dm3-lib-profile": "workspace:^",
+    "@dm3-org/dm3-lib-shared": "workspace:^",
+    "express": "^4.18.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2",
+    "typescript": "^4.4.2"
+  },
+  "scripts": {
+    "build": "yarn tsc --declaration  --declarationMap",
+    "test": "jest --coverage"
+  },
+  "files": [
+    "dist"
+  ],
+  "publish": true
+}

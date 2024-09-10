@@ -1,0 +1,26 @@
+{
+  "name": "@dm3-org/dm3-integration-tests",
+  "license": "BSD-2-Clause",
+  "version": "1.6.0",
+  "dependencies": {
+    "@dm3-org/dm3-lib-delivery": "workspace:^",
+    "@dm3-org/dm3-lib-messaging": "workspace:^",
+    "@dm3-org/dm3-lib-profile": "workspace:^",
+    "@dm3-org/dm3-lib-shared": "workspace:^",
+    "ethers": "5.7.2"
+  },
+  "devDependencies": {
+    "@types/data-urls": "^3.0.1",
+    "@types/jest": "^28.1.1",
+    "@types/node": "^16.7.13",
+    "jest": "^28.1.1",
+    "ts-jest": "^28.0.4",
+    "ts-json-schema-generator": "^1.2.0",
+    "typescript": "^4.4.2"
+  },
+  "scripts": {
+    "build": "echo 'no build script'",
+    "test": "jest --coverage --transformIgnorePatterns 'node_modules/(?!(dm3-lib-\\w*)/)'"
+  },
+  "publish": false
+}

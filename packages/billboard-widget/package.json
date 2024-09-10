@@ -1,0 +1,55 @@
+{
+  "name": "@dm3-org/dm3-billboard-widget",
+  "license": "BSD-2-Clause",
+  "version": "1.6.0",
+  "files": [
+    "dist"
+  ],
+  "module": "./dist/index.mjs",
+  "main": "./dist/index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:css": "node ./buildCss.js",
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@dm3-org/dm3-lib-billboard-client-api": "workspace:^",
+    "@dm3-org/dm3-lib-delivery-api": "workspace:^",
+    "@dm3-org/dm3-lib-offchain-resolver-api": "workspace:^",
+    "@dm3-org/dm3-lib-shared": "workspace:^",
+    "@metamask/detect-provider": "^2.0.0",
+    "@metamask/providers": "^11.0.0",
+    "@rainbow-me/rainbowkit": "^1.0.1",
+    "date-fns": "^2.30.0",
+    "ethers": "^5.7.2",
+    "lodash": "^4.17.21",
+    "normalize.css": "^8.0.1",
+    "postcss": "^8.4.24",
+    "react": "^18.2.0",
+    "react-circular-progressbar": "^2.1.0",
+    "react-dom": "^18.2.0",
+    "siwe": "^2.1.4",
+    "socket.io-client": "^4.6.1",
+    "viem": "^0.3.36",
+    "wagmi": "^1.0.6"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.194",
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "@typescript-eslint/eslint-plugin": "^5.57.1",
+    "@typescript-eslint/parser": "^5.57.1",
+    "@vitejs/plugin-react": "^4.0.0",
+    "eslint": "^8.38.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.3.4",
+    "postcss-nesting": "^11.2.2",
+    "typescript": "^5.0.2",
+    "vite": "^4.3.2",
+    "vite-plugin-dts": "^2.3.0",
+    "vite-plugin-node-polyfills": "^0.8.2"
+  },
+  "publish": true
+}

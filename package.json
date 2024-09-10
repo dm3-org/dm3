@@ -1,0 +1,69 @@
+{
+    "name": "dm3",
+    "license": "BSD-2-Clause",
+    "private": true,
+    "workspaces": {
+        "packages": [
+            "packages/lib/shared",
+            "packages/lib/server-side",
+            "packages/lib/crypto",
+            "packages/lib/profile",
+            "packages/lib/messaging",
+            "packages/lib/delivery",
+            "packages/lib/storage",
+            "packages/lib/delivery-api",
+            "packages/lib/test-helper",
+            "packages/lib/offchain-resolver-api",
+            "packages/backend",
+            "packages/integration-tests",
+            "packages/offchain-resolver",
+            "packages/messenger-widget",
+            "packages/messenger-demo",
+            "packages/next-messenger-demo",
+            "packages/messenger-web",
+            "packages/cli",
+            "packages/toplevel-alias",
+            "packages/delivery-service"
+        ],
+        "nohoist": [
+            "**/react",
+            "**/react-dom"
+        ]
+    },
+    "devDependencies": {
+        "eslint": "^8.17.0",
+        "eslint-config-prettier": "^8.5.0",
+        "eslint-plugin-no-only-tests": "^3.1.0",
+        "eslint-plugin-prettier": "^4.0.0",
+        "husky": "^8.0.1",
+        "lint-staged": "^13.0.0",
+        "prettier": "^2.6.2"
+    },
+    "lint-staged": {
+        "*.{js,ts,tsx,json}": [
+            "prettier --write",
+            "eslint --fix"
+        ]
+    },
+    "scripts": {
+        "cli": "yarn workspace dm3-cli start",
+        "docker:up": "cd packages/backend && docker-compose up -d",
+        "build": " yarn workspaces foreach -pt run build",
+        "start": "yarn workspace dm3-backend start",
+        "resolver": "yarn workspace dm3-offchain-resolver-backend start",
+        "lint": "eslint '*/**/*.{js,ts,tsx}' --fix",
+        "format": "prettier --write '*/**/*.{js,ts,tsx,json}'",
+        "format:check": "prettier --check '*/**/*.{js,ts,tsx,json}'",
+        "prepare": "husky install",
+        "test": "yarn workspaces foreach -p run test",
+        "publish:npm": "scripts/publish_npm.sh"
+    },
+    "packageManager": "yarn@3.5.1",
+    "resolutions": {
+        "autoprefixer": "10.4.5"
+    },
+    "dependencies": {
+        "react-circular-progressbar": "^2.1.0",
+        "react-spinners": "^0.13.8"
+    }
+}

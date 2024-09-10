@@ -1,0 +1,62 @@
+.profile-name {
+    margin-right: 0.7rem;
+}
+
+.profile-name:hover {
+    text-decoration: underline;
+}
+
+.profile-name-container {
+    padding: 0.7rem;
+}
+
+.default-profile-pic {
+    height: 1.75rem;
+}
+
+.menu-details {
+    font-size: 1.2rem;
+    font-weight: bolder;
+    display: flex;
+    align-items: center;
+    padding-left: 0.1rem;
+    padding-right: 0.1rem;
+    border-radius: 3px;
+    position: relative;
+    height: 1.2rem;
+    width: 1.2rem;
+    background: var(--menu-background-color);
+    color: var(--text-secondary-color);
+}
+
+.menu-details:hover{
+    background: var(--normal-btn-hover);
+    color: var(--text-primary-color);
+}
+
+.menu-details-dropdown-content {
+    display: flex;
+    margin-top: 0rem;
+    margin-left: -8.8rem;
+}
+
+.contact-name-header{
+    word-break: break-word;
+    hyphens: auto;
+}
+
+/* =================== Mobile Responsive CSS =================== */
+
+@media only screen and (max-width: 800px) {
+    .default-profile-pic {
+        height: 1.5rem !important;
+    }
+    .back-btn {
+        height: 1.3rem;
+    }
+    .show-menu-item {
+        display: flex;
+        margin-top: 7rem;
+        margin-left: 12.5rem;
+    }
+}

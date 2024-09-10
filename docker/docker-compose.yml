@@ -1,0 +1,152 @@
+version: '3.1'
+services:
+    nginx:
+        container_name: nginx
+        image: nginx:latest
+        restart: always
+        depends_on:
+            - web
+            - backend
+            - ccip-resolver
+            - delivery-service
+        volumes:
+            - ./nginx.conf:/etc/nginx/nginx.conf
+            - web-root:/var/www/html
+            - certbot-etc:/etc/letsencrypt
+            - certbot-var:/var/lib/letsencrypt
+        ports:
+            - '80:80'
+            - '443:443'
+
+    backend:
+        image: dm3-backend
+        restart: always
+        depends_on:
+            - db
+            - dm3-storage
+        environment:
+            REDIS_URL: redis://db:6379
+            SIGNING_PUBLIC_KEY: ${SIGNING_PUBLIC_KEY}
+            SIGNING_PRIVATE_KEY: ${SIGNING_PRIVATE_KEY}
+            ENCRYPTION_PUBLIC_KEY: ${ENCRYPTION_PUBLIC_KEY}
+            ENCRYPTION_PRIVATE_KEY: ${ENCRYPTION_PRIVATE_KEY}
+            DISABLE_SESSION_CHECK: ${DISABLE_SESSION_CHECK}
+            RPC: ${RPC}
+            PORT: 8081
+            LOG_LEVEL: 'debug'
+            DATABASE_URL: ${DATABASE_URL}
+
+    db:
+        image: redis
+        restart: always
+        volumes:
+            - ${PERSISTENCE_DIRECTORY}/db/redis:/data
+
+    dm3-storage:
+        image: postgres:13
+        restart: always
+        container_name: dm3-storage
+        environment:
+            POSTGRES_USER: prisma
+            POSTGRES_PASSWORD: prisma
+            POSTGRES_DB: dm3
+        volumes:
+            - ${PERSISTENCE_DIRECTORY}/storage/postgres:/var/lib/postgresql/data
+
+    delivery-service:
+        image: dm3-delivery-service
+        restart: always
+        depends_on:
+            - db-delivery-service
+        environment:
+            REDIS_URL: redis://db-delivery-service:6379
+            SIGNING_PUBLIC_KEY: ${SIGNING_PUBLIC_KEY}
+            SIGNING_PRIVATE_KEY: ${SIGNING_PRIVATE_KEY}
+            ENCRYPTION_PUBLIC_KEY: ${ENCRYPTION_PUBLIC_KEY}
+            ENCRYPTION_PRIVATE_KEY: ${ENCRYPTION_PRIVATE_KEY}
+            RPC: ${RPC}
+            PORT: 8083
+            LOG_LEVEL: 'debug'
+        volumes:
+            - /home/app/dm3/config.yml:/app/dist/config.yml
+
+    db-delivery-service:
+        image: redis
+        restart: always
+        container_name: redis-delivery-service
+        volumes:
+            - ${PERSISTENCE_DIRECTORY}/db/redis-delivery-service:/data
+
+    offchain-resolver-db:
+        image: postgres
+        restart: always
+        container_name: offchain_resolver_db
+        environment:
+            POSTGRES_PASSWORD: example
+        volumes:
+            - ${PERSISTENCE_DIRECTORY}/db/postgres:/var/lib/postgresql/data
+
+    offchain-resolver:
+        image: dm3-offchain-resolver
+        restart: always
+        depends_on:
+            - offchain-resolver-db
+        environment:
+            DATABASE_URL: postgresql://postgres:example@offchain-resolver-db:5432
+            PORT: 8082
+            RPC: ${RPC}
+            RESOLVER_SUPPORTED_ADDR_ENS_SUBDOMAINS: ${RESOLVER_SUPPORTED_ADDR_ENS_SUBDOMAINS}
+            RESOLVER_SUPPORTED_NAME_ENS_SUBDOMAINS: ${RESOLVER_SUPPORTED_NAME_ENS_SUBDOMAINS}
+            LOG_LEVEL: 'debug'
+
+    web:
+        image: dm3-messenger-web
+        restart: always
+        environment:
+            REACT_APP_ADDR_ENS_SUBDOMAIN: ${REACT_APP_ADDR_ENS_SUBDOMAIN}
+            REACT_APP_BACKEND: ${REACT_APP_BACKEND}
+            REACT_APP_DEFAULT_DELIVERY_SERVICE: ${REACT_APP_DEFAULT_DELIVERY_SERVICE}
+            REACT_APP_DEFAULT_SERVICE: ${REACT_APP_DEFAULT_SERVICE}
+            REACT_APP_MAINNET_PROVIDER_RPC: ${REACT_APP_MAINNET_PROVIDER_RPC}
+            REACT_APP_PROFILE_BASE_URL: ${REACT_APP_PROFILE_BASE_URL}
+            REACT_APP_RESOLVER_BACKEND: ${REACT_APP_RESOLVER_BACKEND}
+            REACT_APP_USER_ENS_SUBDOMAIN: ${REACT_APP_USER_ENS_SUBDOMAIN}
+            REACT_APP_WALLET_CONNECT_PROJECT_ID: ${REACT_APP_WALLET_CONNECT_PROJECT_ID}
+
+    certbot:
+        image: certbot/certbot
+        container_name: certbot
+        volumes:
+            - certbot-etc:/etc/letsencrypt
+            - certbot-var:/var/lib/letsencrypt
+            - web-root:/var/www/html
+        depends_on:
+            - nginx
+        command: certonly --webroot --webroot-path=/var/www/html --email ${CERT_MAIL} --agree-tos --no-eff-email -d ${URL}
+
+    ccip-resolver:
+        image: dm3org/ccip-resolver:v0.2.7
+        restart: always
+        depends_on:
+            - offchain-resolver
+        environment:
+            SIGNER_PRIVATE_KEY: ${SIGNER_PRIVATE_KEY}
+            LOG_LEVEL: debug
+            CONFIG: |
+                {
+                  "${RESOLVER_ADDRESS}": {
+                    "type": "signing",
+                    "handlerUrl": "http://offchain-resolver:8082"
+                  }
+                }
+            PORT: 8181
+
+volumes:
+    certbot-etc:
+    certbot-var:
+    web-root:
+        driver: local
+        driver_opts:
+            type: none
+            device: ${PERSISTENCE_DIRECTORY}/webroot
+            o: bind

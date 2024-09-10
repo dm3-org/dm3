@@ -1,0 +1,138 @@
+.configuration-modal-content {
+    margin: auto;
+    padding: 2rem;
+    border: none;
+    width: 80%;
+    position: relative;
+    height: auto;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.configuration-items-align {
+    min-width: 3rem;
+}
+
+.small-text {
+    font-size: 10px;
+    line-height: 14px;
+}
+
+.font-weight-300 {
+    font-weight: 300;
+}
+
+.font-weight-700 {
+    font-weight: 700;
+}
+
+.grey-text {
+    color: var(--profile-configuration-text-color);
+}
+
+.profile-config-container {
+    width: fit-content;
+}
+
+.title-content {
+    min-width: 8rem;
+}
+
+.address-details {
+    margin-top: 0.7rem;
+    width: 80%;
+}
+
+.profile-input {
+    border: 1px solid var(--input-field-border-color);
+    padding: 0.3rem 1rem 0.3rem 1rem;
+    color: var(--input-field-text-color);
+    background: var(--input-field-background-color);
+    width: 60%;
+}
+
+.configure-btn {
+    padding: 8px 16px 8px 16px;
+    box-shadow: 0px 0px 44px 0px var(--button-shadow);
+    width: fit-content;
+}
+
+.dm3-name-container {
+    width: 80%;
+}
+
+.dm3-name-content {
+    width: 90%;
+}
+
+.name-service-selector {
+    background: var(--preferences-highlighted-color);
+    font-size: 14px;
+    padding: 0.3rem;
+    font-weight: 500;
+    outline: none;
+}
+
+select:focus-visible {
+    outline: none;
+}
+
+input::placeholder {
+    font-size: 11px;
+}
+
+/* =================== Mobile Responsive CSS =================== */
+
+@media only screen and (min-width: 800px) and (max-width: 1150px) {
+    input::placeholder {
+        font-size: 9px;
+    }
+    .conversation-error {
+        font-size: 0.7rem !important;
+    }
+}
+
+@media only screen and (max-width: 800px) {
+    .profile-input {
+        padding: 0.2rem 0.5rem 0.2rem 0.5rem;
+        width: 100%;
+    }
+
+    .dm3-name-container {
+        width: 100%;
+        margin-top: 1rem;
+    }
+
+    input::placeholder {
+        font-size: 13px !important;
+    }
+
+    .conversation-error {
+        margin-left: 0px !important;
+        height: 14px;
+        font-size: 0.6rem !important;
+    }
+
+    .configure-btn {
+        padding: 6px 14px 4px 14px;
+    }
+
+    .dm3-name-content {
+        width: 100%;
+        word-break: break-word;
+        hyphens: auto;
+        padding: 0rem 0.2rem 0rem 0.2rem;
+    }
+
+    .configuration-items-align{
+        min-width: 0rem;
+    }
+
+    select option {
+        font-size: 12px;
+    }
+
+    .name-service-selector{
+        font-size: 12px;
+    }
+}

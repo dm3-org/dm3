@@ -1,0 +1,6 @@
+package.json
+**/dist
+**/build
+**/*.json
+**/coverage
+**/dist.*

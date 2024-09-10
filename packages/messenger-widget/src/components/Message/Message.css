@@ -1,0 +1,167 @@
+.content-style {
+    padding: 10px;
+    max-width: 38rem;
+    margin-right: 0.4rem;
+    font-size: 14px;
+    word-break: break-word;
+    hyphens: auto;
+}
+
+.action-container {
+    height: fit-content;
+    width: fit-content;
+    border: 1px solid var(--text-primary-color);
+}
+
+.chat-action-dot {
+    height: 0.9rem;
+    width: 0.7rem;
+}
+
+.time-style {
+    font-size: 10px;
+    margin-right: 1.6rem;
+    margin-top: -2px;
+}
+
+.readed-tick-icon {
+    color: var(--normal-btn-hover);
+}
+
+.tick-icon {
+    margin-left: 2px;
+}
+
+.second-tick {
+    margin-left: -5px;
+}
+
+.indicator-tick-icon {
+    height: 15px;
+    width: 10px;
+}
+
+.msg-action-container {
+    height: fit-content;
+    width: fit-content;
+    visibility: hidden;
+    background: var(--menu-background-color);
+}
+
+.msg-action-container:hover {
+    background-color: var(--received-message-background-color);
+}
+
+.msg:hover div .content-style + .msg-action-container {
+    visibility: visible;
+}
+
+.hide-action {
+    visibility: hidden !important;
+}
+
+.msg-editing-active {
+    background-color: var(--text-secondary-color) !important;
+    color: var(--text-primary-color) !important;
+    border: 1px solid var(--text-primary-color) !important;
+}
+
+.reply-preview {
+    padding: 0.5rem;
+    margin: -7px -7px 7px -7px;
+    flex-direction: column;
+}
+
+.reply-preview-own {
+    background-color: var(--scrollbar-background-color);
+}
+
+.reply-preview-contact {
+    background-color: var(--scrollbar-background-color);
+}
+
+.contact-reacted-msg {
+    border-bottom-left-radius: 0px !important;
+}
+
+.own-reacted-msg {
+    border-bottom-right-radius: 0px !important;
+}
+
+.reacted {
+    padding: 2px 6px 2px 6px;
+    width: fit-content;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    font-size: 14px;
+}
+
+.own-deleted-msg {
+    background: var(--background-chat);
+    border: 1px solid var(--sent-message-background-color);
+    color: var(--sent-message-background-color);
+    font-size: 0.8rem !important;
+    padding: 7px !important;
+}
+
+.contact-deleted-msg {
+    background: var(--background-chat);
+    border: 1px solid var(--received-message-background-color);
+    color: var(--received-message-background-color);
+    font-size: 0.8rem !important;
+    padding: 7px !important;
+}
+
+.own-msg-background {
+    background: var(--sent-message-background-color);
+}
+
+.contact-msg-background {
+    background: var(--received-message-background-color);
+}
+
+.own-msg-text {
+    color: var(--sent-message-text-color);
+}
+
+.contact-msg-text {
+    color: var(--received-message-text-color);
+}
+
+.msg-action-btn{
+    color: var(--text-secondary-color);
+    font-size: 1.2rem;
+    font-weight: bolder;
+    display: flex;
+    align-items: center;
+    height: 1.2rem;
+    padding-left: 0.1rem;
+    padding-right: 0.1rem;
+    border-radius: 3px;
+}
+
+.msg-action-btn:hover{
+    background: var(--normal-btn-hover);
+    color: var(--text-primary-color);
+}
+
+.msg-action-btn-highlighted{
+    background: var(--normal-btn-hover);
+    color: var(--text-primary-color);
+}
+
+/* =================== Mobile Responsive CSS =================== */
+@media only screen and (max-width: 800px) {
+    .content-style {
+        font-size: 12px;
+        max-width: 19rem;
+    }
+
+    .reacted {
+        font-size: 12px;
+    }
+
+    .msg div .content-style + .msg-action-container {
+        visibility: visible;
+    }
+}

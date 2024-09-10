@@ -1,0 +1,185 @@
+.home-image-container {
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: auto;
+}
+
+.content-data-container {
+    padding: 0rem 4rem 0rem 4rem;
+    flex-wrap: nowrap !important;
+    justify-content: space-evenly !important;
+}
+
+.details {
+    line-height: 21px;
+}
+
+.encrypted-details {
+    line-height: 15px;
+}
+
+.signin-btn {
+    font-size: 1.125rem;
+    padding: 1.2rem 1.2rem 1.2rem 1.2rem;
+}
+
+.signin-btn:hover {
+    background-color: var(--normal-btn-hover);
+}
+
+.para-div p:last-child {
+    margin-bottom: 0;
+}
+
+.sign-in-logo {
+    height: auto !important;
+    width: 200px;
+    fill: var(--text-primary-color) !important;
+}
+
+.content-data {
+    justify-content: center;
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+}
+
+.rainbow-connect-btn {
+    padding: 1rem 1rem 0rem 1rem;
+}
+
+.wal-not-connected {
+    padding: 0.6rem 1rem 0.6rem 1rem;
+    border-radius: 20px;
+    color: var(--normal-btn-hover);
+    font-size: 0.9rem;
+    cursor: default;
+}
+
+.loading-btn {
+    height: fit-content !important;
+}
+
+.spinner-visible {
+    visibility: visible;
+}
+
+.spinner-invisible {
+    visibility: hidden;
+}
+
+
+/* =================== Mobile Responsive CSS =================== */
+
+@media only screen and (max-width: 800px) {
+
+    .rainbow-connect-btn {
+        padding: 0.5rem 0.5rem 0rem 0rem !important;
+    }
+
+    .home-image-container {
+        height: 35% !important;
+        width: 100% !important;
+    }
+
+    .signin-data-container{
+        height: 65%;
+        width: 100%;
+    }
+
+    .details{
+        line-height: 17px !important;
+    }
+
+    .wal-not-connected {
+        padding: 0.4rem 1rem 0.4rem 1rem !important;
+        font-size: 0.7rem !important;
+    }
+
+    .content-data-container {
+        padding: 0rem 2rem 0rem 2rem !important;
+    }
+
+    .small-spinner {
+        width: 1.5rem !important;
+    }
+
+    .signin-btn {
+        font-size: 13px !important;
+        padding: 0.5rem 1.2rem 0.7rem 1.2rem !important;
+    }
+
+}
+
+@media only screen and (max-width: 300px) {
+    
+    .details{
+        font-size: 10px !important;
+        line-height: 14px !important;
+    }
+
+    .encrypted-details{
+        font-size: 10px !important;
+        line-height: 14px !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .para-div{
+        margin-top: 0.5rem !important;
+    }
+}
+
+/* =================== Container CSS =================== */
+
+.signin-container-type {
+    container-type: size;
+    container-name: signinContainer;
+}
+
+@container signinContainer (max-height: 450px) and (height > 0px) {
+    .tx-content {
+        display: none;
+    }
+    .keys-content {
+        display: none;
+    }
+    .signin-btn {
+        font-size: 1rem !important;
+        padding: 0.5rem !important;
+    }
+    .loading-btn {
+        height: 18px !important;
+    }
+}
+
+@container signinContainer (max-height: 325px) and (height > 0px) {
+    .rainbow-connect-btn {
+        display: none !important;
+    }
+}
+
+@container signinContainer (max-width: 735px) {
+    .signin-btn {
+        font-size: 13px !important;
+        padding: 0.5rem 1.2rem 0.7rem 1.2rem !important;
+    }
+    .loading-btn {
+        height: 18px !important;
+    }
+    .small-spinner {
+        width: 1.5rem !important;
+    }
+}
+
+@container signinContainer (max-width: 635px) {
+    .content-data-container {
+        padding: 0rem 2rem 0rem 2rem !important;
+    }
+}
+
+@container signinContainer (min-width: 1500px) {
+    .content-data-container {
+        padding: 0rem 8rem 0rem 8rem !important;
+    }
+}

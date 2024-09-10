@@ -1,0 +1,24 @@
+{
+  "name": "@dm3-org/dm3-toplevel-alias",
+  "license": "BSD-2-Clause",
+  "version": "0.1.0",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-chai-matchers": "^1.0.0",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.0",
+    "@nomicfoundation/hardhat-verify": "^1.0.3",
+    "@nomiclabs/hardhat-ethers": "^2.0.3",
+    "@typechain/ethers-v5": "^8.0.5",
+    "@typechain/hardhat": "^8.0.0",
+    "hardhat": "^2.7.1",
+    "solidity-coverage": "^0.7.17",
+    "ts-node": "^10.9.2",
+    "typechain": "^6.0.5"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.0"
+  },
+  "publish": false,
+  "scripts": {
+    "test": "npx hardhat test"
+  }
+}

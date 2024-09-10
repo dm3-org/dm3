@@ -1,0 +1,15 @@
+.dm3widget {
+    width: calc(100% - 40px);
+    height: calc(100% - 70px - 40px);
+    background-color: #1a1b22;
+    border: 1px solid #222222;
+    border-radius: 10px;
+    position: absolute;
+    top: 75px;
+    left: 20px;
+    transform: translate(0, 0);
+    z-index: 10;
+    box-shadow: 6px 6px 20px 0 rgba(05, 010, 020, 1);
+    /*    margin-top: 30px; /* Adjust this value as needed */
+    overflow: hidden;
+}

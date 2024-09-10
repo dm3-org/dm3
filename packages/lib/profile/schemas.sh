@@ -1,0 +1,3 @@
+yarn ts-json-schema-generator -f ./tsconfig.json --path types.ts --type SignedUserProfile -o ./src/schema/SignedUserProfile.schema.json --no-type-check \
+&& yarn ts-json-schema-generator -f ./tsconfig.json --path types.ts --type DeliveryServiceProfile -o ./src/schema/DeliveryServiceProfile.schema.json --no-type-check  \
+&& yarn ts-json-schema-generator -f ./tsconfig.json --path types.ts --type ProfileExtension -o ./src/schema/ProfileExtension.schema.json --no-type-check

@@ -1,0 +1,14 @@
+import { createKeyPair, createSigningKeyPair } from '@dm3-org/dm3-lib-crypto';
+import { ProfileKeys } from '../Profile';
+
+export async function createProfileKeys(
+    nonceMsgSig: string,
+    nonce: string,
+): Promise<ProfileKeys> {
+    return {
+        encryptionKeyPair: await createKeyPair(nonceMsgSig),
+        signingKeyPair: await createSigningKeyPair(nonceMsgSig),
+        storageEncryptionKey: nonceMsgSig,
+        storageEncryptionNonce: nonce,
+    };
+}

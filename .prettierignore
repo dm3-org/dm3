@@ -1,0 +1,7 @@
+**/dist
+**/build
+**/coverage
+**/dist.*
+**/typechain
+**/artifacts
+**/*.json
