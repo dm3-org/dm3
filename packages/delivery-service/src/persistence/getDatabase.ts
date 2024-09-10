@@ -15,7 +15,7 @@ import Account from './account';
 import { getIdEnsName } from './getIdEnsName';
 import Messages from './messages';
 import { syncAcknowledge } from './messages/syncAcknowledge';
-import type { MetricsObject } from './metrics';
+import type { IntervalMetric } from './metrics';
 import Metrics from './metrics';
 import Notification from './notification';
 import Otp from './otp';
@@ -168,7 +168,7 @@ export interface IDatabase extends IAccountDatabase {
     ) => Promise<void>;
     getMetrics: (
         deliveryServiceProperties: DeliveryServiceProperties,
-    ) => Promise<MetricsObject>;
+    ) => Promise<IntervalMetric[]>;
     countMessage: (
         messageSizeBytes: number,
         deliveryServiceProperties: DeliveryServiceProperties,

@@ -1,4 +1,4 @@
-type IntervalMetric = {
+export type IntervalMetric = {
     timestamp_start: number;
     duration_seconds: number;
     messageCount: number;

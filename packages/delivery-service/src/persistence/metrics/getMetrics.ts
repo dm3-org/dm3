@@ -1,6 +1,7 @@
 import { DeliveryServiceProperties } from '@dm3-org/dm3-lib-delivery';
 import { Redis, RedisPrefix } from '../getDatabase';
 import { getCurrentIntervalTimestamp } from './getCurrentIntervalTimestamp';
+import { IntervalMetric } from './metricTypes';
 
 /**
  * Get the metrics from the database, excluding the current interval.
