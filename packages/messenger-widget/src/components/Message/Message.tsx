@@ -31,7 +31,8 @@ export function Message(props: MessageProps) {
             <div className="d-flex">
                 <div
                     className={
-                        getMessageStyleClasses(props, messageView) + 'mb-0'
+                        getMessageStyleClasses(props, messageView) +
+                        'mb-0 markdown-msg'
                     }
                 >
                     {/* Reply message preview */}
