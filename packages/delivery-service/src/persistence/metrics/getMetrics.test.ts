@@ -1,6 +1,5 @@
 import { getMetrics } from './getMetrics';
 import { Redis, RedisPrefix } from '../getDatabase';
-import { MetricsObject, IntervalMetric } from './metricTypes';
 
 describe('getMetrics', () => {
     let mockRedis: jest.Mocked<Redis>;
@@ -19,13 +18,13 @@ describe('getMetrics', () => {
         } as unknown as jest.Mocked<Redis>;
     });
 
-    it('should return an empty object when no metrics are found', async () => {
+    it('should return an empty array when no metrics are found', async () => {
         mockRedis.keys.mockResolvedValue([]);
 
         const getMetricsFunc = getMetrics(mockRedis);
         const result = await getMetricsFunc(mockDeliveryServiceProperties);
 
-        expect(result).toEqual({});
+        expect(result).toEqual([]);
     });
 
     it('should return metrics for all available intervals', async () => {
@@ -50,8 +49,10 @@ describe('getMetrics', () => {
         expect(mockRedis.keys).toHaveBeenCalledWith(
             `${RedisPrefix.MetricsMessageCount}*`,
         );
-        expect(Object.keys(result)).toHaveLength(24);
-        expect(result['2023-03-31T08:00:00.000Z']).toEqual({
+        expect(result).toHaveLength(24);
+        expect(result[0]).toEqual({
+            timestamp_start: 1680307200,
+            duration_seconds: 3600,
             messageCount: 10,
             messageSizeBytes: 1000,
             notificationCount: 5,
@@ -83,11 +84,10 @@ describe('getMetrics', () => {
         const result = await getMetricsFunction(mockDeliveryServiceProperties);
         console.log(result);
 
-        expect(Object.keys(result)).toHaveLength(1);
-
-        expect(Object.keys(result)).toEqual(['2023-04-01T00:00:00.000Z']);
-
-        expect(result['2023-04-01T00:00:00.000Z']).toEqual({
+        expect(result).toHaveLength(1);
+        expect(result[0]).toEqual({
+            timestamp_start: 1680307200,
+            duration_seconds: 3600,
             messageCount: 10,
             messageSizeBytes: 0,
             notificationCount: 5,
@@ -106,8 +106,14 @@ describe('getMetrics', () => {
         const getMetricsFunction = getMetrics(mockRedis);
         const result = await getMetricsFunction(mockDeliveryServiceProperties);
 
-        expect(Object.keys(result)).toHaveLength(1);
-        expect(Object.keys(result)[0]).toBe('2023-04-01T11:00:00.000Z');
-        expect(result).not.toHaveProperty(mockDate.toISOString());
+        expect(result).toHaveLength(1);
+        expect(result[0].timestamp_start).toBe(currentTimestamp - 3600); // 2023-04-01T11:00:00.000Z
+        expect(
+            result.every(
+                (metric) =>
+                    metric.timestamp_start !==
+                    Math.floor(mockDate.getTime() / 1000),
+            ),
+        ).toBe(true);
     });
 });
