@@ -1,6 +1,6 @@
 export type IntervalMetric = {
-    timestamp_start: number;
-    duration_seconds: number;
+    timestampStart: number;
+    durationSeconds: number;
     messageCount: number;
     messageSizeBytes: number;
     notificationCount: number;

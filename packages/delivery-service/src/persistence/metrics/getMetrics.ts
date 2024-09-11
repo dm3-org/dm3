@@ -43,8 +43,8 @@ export function getMetrics(
             );
 
             metrics.push({
-                timestamp_start: timestamp,
-                duration_seconds:
+                timestampStart: timestamp,
+                durationSeconds:
                     deliveryServiceProperties.metricsCollectionIntervalInSeconds,
                 messageCount: parseInt(messageCount || '0', 10),
                 messageSizeBytes: parseInt(messageSizeBytes || '0', 10),
