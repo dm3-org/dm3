@@ -51,8 +51,8 @@ describe('getMetrics', () => {
         );
         expect(result).toHaveLength(24);
         expect(result[0]).toEqual({
-            timestamp_start: 1680307200,
-            duration_seconds: 3600,
+            timestampStart: 1680307200,
+            durationSeconds: 3600,
             messageCount: 10,
             messageSizeBytes: 1000,
             notificationCount: 5,
@@ -86,8 +86,8 @@ describe('getMetrics', () => {
 
         expect(result).toHaveLength(1);
         expect(result[0]).toEqual({
-            timestamp_start: 1680307200,
-            duration_seconds: 3600,
+            timestampStart: 1680307200,
+            durationSeconds: 3600,
             messageCount: 10,
             messageSizeBytes: 0,
             notificationCount: 5,
@@ -107,11 +107,11 @@ describe('getMetrics', () => {
         const result = await getMetricsFunction(mockDeliveryServiceProperties);
 
         expect(result).toHaveLength(1);
-        expect(result[0].timestamp_start).toBe(currentTimestamp - 3600); // 2023-04-01T11:00:00.000Z
+        expect(result[0].timestampStart).toBe(currentTimestamp - 3600); // 2023-04-01T11:00:00.000Z
         expect(
             result.every(
                 (metric) =>
-                    metric.timestamp_start !==
+                    metric.timestampStart !==
                     Math.floor(mockDate.getTime() / 1000),
             ),
         ).toBe(true);
