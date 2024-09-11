@@ -34,10 +34,10 @@ export default (
         const csvData = [headers.join(','), ...csvRows].join('\n');
 
         res.setHeader('Content-Type', 'text/csv');
-        res.setHeader(
-            'Content-Disposition',
-            'attachment; filename=metrics.csv',
-        );
+        // res.setHeader(
+        //     'Content-Disposition',
+        //     'attachment; filename=metrics.csv',
+        // );
         return res.status(200).send(csvData);
     });
 
