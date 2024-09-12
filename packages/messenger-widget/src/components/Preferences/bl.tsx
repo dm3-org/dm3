@@ -54,7 +54,7 @@ export const preferencesItems = [
         ),
         name: 'Network',
         component: <Network />,
-        isEnabled: false,
+        isEnabled: true,
     },
     {
         icon: (
