@@ -56,6 +56,20 @@ export function ProfileTypeSelector() {
             </div>
             <div className="d-flex justify-content-end me-3 mb-3">
                 <button
+                    className={BUTTON_CLASS.concat(
+                        ' ',
+                        'config-profile-cancel-btn me-3',
+                    )}
+                    onClick={() => {
+                        setConfigureProfileModal({
+                            profileOptionSelected: ProfileType.DM3_NAME,
+                            onScreen: ProfileScreenType.NONE,
+                        });
+                    }}
+                >
+                    Cancel
+                </button>
+                <button
                     className={BUTTON_CLASS.concat(' add-prof-btn-active')}
                     onClick={() => {
                         setConfigureProfileModal({

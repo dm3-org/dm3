@@ -93,7 +93,6 @@ input::placeholder {
     padding: 2px 7px 2px 7px;
     border-radius: 13px;
     font-size: 10px;
-    font-weight: bold;
     cursor: pointer;
     position: relative;
 }
@@ -108,7 +107,7 @@ input::placeholder {
     margin: 22px 9px 10px 0px;
     background-color: var(--text-secondary-color);
     font-size: 0.7rem;
-    font-weight: 100;
+    font-weight: 600;
     line-height: 1rem;
     cursor: text;
 }
@@ -155,7 +154,7 @@ input::placeholder {
 }
 
 .prof-option-container{
-    padding: 1rem;
+    padding: 3rem 1rem 1rem 1rem;
 }
 
 .update-btn {
@@ -208,6 +207,12 @@ input::placeholder {
   .ens-components-container{
     padding: 1.25rem;
   }
+
+  .config-profile-cancel-btn {
+    background-color: transparent;
+    border: 2px solid var(--preferences-highlighted-color);
+    color: var(--text-primary-color);
+}
 
 /* =================== Mobile Responsive CSS =================== */
 

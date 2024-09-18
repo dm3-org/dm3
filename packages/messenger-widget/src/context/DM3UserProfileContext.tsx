@@ -14,9 +14,10 @@ export type DM3UserProfileContextType = {
     isModalOpenToAddNode: boolean;
     setIsModalOpenToAddNode: (action: boolean) => void;
     error: string | null;
-    setError: (msg: string) => void;
+    setError: (msg: string | null) => void;
     nodeName: string;
     handleNodeNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    setNodeName: (name: string) => void;
     isProfileUpdated: boolean;
     isProfileUpdatedForAddrName: boolean;
     isProfileUpdatedForDm3Name: boolean;
@@ -39,6 +40,7 @@ export const DM3UserProfileContext =
         setError: (msg: string) => {},
         nodeName: '',
         handleNodeNameChange: (e: React.ChangeEvent<HTMLInputElement>) => {},
+        setNodeName: (name: string) => {},
         isProfileUpdated: true,
         isProfileUpdatedForAddrName: true,
         isProfileUpdatedForDm3Name: true,
@@ -67,6 +69,7 @@ export const DM3UserProfileContextProvider = ({
         isProfileUpdatedForAddrName,
         isProfileUpdatedForDm3Name,
         isProfileUpdatedForEnsName,
+        setNodeName,
     } = useDm3UserProfile();
 
     return (
@@ -88,6 +91,7 @@ export const DM3UserProfileContextProvider = ({
                 isProfileUpdatedForAddrName,
                 isProfileUpdatedForDm3Name,
                 isProfileUpdatedForEnsName,
+                setNodeName,
             }}
         >
             {children}

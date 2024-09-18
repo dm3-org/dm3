@@ -54,7 +54,7 @@
 }
 
 .node-name-inner-container{
-    padding: 2rem 3rem 1rem 3rem;
+    padding: 2rem 3rem 1rem 2rem;
     align-items: center;
     justify-content: space-between;
 }
@@ -93,6 +93,12 @@
     padding: 0.7rem;
     border-radius: 3px;
     width: 80%;
+}
+
+.cancel-btn {
+    background-color: transparent;
+    border: 2px solid var(--preferences-highlighted-color);
+    color: var(--text-primary-color);
 }
 
 @media only screen and (min-width: 800px) and (max-width: 1150px) {

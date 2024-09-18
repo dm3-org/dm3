@@ -8,6 +8,8 @@ import {
     NAME_TYPE,
     PROFILE_INPUT_FIELD_CLASS,
 } from '../chain/common';
+import { ModalContext } from '../../../context/ModalContext';
+import { ProfileScreenType, ProfileType } from '../../../utils/enum-type-utils';
 
 export const MobileView = ({
     nameExtension,
@@ -20,10 +22,19 @@ export const MobileView = ({
 }) => {
     const { setDisplayName } = useContext(AuthContext);
 
-    const { errorMsg, showError } = useContext(ConfigureProfileContext);
+    const { errorMsg, showError, setEnsName, onShowError } = useContext(
+        ConfigureProfileContext,
+    );
 
-    const { dm3Name, handleNameChange, handleClaimOrRemoveDm3Name } =
-        useContext(ConfigureDM3NameContext);
+    const {
+        dm3Name,
+        handleNameChange,
+        handleClaimOrRemoveDm3Name,
+        setDm3Name,
+    } = useContext(ConfigureDM3NameContext);
+
+    const { configureProfileModal, setConfigureProfileModal } =
+        useContext(ModalContext);
 
     return (
         <div className="d-flex ps-2 align-items-baseline">
@@ -78,6 +89,23 @@ export const MobileView = ({
                     </form>
                 </div>
                 <div className="mt-2">
+                    <button
+                        className={BUTTON_CLASS.concat(
+                            ' ',
+                            'config-profile-cancel-btn me-3',
+                        )}
+                        onClick={() => {
+                            setDm3Name('');
+                            setEnsName('');
+                            onShowError(NAME_TYPE.DM3_NAME, '');
+                            setConfigureProfileModal({
+                                profileOptionSelected: ProfileType.DM3_NAME,
+                                onScreen: ProfileScreenType.NONE,
+                            });
+                        }}
+                    >
+                        Cancel
+                    </button>
                     <button
                         data-testid="claim-publish"
                         disabled={!dm3Name || !dm3Name.length}
