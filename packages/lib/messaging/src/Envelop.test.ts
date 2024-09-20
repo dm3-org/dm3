@@ -142,10 +142,10 @@ describe('Envelope', () => {
                         to: '',
                     },
                     messageHash:
-                        '0xc3428898a18e2cdb914e7eec870e45348c7f401d094968408524b787b43451d0',
+                        '0xf2f8e4e1301481b3d7f11127adc11f5f4cf5faa8261296501d7726206ba35a85',
                     version: 'v1',
                     signature:
-                        'kKfGVNdGuZf5TrWa6ctQAuHwZQ8fSH36D4Hz+pxYA2UPNMNVZvWPwRmDjKEHMf3iWm8v/yh3BW7fwwk8ns4+AA==',
+                        'sHQCkcuocwB7E9iy2hzyvl45020vFNgDfEV/dAKaMal98svGl7Gk8h0vcXxmhNwZt+rJ0j+Bc6sgpoeiIBjBCQ==',
                 },
             });
         });
