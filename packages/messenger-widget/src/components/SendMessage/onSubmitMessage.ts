@@ -31,7 +31,7 @@ export const onSubmitMessage = async (
     }
     if (messageView.actionType === MessageActionType.REPLY) {
         const referenceMessageHash =
-            messageView.messageData?.envelop.metadata?.encryptedMessageHash;
+            messageView.messageData?.envelop.metadata?.messageHash;
 
         const messageData = await createReplyMessage(
             selectedContact?.contactDetails.account.ensName!,
@@ -67,7 +67,7 @@ export const onSubmitMessage = async (
     }
     if (messageView.actionType === MessageActionType.EDIT) {
         const referenceMessageHash =
-            messageView.messageData?.envelop.metadata?.encryptedMessageHash;
+            messageView.messageData?.envelop.metadata?.messageHash;
 
         // reply to the original message
         const messageData = await createEditMessage(

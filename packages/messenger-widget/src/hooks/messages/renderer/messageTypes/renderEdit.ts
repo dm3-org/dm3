@@ -32,7 +32,7 @@ export const renderEdit = (_messages: MessageModel[]) => {
         while (currentMsg.envelop.message.metadata.type === 'EDIT') {
             const originalMsg = messages.find(
                 (m, i) =>
-                    m.envelop.metadata?.encryptedMessageHash ===
+                    m.envelop.metadata?.messageHash ===
                     currentMsg.envelop.message.metadata.referenceMessageHash,
             );
             if (!originalMsg) {

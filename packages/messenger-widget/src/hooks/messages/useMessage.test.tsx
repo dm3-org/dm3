@@ -742,15 +742,15 @@ describe('useMessage hook test cases', () => {
                 [
                     {
                         contactAddress: sender.account.ensName,
-                        messageHash: message1.metadata.encryptedMessageHash,
+                        messageHash: message1.metadata.messageHash,
                     },
                     {
                         contactAddress: sender.account.ensName,
-                        messageHash: message2.metadata.encryptedMessageHash,
+                        messageHash: message2.metadata.messageHash,
                     },
                     {
                         contactAddress: sender.account.ensName,
-                        messageHash: message3.metadata.encryptedMessageHash,
+                        messageHash: message3.metadata.messageHash,
                     },
                 ],
             );

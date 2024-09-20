@@ -141,7 +141,7 @@ describe('Envelope', () => {
                         from: '',
                         to: '',
                     },
-                    encryptedMessageHash:
+                    messageHash:
                         '0xc3428898a18e2cdb914e7eec870e45348c7f401d094968408524b787b43451d0',
                     version: 'v1',
                     signature:

@@ -1007,7 +1007,7 @@ describe('Storage', () => {
                 .send({
                     encryptedEnvelopContainer: JSON.stringify(envelop1),
                     encryptedContactName: sha256(receiver.account.ensName),
-                    messageId: envelop1.metadata.encryptedMessageHash,
+                    messageId: envelop1.metadata.messageHash,
                     createdAt: 1,
                     isHalted: true,
                 });

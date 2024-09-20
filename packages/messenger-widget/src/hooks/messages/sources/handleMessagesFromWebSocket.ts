@@ -63,8 +63,8 @@ export const handleMessagesFromWebSocket = async (
         if (
             prev[contact]?.find(
                 (m) =>
-                    m.envelop.metadata?.encryptedMessageHash ===
-                    messageModel.envelop.metadata?.encryptedMessageHash,
+                    m.envelop.metadata?.messageHash ===
+                    messageModel.envelop.metadata?.messageHash,
             )
         ) {
             return prev;

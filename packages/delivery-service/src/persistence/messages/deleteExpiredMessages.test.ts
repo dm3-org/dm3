@@ -29,7 +29,7 @@ describe('Delete Expired messages', () => {
                 metadata: {
                     deliveryInformation: '',
                     signature: '',
-                    encryptedMessageHash: '',
+                    messageHash: '',
                     version: '',
                     encryptionScheme: 'x25519-chacha20-poly1305',
                 },
@@ -44,7 +44,7 @@ describe('Delete Expired messages', () => {
                 metadata: {
                     deliveryInformation: '',
                     signature: '',
-                    encryptedMessageHash: '',
+                    messageHash: '',
                     version: '',
                     encryptionScheme: 'x25519-chacha20-poly1305',
                 },
@@ -60,7 +60,7 @@ describe('Delete Expired messages', () => {
                 metadata: {
                     deliveryInformation: '',
                     signature: '',
-                    encryptedMessageHash: '',
+                    messageHash: '',
                     version: '',
                     encryptionScheme: 'x25519-chacha20-poly1305',
                 },

@@ -19,7 +19,6 @@ export const renderMessage = (messages: MessageModel[]) => {
     const withDeletes = renderDelete(withReadOpened);
     const withReactions = renderReactions(withDeletes);
     const withReply = renderReply(withReactions);
-    const withReplyC = renderReply(withReactions);
 
     const withoutEdited = renderEdit(withReply);
     //Sort the messages by timestamp DESC to show them in the right order

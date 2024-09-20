@@ -31,7 +31,7 @@ export class ReceiptDispatcher {
             this.account!.ensName,
             'READ_OPENED',
             this.profileKeys?.signingKeyPair.privateKey!,
-            messageModel.envelop.metadata?.encryptedMessageHash as string,
+            messageModel.envelop.metadata?.messageHash as string,
         );
 
         //add the message to dispatch it via useMessage hook
@@ -47,7 +47,7 @@ export class ReceiptDispatcher {
             this.account!.ensName,
             'READ_RECEIVED',
             this.profileKeys?.signingKeyPair.privateKey!,
-            messageModel.envelop.metadata?.encryptedMessageHash as string,
+            messageModel.envelop.metadata?.messageHash as string,
         );
 
         //add the message to dispatch it via useMessage hook

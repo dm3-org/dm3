@@ -325,7 +325,7 @@ export const useMessage = () => {
                     deliveryInformation: '',
                     //Because storing a message is always an internal process we dont need to sign it. The signature is only needed for the delivery service
                     signature: '',
-                    encryptedMessageHash: sha256(stringify(message)),
+                    messageHash: sha256(stringify(message)),
                     version: 'v1',
                 },
             },
@@ -489,15 +489,15 @@ export const useMessage = () => {
         newMessages
             //filter duplicates
             .filter((message, index, self) => {
-                if (!message.envelop.metadata?.encryptedMessageHash) {
+                if (!message.envelop.metadata?.messageHash) {
                     return true;
                 }
                 return (
                     index ===
                     self.findIndex(
                         (m) =>
-                            m.envelop.metadata?.encryptedMessageHash ===
-                            message.envelop.metadata?.encryptedMessageHash,
+                            m.envelop.metadata?.messageHash ===
+                            message.envelop.metadata?.messageHash,
                     )
                 );
             });
