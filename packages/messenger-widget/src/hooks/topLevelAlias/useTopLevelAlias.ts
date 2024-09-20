@@ -10,6 +10,7 @@ import { OptimismNames } from './nameService/OptimismNames';
 import { DM3Configuration } from '../../interfaces/config';
 import { ITLDResolver } from './nameService/ITLDResolver';
 import { ForeignName } from './nameService/ForeignName';
+import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 
 const SUPPORTED_NAMESERVICES = (
     provider: ethers.providers.JsonRpcProvider,
@@ -63,9 +64,11 @@ export const useTopLevelAlias = () => {
                     foreignTldName,
                 )
             ) {
-                const tldName = await nameservice.resolveAliasToTLD(
-                    ensName,
-                    foreignTldName,
+                const tldName = normalizeEnsName(
+                    await nameservice.resolveAliasToTLD(
+                        ensName,
+                        foreignTldName,
+                    ),
                 );
                 setAliasTldCache((prev) => ({ ...prev, [ensName]: tldName }));
                 return tldName;
@@ -83,7 +86,9 @@ export const useTopLevelAlias = () => {
             dm3Configuration,
         )) {
             if (await nameservice.isResolverForTldName(ensName)) {
-                const aliasName = await nameservice.resolveTLDtoAlias(ensName);
+                const aliasName = normalizeEnsName(
+                    await nameservice.resolveTLDtoAlias(ensName),
+                );
                 setTldAliasCache((prev) => ({ ...prev, [ensName]: aliasName }));
                 return aliasName;
             }
