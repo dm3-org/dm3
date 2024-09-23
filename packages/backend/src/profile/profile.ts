@@ -54,8 +54,6 @@ export default (
                 method: 'POST',
                 url: req.url,
                 ensName,
-                disableSessionCheck:
-                    process.env.DISABLE_SESSION_CHECK === 'true',
             });
 
             // check if profile and signature are valid

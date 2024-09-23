@@ -32,14 +32,14 @@ describe('Set Users NotificationChannel', () => {
         const priorSetUsersNotificationChannel =
             await db.getUsersNotificationChannels(USER_ADDRESS);
 
-        //User has no session yet
+        //User has no account yet
         expect(priorSetUsersNotificationChannel).toEqual([]);
         await db.addUsersNotificationChannel(USER_ADDRESS, notificationChannel);
 
-        const afterSetSession = await db.getUsersNotificationChannels(
+        const afterSetAccount = await db.getUsersNotificationChannels(
             USER_ADDRESS,
         );
-        expect(afterSetSession).toEqual([notificationChannel]);
+        expect(afterSetAccount).toEqual([notificationChannel]);
     });
 
     it('Rejects Notification Channel with an invalid schema', async () => {
@@ -116,14 +116,14 @@ describe('Set Users NotificationChannel', () => {
         const priorSetUsersNotificationChannel =
             await db.getUsersNotificationChannels(USER_ADDRESS);
 
-        //User has no session yet
+        //User has no account yet
         expect(priorSetUsersNotificationChannel).toEqual([]);
         await db.addUsersNotificationChannel(USER_ADDRESS, notificationChannel);
 
-        const afterSetSession = await db.getUsersNotificationChannels(
+        const afterSetAccount = await db.getUsersNotificationChannels(
             USER_ADDRESS,
         );
-        expect(afterSetSession).toEqual([notificationChannel]);
+        expect(afterSetAccount).toEqual([notificationChannel]);
     });
 
     it('Rejects Push Notification Channel with an invalid schema', async () => {

@@ -2,7 +2,7 @@ import {
     DeliveryServiceProperties,
     IGlobalNotification,
     IOtp,
-    Session,
+    type Account as AccountType,
 } from '@dm3-org/dm3-lib-delivery';
 import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
 import { IAccountDatabase } from '@dm3-org/dm3-lib-server-side';
@@ -104,8 +104,8 @@ export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
 }
 
 export interface IDatabase extends IAccountDatabase {
-    setAccount: (address: string, session: Session) => Promise<void>;
-    getAccount: (address: string) => Promise<Session | null>;
+    setAccount: (address: string, account: AccountType) => Promise<void>;
+    getAccount: (address: string) => Promise<AccountType | null>;
     //TODO use address
     getIncomingMessages: (
         address: string,

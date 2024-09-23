@@ -43,7 +43,6 @@ const createDbMock = async () => {
     const dbMock = {
         getAccount: async (ensName: string) => Promise.resolve(accountMocked),
         setAccount: async (id: string) => {},
-        getIdEnsName: async (ensName: string) => ensName,
     };
 
     return dbMock as any;
@@ -113,7 +112,6 @@ describe('Profile', () => {
                 setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
-                getIdEnsName: async (ensName: string) => ensName,
             };
 
             const app = express();

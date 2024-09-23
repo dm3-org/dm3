@@ -1,6 +1,6 @@
 import { AuthContextType } from '../AuthContext';
 
-//Provide a mocked Auth context
+//Provide a mocked Authenticate context
 //Override the default values with the provided values
 export const getMockedAuthContext = (override?: Partial<AuthContextType>) => {
     const defaultValues = {
