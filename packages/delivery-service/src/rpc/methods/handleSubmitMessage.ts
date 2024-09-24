@@ -74,12 +74,10 @@ export async function handleSubmitMessage(
 
     try {
         await messageProcessor.processEnvelop(envelop);
-        if (deliveryServiceProperties.metricsRetentionDurationInSeconds > 0) {
-            await db.countMessage(
-                getEnvelopSize(envelop),
-                deliveryServiceProperties,
-            );
-        }
+        await db.countMessage(
+            getEnvelopSize(envelop),
+            deliveryServiceProperties,
+        );
         res.sendStatus(200);
     } catch (error) {
         console.error('handle submit message error');

@@ -174,14 +174,7 @@ export class MessageProcessor {
                     deliveryInformation,
                     this.db.getUsersNotificationChannels,
                 );
-                if (
-                    this.deliveryServiceProperties
-                        .metricsRetentionDurationInSeconds > 0
-                ) {
-                    await this.db.countNotification(
-                        this.deliveryServiceProperties,
-                    );
-                }
+                await this.db.countNotification(this.deliveryServiceProperties);
             } catch (err) {
                 console.log(
                     'Unable to send Notification. There might be an error in the config.yml. Message has been received regardless',
