@@ -75,8 +75,7 @@ export function MessageAction(props: MessageProps) {
             messageData: undefined,
         });
 
-        const referenceMessageHash =
-            props.envelop.metadata?.encryptedMessageHash;
+        const referenceMessageHash = props.envelop.metadata?.messageHash;
 
         // react to the message
         const messageData = await createReactionMessage(
@@ -157,7 +156,7 @@ export function MessageAction(props: MessageProps) {
                 (props.message ||
                     (props.envelop.message.attachments &&
                         props.envelop.message.attachments.length > 0)) &&
-                props.envelop.metadata?.encryptedMessageHash &&
+                props.envelop.metadata?.messageHash &&
                 (!props.hideFunction ||
                     !props.hideFunction.split(',').includes('edit')) && (
                     <div
@@ -171,7 +170,7 @@ export function MessageAction(props: MessageProps) {
                 )}
 
             {props.ownMessage &&
-                props.envelop.metadata?.encryptedMessageHash &&
+                props.envelop.metadata?.messageHash &&
                 (!props.hideFunction ||
                     !props.hideFunction.split(',').includes('delete')) && (
                     <div
@@ -225,7 +224,7 @@ export function MessageAction(props: MessageProps) {
             {(props.message ||
                 (props.envelop.message.attachments &&
                     props.envelop.message.attachments.length > 0)) &&
-                props.envelop.metadata?.encryptedMessageHash && (
+                props.envelop.metadata?.messageHash && (
                     <div
                         data-testid="reply-msg"
                         className="d-flex align-items-center justify-content-start"

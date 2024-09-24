@@ -36,7 +36,7 @@ describe('Sync Acknowledge', () => {
                     from: SENDER_ADDRESS,
                 },
                 signature: '',
-                encryptedMessageHash: '0x123',
+                messageHash: '0x123',
                 version: '',
                 encryptionScheme: 'x25519-chacha20-poly1305',
             },
@@ -49,7 +49,7 @@ describe('Sync Acknowledge', () => {
                     from: SENDER_ADDRESS,
                 },
                 signature: '',
-                encryptedMessageHash: '0x456',
+                messageHash: '0x456',
                 version: '',
                 encryptionScheme: 'x25519-chacha20-poly1305',
             },
@@ -84,9 +84,7 @@ describe('Sync Acknowledge', () => {
         );
 
         expect(afterSyncAcknowledge.length).toBe(1);
-        expect(afterSyncAcknowledge[0].metadata.encryptedMessageHash).toBe(
-            '0x456',
-        );
+        expect(afterSyncAcknowledge[0].metadata.messageHash).toBe('0x456');
     });
     it('returns false if message is not found', async () => {
         const envelop1: EncryptionEnvelop = {
@@ -97,7 +95,7 @@ describe('Sync Acknowledge', () => {
                     from: SENDER_ADDRESS,
                 },
                 signature: '',
-                encryptedMessageHash: '0x123',
+                messageHash: '0x123',
                 version: '',
                 encryptionScheme: 'x25519-chacha20-poly1305',
             },
