@@ -56,6 +56,24 @@ describe('setMetrics', () => {
                 mockDeliveryServiceProperties.metricsRetentionDurationInSeconds,
             );
         });
+
+        it('should not collect metrics when retention interval is 0', async () => {
+            const messageSizeBytes = 100;
+            const countMessageFunction = countMessage(mockRedis);
+
+            const propertiesWithZeroRetention = {
+                ...mockDeliveryServiceProperties,
+                metricsRetentionDurationInSeconds: 0,
+            };
+
+            await countMessageFunction(
+                messageSizeBytes,
+                propertiesWithZeroRetention,
+            );
+
+            expect(mockRedis.incrBy).not.toHaveBeenCalled();
+            expect(mockRedis.expire).not.toHaveBeenCalled();
+        });
     });
 
     describe('countNotification', () => {
@@ -75,6 +93,20 @@ describe('setMetrics', () => {
                 `${RedisPrefix.MetricsNotificationCount}${expectedTimestamp}`,
                 mockDeliveryServiceProperties.metricsRetentionDurationInSeconds,
             );
+        });
+
+        it('should not collect metrics when retention interval is 0', async () => {
+            const countNotificationFunction = countNotification(mockRedis);
+
+            const propertiesWithZeroRetention = {
+                ...mockDeliveryServiceProperties,
+                metricsRetentionDurationInSeconds: 0,
+            };
+
+            await countNotificationFunction(propertiesWithZeroRetention);
+
+            expect(mockRedis.incrBy).not.toHaveBeenCalled();
+            expect(mockRedis.expire).not.toHaveBeenCalled();
         });
     });
 });

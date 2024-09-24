@@ -7,6 +7,11 @@ export function countMessage(redis: Redis) {
         messageSizeBytes: number,
         deliveryServiceProperties: DeliveryServiceProperties,
     ) => {
+        if (deliveryServiceProperties.metricsRetentionDurationInSeconds <= 0) {
+            // Metrics are disabled
+            return;
+        }
+
         const timestamp = getCurrentIntervalTimestamp(
             deliveryServiceProperties.metricsCollectionIntervalInSeconds,
         );
@@ -43,6 +48,11 @@ export function countMessage(redis: Redis) {
 
 export function countNotification(redis: Redis) {
     return async (deliveryServiceProperties: DeliveryServiceProperties) => {
+        if (deliveryServiceProperties.metricsRetentionDurationInSeconds <= 0) {
+            // Metrics are disabled
+            return;
+        }
+
         const timestamp = getCurrentIntervalTimestamp(
             deliveryServiceProperties.metricsCollectionIntervalInSeconds,
         );
