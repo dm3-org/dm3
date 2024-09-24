@@ -19,7 +19,7 @@ export function Message(props: MessageProps) {
 
     return (
         <span
-            id={props.envelop.metadata?.encryptedMessageHash}
+            id={props.envelop.metadata?.messageHash}
             className={'text-primary-color d-grid msg'.concat(
                 ' ',
                 props.ownMessage

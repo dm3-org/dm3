@@ -28,7 +28,7 @@ describe('Create Message', () => {
             metadata: {
                 deliveryInformation: '',
                 signature: '',
-                encryptedMessageHash: '',
+                messageHash: '',
                 version: '',
                 encryptionScheme: 'x25519-chacha20-poly1305',
             },
@@ -56,7 +56,7 @@ describe('Create Message', () => {
                     deliveryInstruction: '',
                 },
                 signature: '',
-                encryptedMessageHash: '',
+                messageHash: '',
                 version: '',
                 encryptionScheme: 'x25519-chacha20-poly1305',
             },
