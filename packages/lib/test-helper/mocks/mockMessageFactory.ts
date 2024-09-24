@@ -3,6 +3,7 @@ import { addPostmark } from '@dm3-org/dm3-lib-delivery';
 import {
     Message,
     MessageState,
+    MessageType,
     SendDependencies,
     buildEnvelop,
 } from '@dm3-org/dm3-lib-messaging';
@@ -115,6 +116,8 @@ export const MockMessageFactory = (
     const createStorageEnvelopContainer = async (
         msg: string,
         messageState: MessageState = MessageState.Created,
+        type: MessageType = 'NEW',
+        referenceMessageHash: string = '',
     ) => {
         const message: Message = {
             message: msg,
@@ -122,7 +125,8 @@ export const MockMessageFactory = (
                 to: receiver.account.ensName,
                 from: sender.account.ensName,
                 timestamp: Date.now(),
-                type: 'NEW',
+                referenceMessageHash,
+                type,
             },
             signature: '',
         };
@@ -155,6 +159,23 @@ export const MockMessageFactory = (
             throw err;
         }
     };
+    const createMessageModel = async (
+        msg: string,
+        type: MessageType,
+        referenceMessageHash: string = '',
+    ) => {
+        const container = await createStorageEnvelopContainer(
+            msg,
+            MessageState.Created,
+            type,
+            referenceMessageHash,
+        );
+        return {
+            ...container,
+            reactions: [],
+            source: 0,
+        };
+    };
 
     const createMessage = async (msg: string) => {
         const message: Message = {
@@ -176,5 +197,6 @@ export const MockMessageFactory = (
         createMessage,
         createEnvelop,
         createStorageEnvelopContainer,
+        createMessageModel,
     };
 };
