@@ -1,6 +1,6 @@
 import { useContext, useState } from 'react';
 import { ModalContext } from '../../context/ModalContext';
-import { ProfileScreenType } from '../../utils/enum-type-utils';
+import { ProfileScreenType, ProfileType } from '../../utils/enum-type-utils';
 import { BUTTON_CLASS, DM3_NAME_SERVICES, dm3NamingServices } from './bl';
 import { ConfigureProfileContext } from './context/ConfigureProfileContext';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
@@ -59,6 +59,14 @@ export function CloudStorage() {
             </div>
 
             <div className="p-4">
+                <div
+                    className={
+                        'conversation-error ms-0 mb-2 font-weight-400 show-error'
+                    }
+                >
+                    {errorMsg ?? ''}
+                </div>
+
                 <div className="name-select-container">
                     <select
                         className="name-service-selector"
@@ -78,14 +86,6 @@ export function CloudStorage() {
                     </select>
                 </div>
 
-                <div
-                    className={
-                        'conversation-error ms-0 mb-2 font-weight-400 show-error'
-                    }
-                >
-                    {errorMsg ?? ''}
-                </div>
-
                 <div className="mt-4 dm3-name-content">
                     <div className="small-text font-weight-300">
                         You can get a DM3 name for free. Please check if your
@@ -100,6 +100,20 @@ export function CloudStorage() {
                 </div>
             </div>
             <div className="d-flex justify-content-end me-3 mb-3">
+                <button
+                    className={BUTTON_CLASS.concat(
+                        ' ',
+                        'config-profile-cancel-btn me-3',
+                    )}
+                    onClick={() => {
+                        setConfigureProfileModal({
+                            profileOptionSelected: ProfileType.DM3_NAME,
+                            onScreen: ProfileScreenType.NONE,
+                        });
+                    }}
+                >
+                    Cancel
+                </button>
                 <button
                     className={BUTTON_CLASS.concat(' ', 'add-prof-btn-active')}
                     onClick={() => navigateToNextTab()}

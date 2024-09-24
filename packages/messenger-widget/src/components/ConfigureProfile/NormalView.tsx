@@ -77,7 +77,7 @@ export function NormalView() {
     }, []);
 
     return (
-        <div className="mt-2">
+        <div className="mt-2 ms-2">
             {/* Delete DM3 name confirmation popup modal */}
             {showDeleteConfirmation && (
                 <DeleteDM3Name
@@ -86,8 +86,8 @@ export function NormalView() {
                 />
             )}
 
-            <div className="d-flex pt-4 ps-4">
-                <div className="profile-config-container ps-2">
+            <div className="d-flex pt-4 ms-4">
+                <div className="profile-config-container">
                     {/* Wallet Address */}
                     <div className="d-flex">
                         <p

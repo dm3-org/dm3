@@ -6,6 +6,9 @@ import {
     PROFILE_INPUT_FIELD_CLASS,
     BUTTON_CLASS,
 } from './common';
+import { ModalContext } from '../../../context/ModalContext';
+import { ProfileScreenType, ProfileType } from '../../../utils/enum-type-utils';
+import { ConfigureDM3NameContext } from '../context/ConfigureDM3NameContext';
 
 export const NormalView = ({
     propertyName,
@@ -29,7 +32,13 @@ export const NormalView = ({
         errorMsg,
         existingEnsName,
         setExistingEnsName,
+        setEnsName,
     } = useContext(ConfigureProfileContext);
+
+    const { setDm3Name } = useContext(ConfigureDM3NameContext);
+
+    const { configureProfileModal, setConfigureProfileModal } =
+        useContext(ModalContext);
 
     // handles configure or remove ENS name
     const handlePublishOrRemoveProfile = async (type: ACTION_TYPE) => {
@@ -100,6 +109,23 @@ export const NormalView = ({
             </div>
 
             <div className="d-flex justify-content-end me-3 mb-3">
+                <button
+                    className={BUTTON_CLASS.concat(
+                        ' ',
+                        'config-profile-cancel-btn me-3',
+                    )}
+                    onClick={() => {
+                        setDm3Name('');
+                        setEnsName('');
+                        onShowError(NAME_TYPE.DM3_NAME, '');
+                        setConfigureProfileModal({
+                            profileOptionSelected: ProfileType.DM3_NAME,
+                            onScreen: ProfileScreenType.NONE,
+                        });
+                    }}
+                >
+                    Cancel
+                </button>
                 <button
                     data-testid="publish-profile"
                     disabled={!existingEnsName && (!ensName || !ensName.length)}

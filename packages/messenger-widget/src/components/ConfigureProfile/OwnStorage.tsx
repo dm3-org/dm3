@@ -1,6 +1,6 @@
 import { useContext, useState } from 'react';
 import { ModalContext } from '../../context/ModalContext';
-import { ProfileScreenType } from '../../utils/enum-type-utils';
+import { ProfileScreenType, ProfileType } from '../../utils/enum-type-utils';
 import { BUTTON_CLASS, NAME_SERVICES, namingServices } from './bl';
 import { ConfigureProfileContext } from './context/ConfigureProfileContext';
 
@@ -53,6 +53,14 @@ export function OwnStorage() {
             </div>
 
             <div className="p-4">
+                <div
+                    className={
+                        'conversation-error ms-0 mb-2 font-weight-400 show-error'
+                    }
+                >
+                    {errorMsg ?? ''}
+                </div>
+
                 <div className="name-select-container">
                     <select
                         className="name-service-selector"
@@ -72,14 +80,6 @@ export function OwnStorage() {
                     </select>
                 </div>
 
-                <div
-                    className={
-                        'conversation-error ms-0 mb-2 font-weight-400 show-error'
-                    }
-                >
-                    {errorMsg ?? ''}
-                </div>
-
                 <div className="mt-4 dm3-name-content">
                     <div className="small-text font-weight-300">
                         To publish your dm3 profile, a transaction is sent to
@@ -94,6 +94,20 @@ export function OwnStorage() {
                 </div>
             </div>
             <div className="d-flex justify-content-end me-3 mb-3">
+                <button
+                    className={BUTTON_CLASS.concat(
+                        ' ',
+                        'config-profile-cancel-btn me-3',
+                    )}
+                    onClick={() => {
+                        setConfigureProfileModal({
+                            profileOptionSelected: ProfileType.DM3_NAME,
+                            onScreen: ProfileScreenType.NONE,
+                        });
+                    }}
+                >
+                    Cancel
+                </button>
                 <button
                     className={BUTTON_CLASS.concat(' ', 'add-prof-btn-active')}
                     onClick={() => navigateToNextTab()}

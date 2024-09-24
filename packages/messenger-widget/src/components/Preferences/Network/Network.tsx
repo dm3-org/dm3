@@ -20,6 +20,8 @@ export function Network() {
         addNode,
         handleNodeNameChange,
         isProfileUpdated,
+        setNodeName,
+        setError,
     } = useContext(DM3UserProfileContext);
 
     const { setPreferencesOptionSelected } = useContext(ModalContext);
@@ -110,51 +112,76 @@ export function Network() {
 
                 {/* Modal to add new NODE */}
                 {isModalOpenToAddNode && (
-                    <div className="add-node-name-container mt-5">
+                    <div className="add-node-name-container mt-4 ms-4">
                         <div className="dm3-prof-select-type">
                             Add dm3 delivery service node
                         </div>
 
-                        <div className="node-name-inner-container d-flex">
-                            <p
-                                className="m-0 
+                        {/* Error msg container for invalid DS name */}
+                        <div className="row ps-5 mt-3 mb-2 pe-5">
+                            <div className="col-xl-4 col-md-4 col-sm-12 invisible">
+                                <p
+                                    className="m-0 
                     font-size-14 font-weight-500 line-height-24 title-content"
-                            >
-                                DM3 delivery service node’s name:
-                            </p>
-                            <form
-                                className="d-flex width-fill align-items-center node-name-form"
-                                onSubmit={(e) => {
-                                    e.preventDefault();
-                                    addNode();
-                                }}
-                            >
-                                <input
-                                    className={'node-name-input-field'.concat(
-                                        ' ',
-                                        error ? 'err-background' : '',
-                                    )}
-                                    type="text"
-                                    value={nodeName}
-                                    placeholder="Enter the ENS name of the node"
-                                    onChange={(
-                                        e: React.ChangeEvent<HTMLInputElement>,
-                                    ) => handleNodeNameChange(e)}
-                                />
-                            </form>
+                                ></p>
+                            </div>
+                            {/* Error msg */}
+                            <div className="col-xl-8 col-md-8 col-sm-12">
+                                <div
+                                    className={
+                                        'add-name-error ms-0 font-weight-400 d-flex justify-content-start'
+                                    }
+                                >
+                                    {error ?? ''}
+                                </div>
+                            </div>
                         </div>
 
-                        {/* Validation error */}
-                        <div
-                            className={
-                                'add-name-error ms-0 mb-2 font-weight-400'
-                            }
-                        >
-                            {error ?? ''}
+                        <div className="row ps-5 pt-2 pe-5 pb-5">
+                            <div className="col-xl-4 col-md-4 col-sm-12">
+                                <p
+                                    className="m-0 
+                    font-size-14 font-weight-500 line-height-24 title-content"
+                                >
+                                    DM3 delivery service node’s name:
+                                </p>
+                            </div>
+                            <div className="col-xl-8 col-md-8 col-sm-12">
+                                <form
+                                    className="d-flex width-fill align-items-center node-name-form"
+                                    onSubmit={(e) => {
+                                        e.preventDefault();
+                                        addNode();
+                                    }}
+                                >
+                                    <input
+                                        className={'node-name-input-field'.concat(
+                                            ' ',
+                                            error ? 'err-background' : '',
+                                        )}
+                                        type="text"
+                                        value={nodeName}
+                                        placeholder="Enter the ENS name of the node"
+                                        onChange={(
+                                            e: React.ChangeEvent<HTMLInputElement>,
+                                        ) => handleNodeNameChange(e)}
+                                    />
+                                </form>
+                            </div>
                         </div>
 
                         {/* Button to submit node name */}
                         <div className="d-flex justify-content-end add-name-btn-container">
+                            <button
+                                className="node-btn cancel-btn me-3"
+                                onClick={() => {
+                                    setNodeName('');
+                                    setError(null);
+                                    setIsModalOpenToAddNode(false);
+                                }}
+                            >
+                                Cancel
+                            </button>
                             <button
                                 className={'node-btn'.concat(
                                     ' ',
