@@ -1,5 +1,4 @@
 import './Preferences.css';
-import { preferencesItems } from './bl';
 import { useContext, useEffect } from 'react';
 import closeIcon from '../../assets/images/cross.svg';
 import { closeConfigurationModal } from '../ConfigureProfile/bl';
@@ -12,18 +11,18 @@ export function MobileView() {
         setShowProfileConfigurationModal,
         resetConfigureProfileModal,
         preferencesOptionSelected,
-        setPreferencesOptionSelected,
+        preferencesOptions,
+        updatePreferenceSelected,
     } = useContext(ModalContext);
 
-    // const [optionChoosen, setOptionChoosen] = useState<any>(null);
-
     /**
-     *  Opens DM3 profile configuration by default if user clicked
-     *  on "Configure Profile" button
+     *  Opens first option by default
      */
     useEffect(() => {
         if (showProfileConfigurationModal) {
-            setPreferencesOptionSelected(preferencesItems[1]);
+            updatePreferenceSelected(
+                preferencesOptions.length ? preferencesOptions[0].ticker : null,
+            );
         }
     }, []);
 
@@ -50,7 +49,7 @@ export function MobileView() {
                     <div className="m-0 w-100 h-100">
                         <div className="m-0 p-0 preferences-aside-content border-radius-6">
                             <div className="d-flex">
-                                {preferencesItems.map((item, index) => {
+                                {preferencesOptions.map((item, index) => {
                                     return (
                                         item.isEnabled && (
                                             <div
@@ -64,8 +63,8 @@ export function MobileView() {
                                                 )}
                                                 key={index}
                                                 onClick={() =>
-                                                    setPreferencesOptionSelected(
-                                                        item,
+                                                    updatePreferenceSelected(
+                                                        item.ticker,
                                                     )
                                                 }
                                             >

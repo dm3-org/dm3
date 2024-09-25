@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { NewContact } from '../../interfaces/utils';
 import { MessageProps } from '../../interfaces/props';
 import {
@@ -6,7 +6,11 @@ import {
     ProfileScreenType,
     ProfileType,
 } from '../../utils/enum-type-utils';
-import { preferencesItems } from '../../components/Preferences/bl';
+import {
+    PREFERENCES_ITEMS,
+    preferencesItems,
+} from '../../components/Preferences/bl';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
 export interface IOpenEmojiPopup {
     action: boolean;
@@ -17,6 +21,14 @@ export interface IConfigureProfileModal {
     profileOptionSelected: ProfileType;
     onScreen: ProfileScreenType;
 }
+
+export type PreferencesOptionType = {
+    icon: JSX.Element;
+    name: string;
+    component: JSX.Element;
+    isEnabled: boolean;
+    ticker: PREFERENCES_ITEMS;
+};
 
 export const useModal = () => {
     const [loaderContent, setLoaderContent] = useState<string>('');
@@ -56,12 +68,14 @@ export const useModal = () => {
             onScreen: ProfileScreenType.NONE,
         });
 
-    const [preferencesOptionSelected, setPreferencesOptionSelected] = useState<{
-        icon: JSX.Element;
-        name: string;
-        component: JSX.Element;
-        isEnabled: boolean;
-    }>(preferencesItems[1]);
+    const [preferencesOptions, setPreferencesOptions] = useState<
+        PreferencesOptionType[]
+    >([]);
+
+    const [preferencesOptionSelected, setPreferencesOptionSelected] =
+        useState<PreferencesOptionType | null>(null);
+
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
     const resetConfigureProfileModal = () => {
         setConfigureProfileModal({
@@ -87,8 +101,45 @@ export const useModal = () => {
             profileOptionSelected: ProfileType.DM3_NAME,
             onScreen: ProfileScreenType.NONE,
         });
-        setPreferencesOptionSelected(preferencesItems[1]);
+        setPreferencesOptions(preferencesItems);
+        setPreferencesOptionSelected(null);
     };
+
+    const configureOptionsOfPreferences = () => {
+        const prefState = [...preferencesItems];
+
+        // enable or disable network dialog
+        if (
+            dm3Configuration.enableNetworkDialog !== undefined &&
+            dm3Configuration.enableNetworkDialog !== null
+        ) {
+            const updatedStates = prefState.map((pref) => {
+                return {
+                    ...pref,
+                    isEnabled:
+                        pref.ticker === PREFERENCES_ITEMS.NETWORK
+                            ? dm3Configuration.enableNetworkDialog
+                            : pref.isEnabled,
+                };
+            });
+            setPreferencesOptions(updatedStates as PreferencesOptionType[]);
+        }
+    };
+
+    const updatePreferenceSelected = (ticker: PREFERENCES_ITEMS | null) => {
+        setPreferencesOptionSelected(
+            ticker
+                ? preferencesOptions.find(
+                      (p) => p.ticker === ticker && p.isEnabled,
+                  ) ?? null
+                : null,
+        );
+    };
+
+    // configure dialog to show properties in preferences modal
+    useEffect(() => {
+        configureOptionsOfPreferences();
+    }, [dm3Configuration]);
 
     return {
         loaderContent,
@@ -115,5 +166,7 @@ export const useModal = () => {
         resetConfigureProfileModal,
         preferencesOptionSelected,
         setPreferencesOptionSelected,
+        preferencesOptions,
+        updatePreferenceSelected,
     };
 };

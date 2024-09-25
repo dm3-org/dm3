@@ -32,6 +32,7 @@ export const DM3ConfigurationContext =
             showContacts: true,
             publicVapidKey: '',
             nonce: '',
+            enableNetworkDialog: true,
         },
         screenWidth: window.innerWidth,
         setScreenWidth: (width: number) => {},

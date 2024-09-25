@@ -11,6 +11,15 @@ import { Network } from './Network/Network';
 import { Storage } from './Storage/Storage';
 import { DM3Profile } from './DM3Profile/DM3Profile';
 
+export enum PREFERENCES_ITEMS {
+    PROPERTIES = 'PROPERTIES',
+    DM3_PROFILE = 'DM3_PROFILE',
+    SPAM = 'SPAM',
+    NOTIFICATION = 'NOTIFICATION',
+    NETWORK = 'NETWORK',
+    STORAGE = 'STORAGE',
+}
+
 export const preferencesItems = [
     {
         icon: (
@@ -22,18 +31,21 @@ export const preferencesItems = [
         ),
         name: 'Properties',
         component: <Properties />,
+        ticker: PREFERENCES_ITEMS.PROPERTIES,
         isEnabled: false,
     },
     {
         icon: <img src={dm3Icon} alt="dm3" className="pref-icon me-2" />,
         name: 'dm3 Profile',
         component: <DM3Profile />,
+        ticker: PREFERENCES_ITEMS.DM3_PROFILE,
         isEnabled: true,
     },
     {
         icon: <img src={spamIcon} alt="spam" className="pref-icon me-2" />,
         name: 'Spam Protection',
         component: <Spam />,
+        ticker: PREFERENCES_ITEMS.SPAM,
         isEnabled: false,
     },
     {
@@ -46,6 +58,7 @@ export const preferencesItems = [
         ),
         name: 'Notification',
         component: <Notification />,
+        ticker: PREFERENCES_ITEMS.NOTIFICATION,
         isEnabled: true,
     },
     {
@@ -54,6 +67,7 @@ export const preferencesItems = [
         ),
         name: 'Network',
         component: <Network />,
+        ticker: PREFERENCES_ITEMS.NETWORK,
         isEnabled: true,
     },
     {
@@ -62,6 +76,7 @@ export const preferencesItems = [
         ),
         name: 'Storage',
         component: <Storage />,
+        ticker: PREFERENCES_ITEMS.STORAGE,
         isEnabled: false,
     },
 ];

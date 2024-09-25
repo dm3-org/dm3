@@ -89,7 +89,8 @@ Follow the below given steps :-
             showContacts: true,
             theme: undefined, 
             signInImage: undefined,
-            siwe: undefined
+            siwe: undefined,
+            enableNetworkDialog: undefined,
         };
 
         return (
@@ -246,6 +247,7 @@ Follow the below given steps :-
             theme: undefined, 
             signInImage: undefined,
             siwe: undefined,
+            enableNetworkDialog: undefined,
         };
 
         return (
@@ -453,11 +455,26 @@ Example :
     }
 ```
 
-7. theme
+7. enableNetworkDialog
 ```js
 const props: DM3Configuration = {
    ...
-   theme: undefined,
+   enableNetworkDialog: true,
+}
+```
+This is a optional property of type boolean. To disable network dialog for adding and removing delivery service nodes, its value should be set to false. By default it is true and network dialog is enabled.
+```js
+Example : 
+   enableNetworkDialog: true
+   enableNetworkDialog: false
+   enableNetworkDialog: undefined // its same as this property is not passed in props
+```
+
+8. theme
+```js
+const props: DM3Configuration = {
+   ...
+   theme: undefined, 
 }
 ```
 This is a optional property of type object. Its used to customize the styling, look & feel of the widget. Colors can be set for different components.

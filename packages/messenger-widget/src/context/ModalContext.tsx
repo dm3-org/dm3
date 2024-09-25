@@ -8,9 +8,10 @@ import {
 import {
     IConfigureProfileModal,
     IOpenEmojiPopup,
+    PreferencesOptionType,
     useModal,
 } from '../hooks/modals/useModal';
-import { preferencesItems } from '../components/Preferences/bl';
+import { PREFERENCES_ITEMS } from '../components/Preferences/bl';
 
 export type ModalContextType = {
     loaderContent: string;
@@ -35,18 +36,10 @@ export type ModalContextType = {
     setConfigureProfileModal: (modal: IConfigureProfileModal) => void;
     resetConfigureProfileModal: () => void;
     resetModalStates: () => void;
-    preferencesOptionSelected: {
-        icon: JSX.Element;
-        name: string;
-        component: JSX.Element;
-        isEnabled: boolean;
-    };
-    setPreferencesOptionSelected: (item: {
-        icon: JSX.Element;
-        name: string;
-        component: JSX.Element;
-        isEnabled: boolean;
-    }) => void;
+    preferencesOptionSelected: PreferencesOptionType | null;
+    setPreferencesOptionSelected: (item: PreferencesOptionType | null) => void;
+    preferencesOptions: PreferencesOptionType[];
+    updatePreferenceSelected: (ticker: PREFERENCES_ITEMS | null) => void;
 };
 
 export const ModalContext = React.createContext<ModalContextType>({
@@ -79,13 +72,10 @@ export const ModalContext = React.createContext<ModalContextType>({
     setConfigureProfileModal: (modal: IConfigureProfileModal) => {},
     resetConfigureProfileModal: () => {},
     resetModalStates: () => {},
-    preferencesOptionSelected: preferencesItems[1],
-    setPreferencesOptionSelected: (item: {
-        icon: JSX.Element;
-        name: string;
-        component: JSX.Element;
-        isEnabled: boolean;
-    }) => {},
+    preferencesOptionSelected: null,
+    setPreferencesOptionSelected: (item: PreferencesOptionType | null) => {},
+    preferencesOptions: [],
+    updatePreferenceSelected: (ticker: PREFERENCES_ITEMS | null) => {},
 });
 
 export const ModalContextProvider = ({ children }: { children?: any }) => {
@@ -113,6 +103,8 @@ export const ModalContextProvider = ({ children }: { children?: any }) => {
         resetConfigureProfileModal,
         preferencesOptionSelected,
         setPreferencesOptionSelected,
+        preferencesOptions,
+        updatePreferenceSelected,
         resetModalStates,
     } = useModal();
 
@@ -143,6 +135,8 @@ export const ModalContextProvider = ({ children }: { children?: any }) => {
                 resetConfigureProfileModal,
                 preferencesOptionSelected,
                 setPreferencesOptionSelected,
+                preferencesOptions,
+                updatePreferenceSelected,
             }}
         >
             {children}
