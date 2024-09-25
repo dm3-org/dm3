@@ -74,6 +74,7 @@ export class ReceiptDispatcher {
         //We only want to acknowledge messages from type NEW or REPLY. Every other message type can be neglected for now
         const shouldAcknowledgeMessage =
             messageModel.envelop.message.metadata.type === 'NEW' ||
+            messageModel.envelop.message.metadata.type === 'EDIT' ||
             messageModel.envelop.message.metadata.type === 'REPLY';
         //Check if the selected contact is the sender of the message.
         // If that is the case we've to acknowledge the message and send a READ_OPENED acknowledgement to the sender
