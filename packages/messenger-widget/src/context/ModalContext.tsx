@@ -6,6 +6,7 @@ import {
     ProfileType,
 } from '../utils/enum-type-utils';
 import {
+    DisabledNotificationType,
     IConfigureProfileModal,
     IOpenEmojiPopup,
     PreferencesOptionType,
@@ -40,6 +41,7 @@ export type ModalContextType = {
     setPreferencesOptionSelected: (item: PreferencesOptionType | null) => void;
     preferencesOptions: PreferencesOptionType[];
     updatePreferenceSelected: (ticker: PREFERENCES_ITEMS | null) => void;
+    disabledNotification: DisabledNotificationType;
 };
 
 export const ModalContext = React.createContext<ModalContextType>({
@@ -76,6 +78,10 @@ export const ModalContext = React.createContext<ModalContextType>({
     setPreferencesOptionSelected: (item: PreferencesOptionType | null) => {},
     preferencesOptions: [],
     updatePreferenceSelected: (ticker: PREFERENCES_ITEMS | null) => {},
+    disabledNotification: {
+        email: false,
+        push: false,
+    },
 });
 
 export const ModalContextProvider = ({ children }: { children?: any }) => {
@@ -106,6 +112,7 @@ export const ModalContextProvider = ({ children }: { children?: any }) => {
         preferencesOptions,
         updatePreferenceSelected,
         resetModalStates,
+        disabledNotification,
     } = useModal();
 
     return (
@@ -137,6 +144,7 @@ export const ModalContextProvider = ({ children }: { children?: any }) => {
                 setPreferencesOptionSelected,
                 preferencesOptions,
                 updatePreferenceSelected,
+                disabledNotification,
             }}
         >
             {children}

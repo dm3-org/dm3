@@ -30,6 +30,11 @@ export type PreferencesOptionType = {
     ticker: PREFERENCES_ITEMS;
 };
 
+export type DisabledNotificationType = {
+    email: boolean;
+    push: boolean;
+};
+
 export const useModal = () => {
     const [loaderContent, setLoaderContent] = useState<string>('');
 
@@ -75,6 +80,12 @@ export const useModal = () => {
     const [preferencesOptionSelected, setPreferencesOptionSelected] =
         useState<PreferencesOptionType | null>(null);
 
+    const [disabledNotification, setDisabledNotification] =
+        useState<DisabledNotificationType>({
+            email: false,
+            push: false,
+        });
+
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
     const resetConfigureProfileModal = () => {
@@ -107,23 +118,70 @@ export const useModal = () => {
 
     const configureOptionsOfPreferences = () => {
         const prefState = [...preferencesItems];
+        const dialogDisabled = dm3Configuration.disableDialogOptions;
 
-        // enable or disable network dialog
+        // disable all properties of preferences config
+        if (dialogDisabled !== undefined && dialogDisabled === true) {
+            const disabledOptions = prefState.map((p) => {
+                return {
+                    ...p,
+                    isEnabled: false,
+                };
+            });
+            setPreferencesOptions(disabledOptions);
+            return;
+        }
+
+        // disable specific properties of dialog
         if (
-            dm3Configuration.disableNetworkDialog !== undefined &&
-            dm3Configuration.disableNetworkDialog !== null
+            dialogDisabled !== undefined &&
+            typeof dialogDisabled === 'object'
         ) {
-            const updatedStates = prefState.map((pref) => {
+            // update network dialog
+            const updatedNetworkOptions = prefState.map((pref) => {
                 return {
                     ...pref,
                     isEnabled:
                         pref.ticker === PREFERENCES_ITEMS.NETWORK
-                            ? !dm3Configuration.disableNetworkDialog
+                            ? !dialogDisabled.network ?? pref.isEnabled
                             : pref.isEnabled,
                 };
             });
-            setPreferencesOptions(updatedStates as PreferencesOptionType[]);
+
+            // disable notification dialog
+            const updatedNotificationOptions =
+                dialogDisabled.notification === true
+                    ? updatedNetworkOptions.map((pref) => {
+                          return {
+                              ...pref,
+                              isEnabled:
+                                  pref.ticker === PREFERENCES_ITEMS.NOTIFICATION
+                                      ? false
+                                      : pref.isEnabled,
+                          };
+                      })
+                    : updatedNetworkOptions;
+
+            // disable specific notification type
+            if (typeof dialogDisabled.notification === 'object') {
+                const disabledNotifications = { ...disabledNotification };
+                disabledNotifications.email =
+                    dialogDisabled.notification.email ??
+                    disabledNotifications.email;
+                disabledNotifications.push =
+                    dialogDisabled.notification.push ??
+                    disabledNotifications.push;
+                setDisabledNotification(disabledNotifications);
+            }
+
+            setPreferencesOptions(
+                updatedNotificationOptions as PreferencesOptionType[],
+            );
+            return;
         }
+
+        // update the preferences options as per configuration
+        setPreferencesOptions(prefState);
     };
 
     const updatePreferenceSelected = (ticker: PREFERENCES_ITEMS | null) => {
@@ -168,5 +226,6 @@ export const useModal = () => {
         setPreferencesOptionSelected,
         preferencesOptions,
         updatePreferenceSelected,
+        disabledNotification,
     };
 };

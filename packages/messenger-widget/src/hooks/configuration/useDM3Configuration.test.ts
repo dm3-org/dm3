@@ -20,7 +20,6 @@ const config: DM3Configuration = {
     showContacts: true,
     publicVapidKey: '',
     nonce: '',
-    disableNetworkDialog: true,
 };
 
 describe('useDM3Configuration hook test cases', () => {

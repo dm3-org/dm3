@@ -1,3 +1,31 @@
+export type DisableDialogType =
+    | boolean
+    | {
+          network?: boolean;
+          notification?:
+              | boolean
+              | {
+                    email?: boolean;
+                    push?: boolean;
+                };
+          profile?:
+              | boolean
+              | {
+                    dm3?:
+                        | boolean
+                        | {
+                              cloud?: boolean;
+                              optimism?: boolean;
+                          };
+                    self?:
+                        | boolean
+                        | {
+                              gnosis: boolean;
+                              ens: boolean;
+                          };
+                };
+      };
+
 export interface DM3Configuration {
     defaultContact: string;
     defaultServiceUrl: string;
@@ -18,7 +46,7 @@ export interface DM3Configuration {
     theme?: any;
     signInImage?: string;
     siwe?: Siwe;
-    disableNetworkDialog?: boolean;
+    disableDialogOptions?: DisableDialogType;
 }
 
 export interface Dm3Props {
