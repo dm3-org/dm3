@@ -108,7 +108,7 @@ export function SignIn() {
 
                         {isLukso && (
                             <LoginButton
-                                text="Lukso Login"
+                                text="Sign In with Universal Profile"
                                 onClick={() => luksoSignIn()}
                                 buttonState={ButtonState.Ideal}
                             />
