@@ -110,15 +110,15 @@ export const useModal = () => {
 
         // enable or disable network dialog
         if (
-            dm3Configuration.enableNetworkDialog !== undefined &&
-            dm3Configuration.enableNetworkDialog !== null
+            dm3Configuration.disableNetworkDialog !== undefined &&
+            dm3Configuration.disableNetworkDialog !== null
         ) {
             const updatedStates = prefState.map((pref) => {
                 return {
                     ...pref,
                     isEnabled:
                         pref.ticker === PREFERENCES_ITEMS.NETWORK
-                            ? dm3Configuration.enableNetworkDialog
+                            ? !dm3Configuration.disableNetworkDialog
                             : pref.isEnabled,
                 };
             });

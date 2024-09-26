@@ -90,7 +90,7 @@ Follow the below given steps :-
             theme: undefined, 
             signInImage: undefined,
             siwe: undefined,
-            enableNetworkDialog: undefined,
+            disableNetworkDialog: undefined,
         };
 
         return (
@@ -247,7 +247,7 @@ Follow the below given steps :-
             theme: undefined, 
             signInImage: undefined,
             siwe: undefined,
-            enableNetworkDialog: undefined,
+            disableNetworkDialog: undefined,
         };
 
         return (
@@ -455,19 +455,19 @@ Example :
     }
 ```
 
-7. enableNetworkDialog
+7. disableNetworkDialog
 ```js
 const props: DM3Configuration = {
    ...
-   enableNetworkDialog: true,
+   disableNetworkDialog: true,
 }
 ```
-This is a optional property of type boolean. To disable network dialog for adding and removing delivery service nodes, its value should be set to false. By default it is true and network dialog is enabled.
+This is a optional property of type boolean. To disable network dialog for adding and removing delivery service nodes, its value should be set to true. By default it is false and network dialog is enabled.
 ```js
 Example : 
-   enableNetworkDialog: true
-   enableNetworkDialog: false
-   enableNetworkDialog: undefined // its same as this property is not passed in props
+   disableNetworkDialog: true
+   disableNetworkDialog: false
+   disableNetworkDialog: undefined // its same as this property is not passed in props
 ```
 
 8. theme

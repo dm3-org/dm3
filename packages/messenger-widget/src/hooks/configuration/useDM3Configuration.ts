@@ -29,7 +29,7 @@ export const useDm3Configuration = () => {
         showContacts: true,
         publicVapidKey: '',
         nonce: '',
-        enableNetworkDialog: true,
+        disableNetworkDialog: false,
     });
 
     const validateSiweCredentials = async (data: Siwe) => {

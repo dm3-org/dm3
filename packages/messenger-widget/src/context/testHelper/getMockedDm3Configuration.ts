@@ -28,5 +28,5 @@ export const DEFAULT_DM3_CONFIGURATION = {
     showContacts: false,
     publicVapidKey: '',
     nonce: '',
-    enableNetworkDialog: true,
+    disableNetworkDialog: false,
 };

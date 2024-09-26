@@ -18,7 +18,7 @@ export interface DM3Configuration {
     theme?: any;
     signInImage?: string;
     siwe?: Siwe;
-    enableNetworkDialog?: boolean;
+    disableNetworkDialog?: boolean;
 }
 
 export interface Dm3Props {
