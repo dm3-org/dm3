@@ -26,7 +26,7 @@ export default function DM3Container() {
         showContacts: true, // true for all contacts / false for default contact
         theme: undefined, // OPTIONAL PARAMETER : undefined/themeColors
         signInImage: undefined, // OPTIONAL PARAMETER : string URL of image
-        disableNetworkDialog: undefined, // OPTIONAL PARAMETER : to enable/disable adding or removing DS nodes
+        disableDialogOptions: undefined, // OPTIONAL PARAMETER : to enable/disable dialog properties
     };
 
     return (
