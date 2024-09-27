@@ -88,7 +88,21 @@ export const MobileView = ({
                         </p>
                     </form>
                 </div>
-                <div className="mt-2">
+
+                <div className="mt-3 dm3-name-content">
+                    <div className="small-text font-weight-300 grey-text">
+                        You can get a DM3 name for free. Please check if your
+                        desired name is available. DM3 names are created and
+                        managed on Layer2 (e.g. Optimism). Small transaction
+                        costs will apply for setting the profile and
+                        administration.
+                    </div>
+                    <div className="small-text font-weight-700">
+                        You can receive messages sent to your full DM3 username.
+                    </div>
+                </div>
+
+                <div className="mt-3">
                     <button
                         className={BUTTON_CLASS.concat(
                             ' ',
@@ -125,18 +139,6 @@ export const MobileView = ({
                     >
                         Claim & Publish
                     </button>
-                </div>
-                <div className="mt-3 dm3-name-content">
-                    <div className="small-text font-weight-300 grey-text">
-                        You can get a DM3 name for free. Please check if your
-                        desired name is available. DM3 names are created and
-                        managed on Layer2 (e.g. Optimism). Small transaction
-                        costs will apply for setting the profile and
-                        administration.
-                    </div>
-                    <div className="small-text font-weight-700">
-                        You can receive messages sent to your full DM3 username.
-                    </div>
                 </div>
             </div>
         </div>

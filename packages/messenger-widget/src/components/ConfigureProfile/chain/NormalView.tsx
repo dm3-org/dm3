@@ -58,12 +58,20 @@ export const NormalView = ({
         <>
             <div className="d-flex ps-4 align-items-baseline">
                 <div className="dm3-name-container">
-                    <div
-                        className={
-                            'conversation-error ms-0 mb-2 font-weight-400 show-error'
-                        }
-                    >
-                        {showError === NAME_TYPE.ENS_NAME && errorMsg}
+                    <div className="d-flex align-items-center">
+                        <p
+                            className="m-0 
+                            font-size-14 font-weight-500 line-height-24 title-content invisible"
+                        >
+                            {propertyName}
+                        </p>
+                        <div
+                            className={
+                                'conversation-error ms-0 mb-2 font-weight-400 show-error'
+                            }
+                        >
+                            {showError === NAME_TYPE.ENS_NAME && errorMsg}
+                        </div>
                     </div>
                     <div className="d-flex align-items-center">
                         <p
@@ -83,6 +91,7 @@ export const NormalView = ({
                         >
                             <input
                                 data-testid="ens-name"
+                                id="ens-name"
                                 className={PROFILE_INPUT_FIELD_CLASS.concat(
                                     ' ',
                                     showError === NAME_TYPE.ENS_NAME
@@ -99,7 +108,7 @@ export const NormalView = ({
                         </form>
                     </div>
 
-                    <div className="mt-5 dm3-name-content">
+                    <div className="mt-4 pt-1 dm3-name-content">
                         <div className="small-text font-weight-300">
                             {label}
                         </div>
@@ -108,7 +117,7 @@ export const NormalView = ({
                 </div>
             </div>
 
-            <div className="d-flex justify-content-end me-3 mb-3">
+            <div className="d-flex justify-content-end me-3 mb-3 mt-4">
                 <button
                     className={BUTTON_CLASS.concat(
                         ' ',
