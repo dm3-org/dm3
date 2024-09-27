@@ -1,3 +1,4 @@
+import './../ConfigureProfile.css';
 import { useContext } from 'react';
 import { AuthContext } from '../../../context/AuthContext';
 import { ConfigureProfileContext } from '../context/ConfigureProfileContext';
@@ -40,12 +41,20 @@ export const NormalView = ({
         <>
             <div className="d-flex ps-4 align-items-baseline">
                 <div className="dm3-name-container">
-                    <div
-                        className={
-                            'conversation-error ms-0 mb-2 font-weight-400 show-error'
-                        }
-                    >
-                        {showError === NAME_TYPE.DM3_NAME && errorMsg}
+                    <div className="d-flex align-items-center">
+                        <p
+                            className="m-0 
+                    font-size-14 font-weight-500 line-height-24 title-content invisible"
+                        >
+                            DM3 Name
+                        </p>
+                        <div
+                            className={
+                                'conversation-error ms-0 mb-2 font-weight-400 show-error'
+                            }
+                        >
+                            {showError === NAME_TYPE.DM3_NAME && errorMsg}
+                        </div>
                     </div>
                     <div className="d-flex align-items-center">
                         <p
@@ -70,8 +79,8 @@ export const NormalView = ({
                                 className={PROFILE_INPUT_FIELD_CLASS.concat(
                                     ' ',
                                     showError === NAME_TYPE.DM3_NAME
-                                        ? 'err-background'
-                                        : '',
+                                        ? 'w-80 err-background'
+                                        : 'w-80 ',
                                 )}
                                 type="text"
                                 value={dm3Name}
@@ -89,7 +98,7 @@ export const NormalView = ({
                         </form>
                     </div>
 
-                    <div className="mt-5 dm3-name-content">
+                    <div className="mt-4 pt-2 dm3-name-content">
                         <div className="small-text font-weight-300">
                             You can get a DM3 name for free. Please check if
                             your desired name is available. DM3 names are
@@ -105,7 +114,7 @@ export const NormalView = ({
                 </div>
             </div>
 
-            <div className="d-flex justify-content-end me-3 mb-3">
+            <div className="profile-action-btns d-flex justify-content-end me-3 mb-3">
                 <button
                     className={BUTTON_CLASS.concat(
                         ' ',
