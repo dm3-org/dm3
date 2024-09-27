@@ -35,6 +35,13 @@ export type DisabledNotificationType = {
     push: boolean;
 };
 
+export type DisabledProfileType = {
+    dm3: boolean;
+    optimism: boolean;
+    ens: boolean;
+    gnosis: boolean;
+}
+
 export const useModal = () => {
     const [loaderContent, setLoaderContent] = useState<string>('');
 
@@ -152,14 +159,14 @@ export const useModal = () => {
             const updatedNotificationOptions =
                 dialogDisabled.notification === true
                     ? updatedNetworkOptions.map((pref) => {
-                          return {
-                              ...pref,
-                              isEnabled:
-                                  pref.ticker === PREFERENCES_ITEMS.NOTIFICATION
-                                      ? false
-                                      : pref.isEnabled,
-                          };
-                      })
+                        return {
+                            ...pref,
+                            isEnabled:
+                                pref.ticker === PREFERENCES_ITEMS.NOTIFICATION
+                                    ? false
+                                    : pref.isEnabled,
+                        };
+                    })
                     : updatedNetworkOptions;
 
             // disable specific notification type
@@ -174,8 +181,23 @@ export const useModal = () => {
                 setDisabledNotification(disabledNotifications);
             }
 
+            // disable profile dialog
+            const updatedProfileOptions =
+                dialogDisabled.profile === true
+                    ? updatedNetworkOptions.map((pref) => {
+                        return {
+                            ...pref,
+                            isEnabled:
+                                pref.ticker === PREFERENCES_ITEMS.DM3_PROFILE
+                                    ? false
+                                    : pref.isEnabled,
+                        };
+                    })
+                    : updatedNetworkOptions;
+
+
             setPreferencesOptions(
-                updatedNotificationOptions as PreferencesOptionType[],
+                updatedProfileOptions as PreferencesOptionType[],
             );
             return;
         }
@@ -188,8 +210,8 @@ export const useModal = () => {
         setPreferencesOptionSelected(
             ticker
                 ? preferencesOptions.find(
-                      (p) => p.ticker === ticker && p.isEnabled,
-                  ) ?? null
+                    (p) => p.ticker === ticker && p.isEnabled,
+                ) ?? null
                 : null,
         );
     };
