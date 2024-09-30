@@ -151,7 +151,7 @@ export const fetchExistingDM3Name = async (
     }
 };
 
-const enum NAME_SERVICES {
+export const enum NAME_SERVICES {
     ENS = 'Ethereum Network - Ethereum Name Service (ENS)',
     GENOME = 'Gnosis Network - Genome/SpaceID',
     OPTIMISM = 'Optimism Network',

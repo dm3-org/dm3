@@ -1,7 +1,16 @@
 import React from 'react';
 import { NewContact } from '../interfaces/utils';
-import { MessageActionType } from '../utils/enum-type-utils';
-import { IOpenEmojiPopup, useModal } from '../hooks/modals/useModal';
+import {
+    MessageActionType,
+    ProfileScreenType,
+    ProfileType,
+} from '../utils/enum-type-utils';
+import {
+    IConfigureProfileModal,
+    IOpenEmojiPopup,
+    useModal,
+} from '../hooks/modals/useModal';
+import { preferencesItems } from '../components/Preferences/bl';
 
 export type ModalContextType = {
     loaderContent: string;
@@ -22,7 +31,22 @@ export type ModalContextType = {
     setShowAboutModal: (show: boolean) => void;
     showAddConversationModal: boolean;
     setShowAddConversationModal: (show: boolean) => void;
+    configureProfileModal: IConfigureProfileModal;
+    setConfigureProfileModal: (modal: IConfigureProfileModal) => void;
+    resetConfigureProfileModal: () => void;
     resetModalStates: () => void;
+    preferencesOptionSelected: {
+        icon: JSX.Element;
+        name: string;
+        component: JSX.Element;
+        isEnabled: boolean;
+    };
+    setPreferencesOptionSelected: (item: {
+        icon: JSX.Element;
+        name: string;
+        component: JSX.Element;
+        isEnabled: boolean;
+    }) => void;
 };
 
 export const ModalContext = React.createContext<ModalContextType>({
@@ -48,7 +72,20 @@ export const ModalContext = React.createContext<ModalContextType>({
     setShowAboutModal: (show: boolean) => {},
     showAddConversationModal: false,
     setShowAddConversationModal: (show: boolean) => {},
+    configureProfileModal: {
+        profileOptionSelected: ProfileType.DM3_NAME,
+        onScreen: ProfileScreenType.NONE,
+    },
+    setConfigureProfileModal: (modal: IConfigureProfileModal) => {},
+    resetConfigureProfileModal: () => {},
     resetModalStates: () => {},
+    preferencesOptionSelected: preferencesItems[1],
+    setPreferencesOptionSelected: (item: {
+        icon: JSX.Element;
+        name: string;
+        component: JSX.Element;
+        isEnabled: boolean;
+    }) => {},
 });
 
 export const ModalContextProvider = ({ children }: { children?: any }) => {
@@ -71,6 +108,11 @@ export const ModalContextProvider = ({ children }: { children?: any }) => {
         setShowAboutModal,
         showAddConversationModal,
         setShowAddConversationModal,
+        configureProfileModal,
+        setConfigureProfileModal,
+        resetConfigureProfileModal,
+        preferencesOptionSelected,
+        setPreferencesOptionSelected,
         resetModalStates,
     } = useModal();
 
@@ -96,6 +138,11 @@ export const ModalContextProvider = ({ children }: { children?: any }) => {
                 showAddConversationModal,
                 setShowAddConversationModal,
                 resetModalStates,
+                configureProfileModal,
+                setConfigureProfileModal,
+                resetConfigureProfileModal,
+                preferencesOptionSelected,
+                setPreferencesOptionSelected,
             }}
         >
             {children}
