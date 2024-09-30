@@ -22,7 +22,6 @@ services:
         image: dm3-backend
         restart: always
         depends_on:
-            - db
             - dm3-storage
         environment:
             SIGNING_PUBLIC_KEY: ${SIGNING_PUBLIC_KEY}
