@@ -98,7 +98,15 @@ export const MobileView = ({
                             />
                         </form>
                     </div>
-                    <div className="mt-2">
+
+                    <div className="mt-3 dm3-name-content">
+                        <div className="small-text font-weight-300 grey-text">
+                            {label}
+                        </div>
+                        <div className="small-text font-weight-700">{note}</div>
+                    </div>
+
+                    <div className="mt-3 mb-2">
                         <button
                             className={BUTTON_CLASS.concat(
                                 ' ',
@@ -133,12 +141,6 @@ export const MobileView = ({
                         >
                             Publish Profile
                         </button>
-                    </div>
-                    <div className="mt-3 dm3-name-content">
-                        <div className="small-text font-weight-300 grey-text">
-                            {label}
-                        </div>
-                        <div className="small-text font-weight-700">{note}</div>
                     </div>
                 </div>
             </div>

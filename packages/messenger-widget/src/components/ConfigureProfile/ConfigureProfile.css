@@ -225,7 +225,19 @@ input::placeholder {
     }
     .ens-components-container{
         padding: 1rem;
-      }
+    }
+    .profile-action-btns {
+        margin-top: 1rem !important;
+    }
+    .dm3-name-container {
+        width: 100%;
+    }
+}
+
+@media only screen and (max-width: 950px) {
+    #ens-name{
+        width: 90% !important;
+    }
 }
 
 @media only screen and (max-width: 800px) {
@@ -329,4 +341,9 @@ input::placeholder {
     .del-icon{
         height: 1rem;
     }
+
+    .profile-input{
+        width: 100% !important;
+    }
+
 }
