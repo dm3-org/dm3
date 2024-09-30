@@ -19,7 +19,7 @@ export function MobileView() {
      *  Opens first option by default
      */
     useEffect(() => {
-        if (showProfileConfigurationModal) {
+        if (showProfileConfigurationModal && !preferencesOptionSelected) {
             updatePreferenceSelected(
                 preferencesOptions.length ? preferencesOptions[0].ticker : null,
             );

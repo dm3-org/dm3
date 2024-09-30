@@ -45,7 +45,7 @@ export function Notification() {
         loaderData,
     } = useContext(NotificationContext);
 
-    const { disabledNotification } = useContext(ModalContext);
+    const { disabledOptions } = useContext(ModalContext);
 
     return (
         <div className="position-relative h-100">
@@ -88,7 +88,7 @@ export function Notification() {
             </div>
 
             {/* Email notifications enabled/disabled */}
-            {!disabledNotification.email && (
+            {!disabledOptions.notification.email && (
                 <div className="notification-content-left mt-4">
                     <div className="d-flex align-items-center">
                         <Checkbox
@@ -186,7 +186,7 @@ export function Notification() {
             </div> */}
 
             {/* Push notifications enabled/disabled */}
-            {!disabledNotification.push && (
+            {!disabledOptions.notification.push && (
                 <div className="notification-content-left mt-4">
                     <div className="d-flex align-items-center">
                         <Checkbox

@@ -3,6 +3,7 @@ import { NAME_TYPE } from '../chain/common';
 import { dm3NamingServices, namingServices } from '../bl';
 import { AuthContext } from '../../../context/AuthContext';
 import { DM3ConfigurationContext } from '../../../context/DM3ConfigurationContext';
+import { ModalContext } from '../../../context/ModalContext';
 
 export interface ConfigureProfileContextType {
     existingEnsName: string | null;
@@ -43,14 +44,35 @@ export const ConfigureProfileContextProvider = (props: { children?: any }) => {
 
     const [errorMsg, setErrorMsg] = useState<string>('');
 
+    const { disabledOptions } = useContext(ModalContext);
+
     // DM3 Name service selected
     const [dm3NameServiceSelected, setDm3NameServiceSelected] =
-        useState<string>(dm3NamingServices[0].name);
+        useState<string>(
+            dm3NamingServices.filter(
+                (d) =>
+                    disabledOptions.profile.dm3.filter(
+                        (p) => p.key === d.key && !p.value,
+                    ).length,
+            )[0]?.name,
+        );
 
     // ENS Name service selected
     const [namingServiceSelected, setNamingServiceSelected] = useState<string>(
-        namingServices[0].name,
+        namingServices.filter(
+            (n) =>
+                disabledOptions.profile.own.filter(
+                    (p) => p.key === n.key && !p.value,
+                ).length,
+        )[0]?.name,
     );
+
+    useEffect(() => {
+        console.log(
+            'namingServiceSelectednamingServiceSelected ::',
+            namingServiceSelected,
+        );
+    }, [namingServiceSelected]);
 
     const { displayName } = useContext(AuthContext);
     const { dm3Configuration } = useContext(DM3ConfigurationContext);

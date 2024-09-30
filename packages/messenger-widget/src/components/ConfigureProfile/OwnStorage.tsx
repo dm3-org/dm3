@@ -7,7 +7,7 @@ import { ConfigureProfileContext } from './context/ConfigureProfileContext';
 export function OwnStorage() {
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-    const { configureProfileModal, setConfigureProfileModal } =
+    const { configureProfileModal, setConfigureProfileModal, disabledOptions } =
         useContext(ModalContext);
 
     const { existingEnsName, namingServiceSelected, setNamingServiceSelected } =
@@ -70,13 +70,21 @@ export function OwnStorage() {
                         }}
                     >
                         {namingServices &&
-                            namingServices.map((data, index) => {
-                                return (
-                                    <option value={data.name} key={index}>
-                                        {data.name}
-                                    </option>
-                                );
-                            })}
+                            // Filter out disabled options and show only enabled options
+                            namingServices
+                                .filter(
+                                    (n) =>
+                                        disabledOptions.profile.own.filter(
+                                            (p) => p.key === n.key && !p.value,
+                                        ).length,
+                                )
+                                .map((data, index) => {
+                                    return (
+                                        <option value={data.name} key={index}>
+                                            {data.name}
+                                        </option>
+                                    );
+                                })}
                     </select>
                 </div>
 
