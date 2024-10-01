@@ -75,7 +75,7 @@ export function NormalView() {
                                                 ' ',
                                                 preferencesOptionSelected &&
                                                     preferencesOptionSelected.name ===
-                                                    item.name
+                                                        item.name
                                                     ? 'normal-btn-hover'
                                                     : '',
                                             )}
@@ -106,7 +106,7 @@ export function NormalView() {
                         </div>
                         <div className="col-10 m-0 p-0">
                             {preferencesOptionSelected &&
-                                preferencesOptionSelected.isEnabled ? (
+                            preferencesOptionSelected.isEnabled ? (
                                 preferencesOptionSelected.component
                             ) : (
                                 <div className="d-flex align-items-start justify-content-end">

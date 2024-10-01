@@ -20,6 +20,7 @@ export enum PREFERENCES_ITEMS {
     NOTIFICATION = 'NOTIFICATION',
     NETWORK = 'NETWORK',
     STORAGE = 'STORAGE',
+    SETTINGS = 'SETTINGS',
 }
 
 export const preferencesItems = [
@@ -86,6 +87,7 @@ export const preferencesItems = [
             <img src={settingsIcon} alt="network" className="pref-icon me-2" />
         ),
         name: 'Settings',
+        ticker: PREFERENCES_ITEMS.SETTINGS,
         component: <Settings />,
         isEnabled: true,
     },
