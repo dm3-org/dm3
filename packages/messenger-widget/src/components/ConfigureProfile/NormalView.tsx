@@ -27,7 +27,7 @@ export function NormalView() {
 
     const { account, ethAddress } = useContext(AuthContext);
 
-    const { configureProfileModal, setConfigureProfileModal } =
+    const { configureProfileModal, setConfigureProfileModal, disabledOptions } =
         useContext(ModalContext);
 
     const { setEnsName, setNamingServiceSelected, existingEnsName } =
@@ -71,7 +71,11 @@ export function NormalView() {
     }, [ethAddress]);
 
     useEffect(() => {
-        if (connectedChainId) {
+        // set the naming service selected by default based on chain connected if no options are disabled
+        if (
+            connectedChainId &&
+            !disabledOptions.profile.own.filter((p) => p.value).length
+        ) {
             setNamingServiceSelected(fetchServiceFromChainId(connectedChainId));
         }
     }, []);

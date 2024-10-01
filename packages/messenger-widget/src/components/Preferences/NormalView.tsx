@@ -1,5 +1,4 @@
 import './Preferences.css';
-import { preferencesItems } from './bl';
 import infoIcon from './../../assets/images/preferences-info.svg';
 import { useContext, useEffect } from 'react';
 import closeIcon from '../../assets/images/cross.svg';
@@ -13,18 +12,18 @@ export function NormalView() {
         setShowProfileConfigurationModal,
         resetConfigureProfileModal,
         preferencesOptionSelected,
-        setPreferencesOptionSelected,
+        updatePreferenceSelected,
+        preferencesOptions,
     } = useContext(ModalContext);
 
-    // const [optionChoosen, setOptionChoosen] = useState<any>(null);
-
     /**
-     *  Opens DM3 profile configuration by default if user clicked
-     *  on "Configure Profile" button
+     *  Opens first option by default
      */
     useEffect(() => {
-        if (showProfileConfigurationModal) {
-            setPreferencesOptionSelected(preferencesItems[1]);
+        if (showProfileConfigurationModal && !preferencesOptionSelected) {
+            updatePreferenceSelected(
+                preferencesOptions.length ? preferencesOptions[0].ticker : null,
+            );
         }
     }, []);
 
@@ -68,7 +67,7 @@ export function NormalView() {
                             </div>
 
                             <hr className="preferences-separator" />
-                            {preferencesItems.map((item, index) => {
+                            {preferencesOptions.map((item, index) => {
                                 return (
                                     item.isEnabled && (
                                         <div
@@ -82,8 +81,8 @@ export function NormalView() {
                                             )}
                                             key={index}
                                             onClick={() =>
-                                                setPreferencesOptionSelected(
-                                                    item,
+                                                updatePreferenceSelected(
+                                                    item.ticker,
                                                 )
                                             }
                                         >

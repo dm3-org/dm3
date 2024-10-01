@@ -17,7 +17,7 @@ export function CloudStorage() {
 
     const { existingDm3Name } = useContext(ConfigureDM3NameContext);
 
-    const { configureProfileModal, setConfigureProfileModal } =
+    const { configureProfileModal, setConfigureProfileModal, disabledOptions } =
         useContext(ModalContext);
 
     const isNameAlreadyConfigured = (): boolean => {
@@ -76,13 +76,21 @@ export function CloudStorage() {
                         }}
                     >
                         {dm3NamingServices &&
-                            dm3NamingServices.map((data, index) => {
-                                return (
-                                    <option value={data.name} key={index}>
-                                        {data.name}
-                                    </option>
-                                );
-                            })}
+                            // Filter out disabled options and show only enabled options
+                            dm3NamingServices
+                                .filter(
+                                    (d) =>
+                                        disabledOptions.profile.dm3.filter(
+                                            (p) => p.key === d.key && !p.value,
+                                        ).length,
+                                )
+                                .map((data, index) => {
+                                    return (
+                                        <option value={data.name} key={index}>
+                                            {data.name}
+                                        </option>
+                                    );
+                                })}
                     </select>
                 </div>
 
