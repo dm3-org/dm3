@@ -47,6 +47,7 @@ export const ConfigureProfileContextProvider = (props: { children?: any }) => {
     const { disabledOptions } = useContext(ModalContext);
 
     // DM3 Name service selected
+    // By default, first DM3 name is set from the dropdown which is not disabled
     const [dm3NameServiceSelected, setDm3NameServiceSelected] =
         useState<string>(
             dm3NamingServices.filter(
@@ -58,6 +59,7 @@ export const ConfigureProfileContextProvider = (props: { children?: any }) => {
         );
 
     // ENS Name service selected
+    // By default, first ENS name is set from the dropdown which is not disabled
     const [namingServiceSelected, setNamingServiceSelected] = useState<string>(
         namingServices.filter(
             (n) =>
@@ -66,13 +68,6 @@ export const ConfigureProfileContextProvider = (props: { children?: any }) => {
                 ).length,
         )[0]?.name,
     );
-
-    useEffect(() => {
-        console.log(
-            'namingServiceSelectednamingServiceSelected ::',
-            namingServiceSelected,
-        );
-    }, [namingServiceSelected]);
 
     const { displayName } = useContext(AuthContext);
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
