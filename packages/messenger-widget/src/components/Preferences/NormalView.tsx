@@ -1,7 +1,7 @@
 import './Preferences.css';
 import { preferencesItems } from './bl';
 import infoIcon from './../../assets/images/preferences-info.svg';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect } from 'react';
 import closeIcon from '../../assets/images/cross.svg';
 import { closeConfigurationModal } from '../ConfigureProfile/bl';
 import { ModalContext } from '../../context/ModalContext';
@@ -76,7 +76,7 @@ export function NormalView() {
                                                 ' ',
                                                 preferencesOptionSelected &&
                                                     preferencesOptionSelected.name ===
-                                                        item.name
+                                                    item.name
                                                     ? 'normal-btn-hover'
                                                     : '',
                                             )}
@@ -107,7 +107,7 @@ export function NormalView() {
                         </div>
                         <div className="col-10 m-0 p-0">
                             {preferencesOptionSelected &&
-                            preferencesOptionSelected.isEnabled ? (
+                                preferencesOptionSelected.isEnabled ? (
                                 preferencesOptionSelected.component
                             ) : (
                                 <div className="d-flex align-items-start justify-content-end">

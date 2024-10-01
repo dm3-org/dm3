@@ -4,12 +4,14 @@ import spamIcon from './../../assets/images/spam.svg';
 import notificationIcon from './../../assets/images/notification.svg';
 import networkIcon from './../../assets/images/network.svg';
 import storageIcon from './../../assets/images/storage.svg';
+import settingsIcon from './../../assets/images/settings.svg';
 import { Spam } from './Spam/Spam';
 import { Properties } from './Properties/Properties';
 import { Notification } from './Notification/Notification';
 import { Network } from './Network/Network';
 import { Storage } from './Storage/Storage';
 import { DM3Profile } from './DM3Profile/DM3Profile';
+import { Settings } from './Settings/Settings';
 
 export const preferencesItems = [
     {
@@ -63,5 +65,13 @@ export const preferencesItems = [
         name: 'Storage',
         component: <Storage />,
         isEnabled: false,
+    },
+    {
+        icon: (
+            <img src={settingsIcon} alt="network" className="pref-icon me-2" />
+        ),
+        name: 'Settings',
+        component: <Settings />,
+        isEnabled: true,
     },
 ];
