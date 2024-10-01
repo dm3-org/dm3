@@ -89,7 +89,8 @@ Follow the below given steps :-
             showContacts: true,
             theme: undefined, 
             signInImage: undefined,
-            siwe: undefined
+            siwe: undefined,
+            disableDialogOptions: undefined,
         };
 
         return (
@@ -246,6 +247,7 @@ Follow the below given steps :-
             theme: undefined, 
             signInImage: undefined,
             siwe: undefined,
+            disableDialogOptions: undefined,
         };
 
         return (
@@ -453,11 +455,49 @@ Example :
     }
 ```
 
-7. theme
+7. disableDialogOptions
 ```js
 const props: DM3Configuration = {
    ...
-   theme: undefined,
+   disableDialogOptions: true,
+}
+```
+This is a optional property of type DisableDialogType. To disable all the properties of dialog set it true. By default all properties are active. All the properties of each category is optional.
+```js
+Example : 
+   disableDialogOptions: true
+   disableDialogOptions: false
+   disableDialogOptions: undefined
+   disableDialogOptions: {
+      network: true,
+      notification: {
+         email: true,
+         push: false,
+      },
+      profile: {
+         dm3: boolean | {
+            cloud: false,
+            optimism: true,
+         },
+         self: boolean | {
+            gnosis: true,
+            ens: false,
+         }
+      }
+   }
+   disableDialogOptions: {
+      notification: {
+         email: true,
+         push: false,
+      },
+   }
+```
+
+8. theme
+```js
+const props: DM3Configuration = {
+   ...
+   theme: undefined, 
 }
 ```
 This is a optional property of type object. Its used to customize the styling, look & feel of the widget. Colors can be set for different components.

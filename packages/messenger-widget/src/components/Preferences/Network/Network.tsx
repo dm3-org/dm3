@@ -4,7 +4,7 @@ import deleteIcon from '../../../assets/images/delete.svg';
 import { useContext, useEffect } from 'react';
 import { DM3UserProfileContext } from '../../../context/DM3UserProfileContext';
 import { ModalContext } from '../../../context/ModalContext';
-import { preferencesItems } from '../bl';
+import { PREFERENCES_ITEMS } from '../bl';
 
 export function Network() {
     const heading = 'Network';
@@ -24,7 +24,7 @@ export function Network() {
         setError,
     } = useContext(DM3UserProfileContext);
 
-    const { setPreferencesOptionSelected } = useContext(ModalContext);
+    const { updatePreferenceSelected } = useContext(ModalContext);
 
     // input field modal should remain close on initial load of network screen
     useEffect(() => {
@@ -80,8 +80,8 @@ export function Network() {
                                 <u
                                     className="pointer-cursor"
                                     onClick={() =>
-                                        setPreferencesOptionSelected(
-                                            preferencesItems[1],
+                                        updatePreferenceSelected(
+                                            PREFERENCES_ITEMS.DM3_PROFILE,
                                         )
                                     }
                                 >

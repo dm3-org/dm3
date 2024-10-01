@@ -6,11 +6,13 @@ import {
     ProfileType,
 } from '../utils/enum-type-utils';
 import {
+    DisabledOptionsType,
     IConfigureProfileModal,
     IOpenEmojiPopup,
+    PreferencesOptionType,
     useModal,
 } from '../hooks/modals/useModal';
-import { preferencesItems } from '../components/Preferences/bl';
+import { PREFERENCES_ITEMS } from '../components/Preferences/bl';
 
 export type ModalContextType = {
     loaderContent: string;
@@ -35,18 +37,12 @@ export type ModalContextType = {
     setConfigureProfileModal: (modal: IConfigureProfileModal) => void;
     resetConfigureProfileModal: () => void;
     resetModalStates: () => void;
-    preferencesOptionSelected: {
-        icon: JSX.Element;
-        name: string;
-        component: JSX.Element;
-        isEnabled: boolean;
-    };
-    setPreferencesOptionSelected: (item: {
-        icon: JSX.Element;
-        name: string;
-        component: JSX.Element;
-        isEnabled: boolean;
-    }) => void;
+    preferencesOptionSelected: PreferencesOptionType | null;
+    setPreferencesOptionSelected: (item: PreferencesOptionType | null) => void;
+    preferencesOptions: PreferencesOptionType[];
+    updatePreferenceSelected: (ticker: PREFERENCES_ITEMS | null) => void;
+    disabledOptions: DisabledOptionsType;
+    isProfileDialogDisabled: () => boolean;
 };
 
 export const ModalContext = React.createContext<ModalContextType>({
@@ -79,13 +75,27 @@ export const ModalContext = React.createContext<ModalContextType>({
     setConfigureProfileModal: (modal: IConfigureProfileModal) => {},
     resetConfigureProfileModal: () => {},
     resetModalStates: () => {},
-    preferencesOptionSelected: preferencesItems[1],
-    setPreferencesOptionSelected: (item: {
-        icon: JSX.Element;
-        name: string;
-        component: JSX.Element;
-        isEnabled: boolean;
-    }) => {},
+    preferencesOptionSelected: null,
+    setPreferencesOptionSelected: (item: PreferencesOptionType | null) => {},
+    preferencesOptions: [],
+    updatePreferenceSelected: (ticker: PREFERENCES_ITEMS | null) => {},
+    disabledOptions: {
+        notification: {
+            email: false,
+            push: false,
+        },
+        profile: {
+            dm3: [
+                { key: 'dm3', value: false },
+                { key: 'optimism', value: false },
+            ],
+            own: [
+                { key: 'ens', value: false },
+                { key: 'gnosis', value: false },
+            ],
+        },
+    },
+    isProfileDialogDisabled: () => false,
 });
 
 export const ModalContextProvider = ({ children }: { children?: any }) => {
@@ -113,7 +123,11 @@ export const ModalContextProvider = ({ children }: { children?: any }) => {
         resetConfigureProfileModal,
         preferencesOptionSelected,
         setPreferencesOptionSelected,
+        preferencesOptions,
+        updatePreferenceSelected,
         resetModalStates,
+        disabledOptions,
+        isProfileDialogDisabled,
     } = useModal();
 
     return (
@@ -143,6 +157,10 @@ export const ModalContextProvider = ({ children }: { children?: any }) => {
                 resetConfigureProfileModal,
                 preferencesOptionSelected,
                 setPreferencesOptionSelected,
+                preferencesOptions,
+                updatePreferenceSelected,
+                disabledOptions,
+                isProfileDialogDisabled,
             }}
         >
             {children}

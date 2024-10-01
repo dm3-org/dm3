@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { NewContact } from '../../interfaces/utils';
 import { MessageProps } from '../../interfaces/props';
 import {
@@ -6,7 +6,11 @@ import {
     ProfileScreenType,
     ProfileType,
 } from '../../utils/enum-type-utils';
-import { preferencesItems } from '../../components/Preferences/bl';
+import {
+    PREFERENCES_ITEMS,
+    preferencesItems,
+} from '../../components/Preferences/bl';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
 export interface IOpenEmojiPopup {
     action: boolean;
@@ -17,6 +21,25 @@ export interface IConfigureProfileModal {
     profileOptionSelected: ProfileType;
     onScreen: ProfileScreenType;
 }
+
+export type PreferencesOptionType = {
+    icon: JSX.Element;
+    name: string;
+    component: JSX.Element;
+    isEnabled: boolean;
+    ticker: PREFERENCES_ITEMS;
+};
+
+export type DisabledOptionsType = {
+    notification: {
+        email: boolean;
+        push: boolean;
+    };
+    profile: {
+        dm3: { key: string; value: boolean }[];
+        own: { key: string; value: boolean }[];
+    };
+};
 
 export const useModal = () => {
     const [loaderContent, setLoaderContent] = useState<string>('');
@@ -56,12 +79,33 @@ export const useModal = () => {
             onScreen: ProfileScreenType.NONE,
         });
 
-    const [preferencesOptionSelected, setPreferencesOptionSelected] = useState<{
-        icon: JSX.Element;
-        name: string;
-        component: JSX.Element;
-        isEnabled: boolean;
-    }>(preferencesItems[1]);
+    const [preferencesOptions, setPreferencesOptions] = useState<
+        PreferencesOptionType[]
+    >([]);
+
+    const [preferencesOptionSelected, setPreferencesOptionSelected] =
+        useState<PreferencesOptionType | null>(null);
+
+    const [disabledOptions, setDisabledOptions] = useState<DisabledOptionsType>(
+        {
+            notification: {
+                email: false,
+                push: false,
+            },
+            profile: {
+                dm3: [
+                    { key: 'dm3', value: false },
+                    { key: 'optimism', value: false },
+                ],
+                own: [
+                    { key: 'ens', value: false },
+                    { key: 'gnosis', value: false },
+                ],
+            },
+        },
+    );
+
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
     const resetConfigureProfileModal = () => {
         setConfigureProfileModal({
@@ -87,8 +131,162 @@ export const useModal = () => {
             profileOptionSelected: ProfileType.DM3_NAME,
             onScreen: ProfileScreenType.NONE,
         });
-        setPreferencesOptionSelected(preferencesItems[1]);
+        setPreferencesOptions(preferencesItems);
+        setPreferencesOptionSelected(null);
     };
+
+    const configureOptionsOfPreferences = () => {
+        const prefState = [...preferencesItems];
+        const optionsToDisable = { ...disabledOptions };
+        const dialogDisabled = dm3Configuration.disableDialogOptions;
+
+        // disable all properties of preferences config
+        if (dialogDisabled !== undefined && dialogDisabled === true) {
+            const disabledOptions = prefState.map((p) => {
+                return {
+                    ...p,
+                    isEnabled: false,
+                };
+            });
+            setPreferencesOptions(disabledOptions);
+            return;
+        }
+
+        // disable specific properties of dialog
+        if (
+            dialogDisabled !== undefined &&
+            typeof dialogDisabled === 'object'
+        ) {
+            // update network dialog
+            const updatedNetworkOptions = prefState.map((pref) => {
+                return {
+                    ...pref,
+                    isEnabled:
+                        pref.ticker === PREFERENCES_ITEMS.NETWORK
+                            ? !dialogDisabled.network ?? pref.isEnabled
+                            : pref.isEnabled,
+                };
+            });
+
+            // update notification dialog
+            const updatedNotificationOptions =
+                dialogDisabled.notification === true
+                    ? updatedNetworkOptions.map((pref) => {
+                          return {
+                              ...pref,
+                              isEnabled:
+                                  pref.ticker === PREFERENCES_ITEMS.NOTIFICATION
+                                      ? false
+                                      : pref.isEnabled,
+                          };
+                      })
+                    : updatedNetworkOptions;
+
+            // update profile dialog
+            let updatedProfileOptions = updatedNotificationOptions;
+
+            // disable profile dialog
+            if (dialogDisabled.profile === true) {
+                updatedProfileOptions = updatedNotificationOptions.map(
+                    (pref) => {
+                        return {
+                            ...pref,
+                            isEnabled:
+                                pref.ticker === PREFERENCES_ITEMS.DM3_PROFILE
+                                    ? false
+                                    : pref.isEnabled,
+                        };
+                    },
+                );
+                optionsToDisable.profile.dm3[0].value = true;
+                optionsToDisable.profile.dm3[1].value = true;
+                optionsToDisable.profile.own[0].value = true;
+                optionsToDisable.profile.own[1].value = true;
+            }
+
+            // disable specific notification type
+            if (typeof dialogDisabled.notification === 'object') {
+                optionsToDisable.notification.email =
+                    dialogDisabled.notification.email ?? false;
+                optionsToDisable.notification.push =
+                    dialogDisabled.notification.push ?? false;
+            }
+
+            // disable specific profile type
+            if (typeof dialogDisabled.profile === 'object') {
+                // if entire dm3 profile (dm3name and optimism) is disabled/enabled
+                if (typeof dialogDisabled.profile.dm3 === 'boolean') {
+                    optionsToDisable.profile.dm3[0].value =
+                        dialogDisabled.profile.dm3;
+                    optionsToDisable.profile.dm3[1].value =
+                        dialogDisabled.profile.dm3;
+                }
+
+                // if specific dm3name or optimism profile is disabled/enabled
+                if (typeof dialogDisabled.profile.dm3 === 'object') {
+                    optionsToDisable.profile.dm3[0].value =
+                        dialogDisabled.profile.dm3.cloud ?? false;
+                    optionsToDisable.profile.dm3[1].value =
+                        dialogDisabled.profile.dm3.optimism ?? false;
+                }
+
+                // if entire self profile (ens and gnosis) is disabled/enabled
+                if (typeof dialogDisabled.profile.self === 'boolean') {
+                    optionsToDisable.profile.own[0].value =
+                        dialogDisabled.profile.self;
+                    optionsToDisable.profile.own[1].value =
+                        dialogDisabled.profile.self;
+                }
+
+                // if specific ens or gnosis profile is disabled/enabled
+                if (typeof dialogDisabled.profile.self === 'object') {
+                    optionsToDisable.profile.own[0].value =
+                        dialogDisabled.profile.self.ens ?? false;
+                    optionsToDisable.profile.own[1].value =
+                        dialogDisabled.profile.self.gnosis ?? false;
+                }
+            }
+
+            setDisabledOptions(optionsToDisable);
+            setPreferencesOptions(
+                updatedProfileOptions as PreferencesOptionType[],
+            );
+
+            return;
+        }
+
+        // update the preferences options as per configuration
+        setPreferencesOptions(prefState);
+    };
+
+    const updatePreferenceSelected = (ticker: PREFERENCES_ITEMS | null) => {
+        setPreferencesOptionSelected(
+            ticker
+                ? preferencesOptions.find(
+                      (p) => p.ticker === ticker && p.isEnabled,
+                  ) ?? null
+                : null,
+        );
+    };
+
+    const isProfileDialogDisabled = () => {
+        const disabledDm3Profile = disabledOptions.profile.dm3.filter(
+            (d) => !d.value,
+        );
+        const disabledOwnProfile = disabledOptions.profile.own.filter(
+            (d) => !d.value,
+        );
+        // if atleast one profile is enabled
+        if (disabledDm3Profile.length || disabledOwnProfile.length) {
+            return false;
+        }
+        return true;
+    };
+
+    // configure dialog to show properties in preferences modal
+    useEffect(() => {
+        configureOptionsOfPreferences();
+    }, [dm3Configuration]);
 
     return {
         loaderContent,
@@ -115,5 +313,9 @@ export const useModal = () => {
         resetConfigureProfileModal,
         preferencesOptionSelected,
         setPreferencesOptionSelected,
+        preferencesOptions,
+        updatePreferenceSelected,
+        disabledOptions,
+        isProfileDialogDisabled,
     };
 };
