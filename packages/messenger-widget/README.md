@@ -475,14 +475,17 @@ Example :
          push: false,
       },
       profile: {
-         dm3: boolean | {
+         dm3: {
             cloud: false,
             optimism: true,
          },
-         self: boolean | {
+         self: {
             gnosis: true,
             ens: false,
          }
+      },
+      settings: {
+         messageView: true,
       }
    }
    disableDialogOptions: {
