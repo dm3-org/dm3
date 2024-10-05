@@ -25,6 +25,7 @@ export interface MessageProps {
     isLastMessage?: boolean;
     hideFunction?: string;
     indicator?: MessageIndicator;
+    showProfile?: boolean;
 }
 
 export interface MessageAction {

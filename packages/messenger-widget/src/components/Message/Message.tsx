@@ -13,9 +13,19 @@ import { ReplyMessagePreview } from './ReplyMessagePreview';
 import { MessageReactions } from './MessageReactions';
 import { Action } from './Action';
 import { MessageDetail } from './MessageDetail';
+import { ProfilePreview } from './ProfilePreview';
+import { AuthContext } from '../../context/AuthContext';
+import { ConversationContext } from '../../context/ConversationContext';
+import { DM3UserProfileContext } from '../../context/DM3UserProfileContext';
 
 export function Message(props: MessageProps) {
     const { messageView } = useContext(UiViewContext);
+
+    const { displayName } = useContext(AuthContext);
+
+    const { selectedContact } = useContext(ConversationContext);
+
+    const { accountProfilePicture } = useContext(DM3UserProfileContext);
 
     return (
         <span
@@ -27,6 +37,22 @@ export function Message(props: MessageProps) {
                     : 'ms-2 justify-content-start',
             )}
         >
+            {/* Profile preview before every message content to show the actual sender of it */}
+            {props.showProfile && (
+                <ProfilePreview
+                    name={
+                        props.ownMessage
+                            ? (displayName as string)
+                            : (selectedContact?.name as string)
+                    }
+                    picture={
+                        props.ownMessage
+                            ? accountProfilePicture
+                            : (selectedContact?.image as string)
+                    }
+                />
+            )}
+
             <div className="d-flex">
                 <div className={getMessageStyleClasses(props, messageView)}>
                     {/* Reply message preview */}

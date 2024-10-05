@@ -150,6 +150,12 @@
     color: var(--text-primary-color);
 }
 
+.chat-profile-pic{
+    height: 1.5rem;
+    width: 1.5rem;
+    border-radius: 3px;
+}
+
 /* =================== Mobile Responsive CSS =================== */
 @media only screen and (max-width: 800px) {
     .content-style {

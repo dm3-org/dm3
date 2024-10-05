@@ -61,7 +61,7 @@ export const getMessageStyleClasses = (
                   messageView.messageData?.envelop.message.signature ===
                       props.envelop.message.signature
                 ? 'msg-editing-active'
-                : 'ms-3 own-msg-background own-msg-text'
+                : 'own-msg-background own-msg-text'
             : !props.message &&
               props.envelop.message.metadata.type ===
                   MessageActionType.DELETE &&
