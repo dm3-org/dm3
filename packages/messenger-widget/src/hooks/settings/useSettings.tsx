@@ -12,16 +12,21 @@ export type SettingsDataType = {
     messageView: string;
 };
 
+export enum MsgViewType {
+    OLD = 'OLD',
+    NEW = 'NEW',
+}
+
 // available message view options
 export const MSG_VIEW_OPTIONS = [
     {
         name: 'Old message view',
-        viewType: 'OLD',
+        viewType: MsgViewType.OLD,
         isEnabled: true,
     },
     {
         name: 'New message view',
-        viewType: 'NEW',
+        viewType: MsgViewType.NEW,
         isEnabled: true,
     },
 ];

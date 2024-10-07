@@ -17,6 +17,8 @@ import { ProfilePreview } from './ProfilePreview';
 import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';
 import { DM3UserProfileContext } from '../../context/DM3UserProfileContext';
+import { SettingsContext } from '../../context/SettingsContext';
+import { MsgViewType } from '../../hooks/settings/useSettings';
 
 export function Message(props: MessageProps) {
     const { messageView } = useContext(UiViewContext);
@@ -26,6 +28,8 @@ export function Message(props: MessageProps) {
     const { selectedContact } = useContext(ConversationContext);
 
     const { accountProfilePicture } = useContext(DM3UserProfileContext);
+
+    const { msgViewSelected } = useContext(SettingsContext);
 
     return (
         <span
@@ -38,20 +42,22 @@ export function Message(props: MessageProps) {
             )}
         >
             {/* Profile preview before every message content to show the actual sender of it */}
-            {props.showProfile && (
-                <ProfilePreview
-                    name={
-                        props.ownMessage
-                            ? (displayName as string)
-                            : (selectedContact?.name as string)
-                    }
-                    picture={
-                        props.ownMessage
-                            ? accountProfilePicture
-                            : (selectedContact?.image as string)
-                    }
-                />
-            )}
+            {msgViewSelected.viewType === MsgViewType.NEW &&
+                props.showProfile && (
+                    <ProfilePreview
+                        name={
+                            props.ownMessage
+                                ? (displayName as string)
+                                : (selectedContact?.name as string)
+                        }
+                        picture={
+                            props.ownMessage
+                                ? accountProfilePicture
+                                : (selectedContact?.image as string)
+                        }
+                        ownMessage={props.ownMessage}
+                    />
+                )}
 
             <div className="d-flex">
                 <div className={getMessageStyleClasses(props, messageView)}>
