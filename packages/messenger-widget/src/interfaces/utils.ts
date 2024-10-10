@@ -59,6 +59,7 @@ export type MessagePropsModel = StorageEnvelopContainerNew & {
     source: MessageSource;
     indicator?: MessageIndicator;
     showProfile?: boolean;
+    isFirstMsgOfDay?: boolean;
 };
 
 export const getEmptyContact = (

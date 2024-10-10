@@ -7,7 +7,6 @@ import { ConversationContext } from '../../context/ConversationContext';
 
 export interface ProfilePreviewProps {
     picture: string;
-    name: string;
     ownMessage: boolean;
 }
 
@@ -32,20 +31,13 @@ export function ProfilePreview(props: ProfilePreviewProps) {
     };
 
     return (
-        <div className="d-flex align-items-center">
+        <div className="d-flex me-2">
             {/* profile picture of the account or contact selected */}
             <img
                 className="chat-profile-pic mb-1 pointer-cursor"
                 src={props.picture}
                 onClick={() => openProfile()}
             />
-            {/* Name of the account or contact selected */}
-            <div
-                className="ms-2 font-size-12 font-weight-800 pointer-cursor"
-                onClick={() => openProfile()}
-            >
-                {props.name.length > 16 ? props.name.slice(0, 16) : props.name}
-            </div>
         </div>
     );
 }
