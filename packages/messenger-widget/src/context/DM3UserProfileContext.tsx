@@ -22,6 +22,8 @@ export type DM3UserProfileContextType = {
     isProfileUpdatedForAddrName: boolean;
     isProfileUpdatedForDm3Name: boolean;
     isProfileUpdatedForEnsName: boolean;
+    accountProfilePicture: string;
+    setAccountProfilePicture: (pic: string) => void;
 };
 
 export const DM3UserProfileContext =
@@ -45,6 +47,8 @@ export const DM3UserProfileContext =
         isProfileUpdatedForAddrName: true,
         isProfileUpdatedForDm3Name: true,
         isProfileUpdatedForEnsName: true,
+        accountProfilePicture: '',
+        setAccountProfilePicture: (pic: string) => {},
     });
 
 export const DM3UserProfileContextProvider = ({
@@ -70,6 +74,8 @@ export const DM3UserProfileContextProvider = ({
         isProfileUpdatedForDm3Name,
         isProfileUpdatedForEnsName,
         setNodeName,
+        accountProfilePicture,
+        setAccountProfilePicture,
     } = useDm3UserProfile();
 
     return (
@@ -92,6 +98,8 @@ export const DM3UserProfileContextProvider = ({
                 isProfileUpdatedForDm3Name,
                 isProfileUpdatedForEnsName,
                 setNodeName,
+                accountProfilePicture,
+                setAccountProfilePicture,
             }}
         >
             {children}

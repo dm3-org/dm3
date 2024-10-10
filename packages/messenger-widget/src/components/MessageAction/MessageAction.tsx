@@ -20,6 +20,8 @@ import { hideMsgActionDropdown } from '../MessageInputBox/bl';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 import { UiViewContext } from '../../context/UiViewContext';
 import { ModalContext } from '../../context/ModalContext';
+import { SettingsContext } from '../../context/SettingsContext';
+import { MsgViewType } from '../../hooks/settings/useSettings';
 
 export function MessageAction(props: MessageProps) {
     const { account, profileKeys } = useContext(AuthContext);
@@ -27,6 +29,7 @@ export function MessageAction(props: MessageProps) {
     const { selectedContact } = useContext(ConversationContext);
     const { screenWidth } = useContext(DM3ConfigurationContext);
     const { setMessageView } = useContext(UiViewContext);
+    const { msgViewSelected } = useContext(SettingsContext);
     const { setOpenEmojiPopup, setLastMessageAction } =
         useContext(ModalContext);
 
@@ -143,7 +146,14 @@ export function MessageAction(props: MessageProps) {
         <div
             id="msg-dropdown"
             className={'msg-dropdown-content font-size-12 font-weight-400'
-                .concat(' ', props.ownMessage ? 'own-msg' : '')
+                .concat(
+                    ' ',
+                    props.ownMessage
+                        ? 'own-msg'
+                        : msgViewSelected.viewType === MsgViewType.NEW
+                        ? 'contact-msg'
+                        : '',
+                )
                 .concat(' ', alignmentTop ? 'align-top' : '')
                 .concat(
                     ' ',
@@ -230,7 +240,7 @@ export function MessageAction(props: MessageProps) {
                         className="d-flex align-items-center justify-content-start"
                         onClick={() => setAction(MessageActionType.REPLY)}
                     >
-                        <img src={replyIcon} alt="delete" className="me-2" />
+                        <img src={replyIcon} alt="reply" className="me-2" />
                         Reply
                     </div>
                 )}

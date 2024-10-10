@@ -39,6 +39,9 @@ export type DisabledOptionsType = {
         dm3: { key: string; value: boolean }[];
         own: { key: string; value: boolean }[];
     };
+    settings: {
+        messageView: boolean;
+    };
 };
 
 export const useModal = () => {
@@ -101,6 +104,9 @@ export const useModal = () => {
                     { key: 'ens', value: false },
                     { key: 'gnosis', value: false },
                 ],
+            },
+            settings: {
+                messageView: false,
             },
         },
     );
@@ -247,9 +253,30 @@ export const useModal = () => {
                 }
             }
 
+            // update settings dialog
+            const updatedSettingsOptions =
+                dialogDisabled.settings === true
+                    ? updatedProfileOptions.map((pref) => {
+                          return {
+                              ...pref,
+                              isEnabled:
+                                  pref.ticker === PREFERENCES_ITEMS.SETTINGS
+                                      ? false
+                                      : pref.isEnabled,
+                          };
+                      })
+                    : updatedProfileOptions;
+
+            // disable specific settings option
+            if (typeof dialogDisabled.settings === 'object') {
+                optionsToDisable.settings.messageView =
+                    dialogDisabled.settings.messageView ?? false;
+            }
+
+            // update the states for disabled options
             setDisabledOptions(optionsToDisable);
             setPreferencesOptions(
-                updatedProfileOptions as PreferencesOptionType[],
+                updatedSettingsOptions as PreferencesOptionType[],
             );
 
             return;

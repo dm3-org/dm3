@@ -163,47 +163,6 @@ input::placeholder {
     border-radius: 6px;
 }
 
-/* Customized CSS for radio button */
-.radio {
-    input[type="radio"] {
-      opacity: 0;
-      + .radio-label {
-        &:before {
-          content: '';
-          background: #1F2029;
-          border-radius: 100%;
-          border: 1px solid var(--text-primary-color);
-          display: inline-block;
-          width: 1.4em;
-          height: 1.4em;
-          position: relative;
-          top: -0.2em;
-          margin-right: 1em; 
-          vertical-align: top;
-          cursor: pointer;
-          text-align: center;
-          transition: all 250ms ease;
-        }
-      }
-      &:checked {
-        + .radio-label {
-          &:before {
-            background-color: var(--configure-profile-modal-background-color);
-            box-shadow: inset 0 0 0 4px #1F2029;
-          }
-        }
-      }
-      &:focus {
-        + .radio-label {
-          &:before {
-            outline: none;
-            border-color: var(--configure-profile-modal-background-color);
-          }
-        }
-      }
-    }
-  }
-
   .ens-components-container{
     padding: 1.25rem;
   }
@@ -305,17 +264,6 @@ input::placeholder {
 
     .name-select-container{
         margin-left: -11px;
-    }
-
-    .radio {
-        input[type="radio"] {
-          opacity: 0;
-          + .radio-label {
-            &:before {
-              width: 2em !important;
-            }
-          }
-        }
     }
 
     .dm3-prof-select-type{

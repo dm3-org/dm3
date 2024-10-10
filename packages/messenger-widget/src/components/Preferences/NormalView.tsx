@@ -1,6 +1,6 @@
 import './Preferences.css';
 import infoIcon from './../../assets/images/preferences-info.svg';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect } from 'react';
 import closeIcon from '../../assets/images/cross.svg';
 import { closeConfigurationModal } from '../ConfigureProfile/bl';
 import { ModalContext } from '../../context/ModalContext';
