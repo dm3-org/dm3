@@ -138,12 +138,6 @@ export function MessageAction(props: MessageProps) {
         }
     };
 
-    const hasMessageHash = () => {
-        const messageHash = props.envelop.metadata?.messageHash;
-        const { encryptedMessageHash } = props.envelop.metadata as any;
-        return encryptedMessageHash || messageHash ? true : false;
-    };
-
     useEffect(() => {
         setDropdownPosition();
     }, []);
@@ -240,7 +234,7 @@ export function MessageAction(props: MessageProps) {
             {(props.message ||
                 (props.envelop.message.attachments &&
                     props.envelop.message.attachments.length > 0)) &&
-                hasMessageHash() && (
+                props.envelop.metadata?.messageHash && (
                     <div
                         data-testid="reply-msg"
                         className="d-flex align-items-center justify-content-start"
