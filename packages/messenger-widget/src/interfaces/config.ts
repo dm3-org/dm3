@@ -20,9 +20,14 @@ export type DisableDialogType =
                     self?:
                         | boolean
                         | {
-                              gnosis: boolean;
-                              ens: boolean;
+                              gnosis?: boolean;
+                              ens?: boolean;
                           };
+                };
+          settings?:
+              | boolean
+              | {
+                    messageView?: boolean;
                 };
       };
 

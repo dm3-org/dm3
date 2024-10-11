@@ -32,6 +32,7 @@ import {
     fetchChainIdFromServiceName,
     NAME_SERVICES,
 } from '../../components/ConfigureProfile/bl';
+import profPicture from '../../assets/images/human.svg';
 
 export interface INodeDetails {
     dsNames: string[];
@@ -99,6 +100,9 @@ export const useDm3UserProfile = () => {
         gnosisName: null,
         ensName: null,
     });
+
+    const [accountProfilePicture, setAccountProfilePicture] =
+        useState<string>(profPicture);
 
     // adds DS nodes in local storage of browser
     const setDsNodesInLocalStorage = (data: INodeDetails) => {
@@ -751,5 +755,7 @@ export const useDm3UserProfile = () => {
         isProfileUpdatedForAddrName,
         isProfileUpdatedForDm3Name,
         isProfileUpdatedForEnsName,
+        accountProfilePicture,
+        setAccountProfilePicture,
     };
 };

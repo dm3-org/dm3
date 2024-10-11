@@ -94,6 +94,9 @@ export const ModalContext = React.createContext<ModalContextType>({
                 { key: 'gnosis', value: false },
             ],
         },
+        settings: {
+            messageView: false,
+        },
     },
     isProfileDialogDisabled: () => false,
 });
