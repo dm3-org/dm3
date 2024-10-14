@@ -101,6 +101,7 @@
     border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
     font-size: 14px;
+    margin-right: 1px;
 }
 
 .own-deleted-msg {
