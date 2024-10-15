@@ -46,6 +46,9 @@ export const useAuth = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [hasError, setHasError] = useState<boolean>(false);
 
+    const [cleanSignInRequested, setCleanSignInRequested] =
+        useState<boolean>(false);
+
     //The account name that should be displayed to the user. Takes alias profiles and Crosschain names into account
     const [displayName, setDisplayName] = useState<string | undefined>(
         undefined,
@@ -85,26 +88,36 @@ export const useAuth = () => {
     };
     //The normal sign in function that is used when the user signs in with their own account, using a web3 provider like wallet connect or metamask
     const cleanSignIn = async () => {
-        setIsLoading(true);
-        setHasError(false);
-        //Fetch the Account either from onchain or via CCIP
-        const account = await AccountConnector(
-            walletClient!,
-            mainnetProvider,
-            dm3Configuration.addressEnsSubdomain,
-        ).connect(address!);
-
-        if (!account) {
-            throw Error('error fetching dm3Account');
-        }
-
-        await _login(
-            account.ensName,
-            address!,
-            account.userProfile,
-            (message: string) => walletClient!.signMessage({ message }),
-        );
+        setCleanSignInRequested(true);
     };
+
+    // useEffect is needed to give some time to the wallet connect variables to be initialized.
+    // without utilizing it the variable `walletClient` would be undefined.
+    useEffect(() => {
+        (async () => {
+            if (cleanSignInRequested && walletClient) {
+                setIsLoading(true);
+                setHasError(false);
+                //Fetch the Account either from onchain or via CCIP
+                const account = await AccountConnector(
+                    walletClient!,
+                    mainnetProvider,
+                    dm3Configuration.addressEnsSubdomain,
+                ).connect(address!);
+
+                if (!account) {
+                    throw Error('error fetching dm3Account');
+                }
+
+                await _login(
+                    account.ensName,
+                    address!,
+                    account.userProfile,
+                    (message: string) => walletClient!.signMessage({ message }),
+                );
+            }
+        })();
+    }, [cleanSignInRequested, walletClient]);
 
     //Siwe signin is used when a siwe message has been provided by an app using dm3 as a widget.
     //The user is signed in with a random account based on the provided secret
