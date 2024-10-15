@@ -212,7 +212,7 @@ Follow the below given steps :-
          REACT_APP_WALLET_CONNECT_PROJECT_ID: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID,
          REACT_APP_CHAIN_ID: process.env.NEXT_PUBLIC_CHAIN_ID,
          REACT_APP_MAINNET_PROVIDER_RPC: process.env.NEXT_PUBLIC_MAINNET_PROVIDER_RPC,
-         REACT_APP_PUBLIC_VAPID_KEY: process.env.NEXT_PUBLIC_PUBLIC_VAPID_KEY
+         REACT_APP_PUBLIC_VAPID_KEY: process.env.NEXT_PUBLIC_PUBLIC_VAPID_KEY,
          REACT_APP_NONCE: process.env.NEXT_PUBLIC_NONCE,
       },
    };
@@ -284,7 +284,7 @@ yarn run dev
 1. Create a new vite app with typescript.
 2. Follow all the steps similar to React.js integration.
 3. Don't create .env file instead use the below configuration.
-4. Add the following properties in vite.config.ts file 
+4. Add the following properties in vite.config.ts file. 
 
    #### For Sepolia testnet :
 
@@ -428,10 +428,15 @@ Example :
 ```js
 const props: DM3Configuration = {
    ...
-   siwe: "https://myimage.png",
+   siwe: {
+        address: "0xe7861D923e1B055bB25CD49569d20903c44692c5",
+        message: "my msg",
+        signature: '0xc9c8df80009a302559642d67adeea12d6e3f2ecbd7702986596b4012a5f5956e70c2a2c658f7c02e9255499049ea518fdf714cadc121b0319aee80f7ae28b0181b',
+        secret: "my-super-secret0"
+    },
 }
 ```
-This is a optional property of type obejct. Using this one can signin into DM3 with the SIWE (Sign In With Ethereum). All the properties of the object are mandatory.
+This is a optional property of type object. Using this one can signin into DM3 with the SIWE (Sign In With Ethereum). All the properties of the object are mandatory.
 
 
 #### Address : 
@@ -446,8 +451,8 @@ IMPORTANT The embedding app is responsible for security, recovery, etc.
 
 ```js
 Example : 
-   signInImage: undefined
-   signInImage: {
+   siwe: undefined
+   siwe: {
         address: "0xe7861D923e1B055bB25CD49569d20903c44692c5",
         message: "my msg",
         signature: '0xc9c8df80009a302559642d67adeea12d6e3f2ecbd7702986596b4012a5f5956e70c2a2c658f7c02e9255499049ea518fdf714cadc121b0319aee80f7ae28b0181b',
